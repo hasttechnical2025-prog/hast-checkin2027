@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getStaffSession } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import SignOutButton from '@/app/_components/SignOutButton';
@@ -26,24 +27,9 @@ export default async function ThietBiPage() {
     );
   }
 
-  // Chỉ Admin được duyệt thiết bị (theo chính sách: TBP không quản lý thiết bị).
+  // Chỉ Admin được duyệt thiết bị -> TBP bị đá về Duyệt giải trình (middleware cũng chặn).
   if (staff.role !== 'admin') {
-    return (
-      <main className="wrap">
-        <div className="ls-top">
-          <div>
-            <h1 style={{ margin: 0, fontSize: 22 }}>Thiết bị</h1>
-            <div className="muted" style={{ fontSize: 13 }}>
-              {staff.email} · {staff.department}
-            </div>
-          </div>
-          <SignOutButton />
-        </div>
-        <div className="card" style={{ marginTop: 16 }}>
-          <p>Việc duyệt thiết bị do <b>Admin</b> phụ trách. <a href="/tbp">← Về Duyệt giải trình</a></p>
-        </div>
-      </main>
-    );
+    redirect('/tbp');
   }
 
   const isAdmin = true;
