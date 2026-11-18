@@ -349,6 +349,9 @@ export default function NsclGrid({
           Duyệt giải trình
         </Link>
         <button className="active">Bảng điểm NSCL</button>
+        <Link href="/tbp/thiet-bi" className="tbp-tablink">
+          Thiết bị
+        </Link>
       </div>
 
       <div className="ls-nav">

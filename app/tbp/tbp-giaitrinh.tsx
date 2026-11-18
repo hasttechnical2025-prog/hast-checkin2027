@@ -73,6 +73,9 @@ export default function TbpGiaiTrinh({
         <Link href="/tbp/nscl" className="tbp-tablink">
           Bảng điểm NSCL
         </Link>
+        <Link href="/tbp/thiet-bi" className="tbp-tablink">
+          Thiết bị
+        </Link>
       </div>
 
       <div className="ls-nav">
