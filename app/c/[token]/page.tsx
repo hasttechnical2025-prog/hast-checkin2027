@@ -1,0 +1,67 @@
+import { notFound } from 'next/navigation';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { getSystemConfig } from '@/lib/config';
+import { vnNow } from '@/lib/attendance';
+import ChamCong from './cham-cong';
+
+// Định danh CBNV ở PATH (token). Server giải định danh mỗi request -> không phụ thuộc
+// localStorage/cookie (fix iOS). Luôn render động.
+export const dynamic = 'force-dynamic';
+
+export default async function CbnvPage({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
+  const { token } = await params;
+  const admin = createAdminClient();
+
+  const { data: emp } = await admin
+    .from('chamcong_employees')
+    .select('id, ma_nv, name, department, status')
+    .eq('token', token)
+    .maybeSingle();
+
+  if (!emp || emp.status !== 'Đang làm việc') {
+    notFound();
+  }
+
+  const cfg = await getSystemConfig();
+  const { dateStr, dow } = vnNow();
+
+  // Bản ghi ngày hôm nay (để hiện tiến trình 4 ca)
+  const { data: today } = await admin
+    .from('chamcong_attendance_records')
+    .select('morning_in, morning_out, afternoon_in, afternoon_out')
+    .eq('employee_id', emp!.id)
+    .eq('date', dateStr)
+    .maybeSingle();
+
+  // Trạng thái ngày nghỉ (để khóa chấm công)
+  let holiday = { isHoliday: false, reason: '' };
+  if (!cfg.allowHoliday) {
+    if (dow === 0 || dow === 6) {
+      holiday = { isHoliday: true, reason: `Hôm nay là ${dow === 0 ? 'Chủ Nhật' : 'Thứ Bảy'} — ngày nghỉ.` };
+    } else {
+      const { data: hol } = await admin
+        .from('chamcong_holidays')
+        .select('description')
+        .eq('date', dateStr)
+        .maybeSingle();
+      if (hol) holiday = { isHoliday: true, reason: `Hôm nay là ${hol.description} — ngày nghỉ lễ.` };
+    }
+  }
+
+  return (
+    <ChamCong
+      token={token}
+      employee={{ name: emp!.name, maNv: emp!.ma_nv, department: emp!.department }}
+      office={cfg.office}
+      maxDistance={cfg.maxDistance}
+      gpsExpireMs={cfg.gpsExpireMs}
+      companyName={cfg.companyName}
+      today={today ?? null}
+      holiday={holiday}
+    />
+  );
+}

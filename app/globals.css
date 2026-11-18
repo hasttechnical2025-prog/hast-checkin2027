@@ -1,0 +1,471 @@
+:root {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --border: #dbe2ec;
+  --fg: #0e1726;
+  --muted: #6a7789;
+  --accent: #1a73e8;
+  --accent-ink: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+}
+
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 11px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.field {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.err {
+  color: #c4312b;
+}
+
+/* ===== Màn chấm công CBNV (Hướng C) ===== */
+:root {
+  --ok: #15803d;
+  --warn: #b45309;
+  --err: #c4312b;
+}
+
+.cc-wrap {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.cc-banner {
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0 0 14px 14px;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+}
+
+.cc-head {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.cc-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+.cc-sub {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.cc-ring-area {
+  display: flex;
+  justify-content: center;
+  padding: 14px 0 6px;
+}
+.cc-ring {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.cc-ring:disabled {
+  cursor: default;
+}
+.cc-ring-svg {
+  width: 100%;
+  height: 100%;
+}
+.cc-ring-bg {
+  fill: none;
+  stroke: var(--surface-2, #eef2f8);
+  stroke-width: 14;
+}
+.cc-ring-fg {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.4s ease;
+}
+.cc-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.cc-ring-count {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+.cc-ring-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  max-width: 130px;
+  text-align: center;
+}
+.cc-ring-ok .cc-ring-fg { stroke: var(--ok); }
+.cc-ring-ok .cc-ring-center { color: var(--ok); }
+.cc-ring-warn .cc-ring-fg { stroke: var(--warn); }
+.cc-ring-err .cc-ring-fg { stroke: var(--err); }
+.cc-ring-err .cc-ring-text { color: var(--err); }
+
+.cc-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 18px 0 16px;
+}
+.cc-chip {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 4px;
+  text-align: center;
+  background: var(--surface);
+}
+.cc-chip.done {
+  border-color: var(--ok);
+  background: #e8f6ee;
+}
+.cc-chip-label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.cc-chip-time {
+  display: block;
+  font-weight: 700;
+  font-size: 15px;
+  margin-top: 2px;
+}
+
+.cc-loc {
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+}
+.cc-loc-title {
+  font-weight: 600;
+}
+.cc-loc-line {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.cc-loc-ok { border-left-color: var(--ok); }
+.cc-loc-warn { border-left-color: var(--warn); }
+.cc-loc-err { border-left-color: var(--err); }
+.cc-loc-idle { border-left-color: var(--accent); }
+.cc-reloc {
+  margin-top: 10px;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+textarea.field {
+  margin-top: 14px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.cc-dlg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 23, 38, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+.cc-dlg {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 22px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+}
+.cc-dlg h3 {
+  margin: 0 0 8px;
+}
+.cc-result-emoji {
+  font-size: 40px;
+}
+.cc-dlg-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.cc-dlg-btns .btn {
+  flex: 1;
+}
+.cc-btn-ghost {
+  background: var(--surface-2, #eef2f8);
+  color: var(--fg);
+}
+
+.cc-monthlink {
+  display: block;
+  text-align: center;
+  margin-top: 18px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ===== Dữ liệu tháng (lịch sử) ===== */
+.ls-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.ls-back {
+  font-weight: 600;
+  text-decoration: none;
+}
+.ls-emp {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: right;
+}
+.ls-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 14px 0 12px;
+}
+.ls-navbtn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 20px;
+  text-decoration: none;
+}
+.ls-navbtn.disabled {
+  color: var(--border);
+  cursor: default;
+}
+.ls-month {
+  font-weight: 700;
+  font-size: 16px;
+  min-width: 130px;
+  text-align: center;
+}
+.ls-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.ls-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 4px;
+  text-align: center;
+  background: var(--surface);
+}
+.ls-card .v {
+  font-size: 22px;
+  font-weight: 800;
+}
+.ls-card .l {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.ls-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.ls-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.ls-table th,
+.ls-table td {
+  padding: 7px 8px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+.ls-table thead th {
+  border-top: none;
+  background: var(--surface-2, #eef2f8);
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+.ls-table tr.r-weekend td,
+.ls-table tr.r-holiday td {
+  background: #f6f8fb;
+  color: var(--muted);
+}
+.ls-table tr.r-absent td {
+  background: #fdecea;
+}
+.ls-table tr.r-leave td {
+  background: #eff6ff;
+}
+.ls-reason {
+  text-align: left !important;
+  white-space: normal;
+  min-width: 120px;
+}
+.ls-leave-tag {
+  color: #1e40af;
+}
+.ls-p {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+.grade {
+  display: inline-block;
+  min-width: 15px;
+  font-weight: 700;
+}
+.grade-a {
+  color: var(--ok);
+}
+.grade-b {
+  color: var(--warn);
+}
+.grade-d {
+  color: var(--err);
+}
+.ls-gt {
+  appearance: none;
+  border: 1px dashed var(--accent);
+  background: var(--accent-weak, #e8effd);
+  color: var(--accent);
+  border-radius: 7px;
+  padding: 3px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.badge {
+  font-size: 13px;
+}
+.ls-flabel {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 12px 0 4px;
+}
+.seg {
+  display: flex;
+  gap: 6px;
+}
+.seg button {
+  flex: 1;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  padding: 8px 4px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.seg button.active {
+  border-color: var(--accent);
+  background: var(--accent-weak, #e8effd);
+  color: var(--accent);
+  font-weight: 600;
+}
