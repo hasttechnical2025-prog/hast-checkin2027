@@ -717,6 +717,29 @@ textarea.field {
   text-decoration: none;
 }
 
+/* ===== Admin nav ===== */
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.admin-tab {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  text-decoration: none;
+}
+.admin-tab.active {
+  border-color: var(--accent);
+  background: var(--accent-weak, #e8effd);
+  color: var(--accent);
+}
+
 /* ===== Lưới NSCL ===== */
 .nscl-scroll {
   overflow-x: auto;
