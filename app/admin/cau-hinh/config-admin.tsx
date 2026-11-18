@@ -96,6 +96,10 @@ export default function ConfigAdmin({
           <input type="checkbox" checked={(c.leave_symbol_mode || 'merged') !== 'split'} onChange={(e) => set('leave_symbol_mode', e.target.checked ? 'merged' : 'split')} />
           Gộp nghỉ ốm vào phép (ký hiệu P; bỏ tick = tách Ô)
         </label>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
+          <input type="checkbox" checked={bool('require_mobile')} onChange={(e) => set('require_mobile', e.target.checked ? 'true' : 'false')} />
+          Chỉ cho chấm công trên điện thoại (khóa PC)
+        </label>
       </div>
 
       <div className="card" style={{ marginBottom: 14 }}>

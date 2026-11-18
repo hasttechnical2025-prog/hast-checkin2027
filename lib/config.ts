@@ -12,6 +12,7 @@ export interface SystemConfig {
   maxDistance: number; // mét; 0 = không giới hạn
   allowHoliday: boolean;
   allowMultiple: boolean;
+  requireMobile: boolean;
   gpsExpireMs: number;
   companyName: string;
   companyAddress: string;
@@ -36,6 +37,7 @@ export async function getSystemConfig(): Promise<SystemConfig> {
     maxDistance: num('max_distance', 15000),
     allowHoliday: m.get('allow_holiday') === 'true',
     allowMultiple: m.get('allow_multiple') === 'true',
+    requireMobile: m.get('require_mobile') === 'true',
     gpsExpireMs: num('gps_expire_ms', 60000),
     companyName: m.get('company_name') || 'Chấm Công',
     companyAddress: m.get('company_address') || '',

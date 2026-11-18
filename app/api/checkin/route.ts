@@ -77,6 +77,19 @@ export async function POST(req: NextRequest) {
   }
 
   const cfg = await getSystemConfig();
+
+  // Công tắc: chỉ cho chấm công trên điện thoại (khóa PC) — nhận diện qua User-Agent.
+  if (cfg.requireMobile) {
+    const ua = req.headers.get('user-agent') || '';
+    const isMobile = /Mobi|Android|iPhone|iPod|iPad|Windows Phone/i.test(ua);
+    if (!isMobile) {
+      return NextResponse.json(
+        { error: 'Chấm công chỉ thực hiện trên điện thoại. Hãy dùng điện thoại đã cài app.', blocked: 'desktop' },
+        { status: 403 },
+      );
+    }
+  }
+
   const { dateStr, hhmm, dow } = vnNow();
 
   // 1) Ngày nghỉ
