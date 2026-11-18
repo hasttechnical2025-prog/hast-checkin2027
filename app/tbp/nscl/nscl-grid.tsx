@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { NsclData, NsclRow, NsclCell } from '@/lib/nscl';
+import ExportExcel from './export-excel';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -396,6 +397,7 @@ export default function NsclGrid({
         <button className="btn-undo" onClick={printReport}>
           🖨 In
         </button>
+        {seeAll && <ExportExcel year={data.year} month={data.month} />}
         {toast && <span className="muted" style={{ fontSize: 13 }}>{toast}</span>}
       </div>
 
