@@ -1,0 +1,6 @@
+{
+  "crons": [
+    { "path": "/api/cron/reminder?session=morning_in", "schedule": "45 1 * * 1-5" },
+    { "path": "/api/cron/reminder?session=afternoon_in", "schedule": "45 6 * * 1-5" }
+  ]
+}
