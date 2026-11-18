@@ -55,6 +55,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Token không hợp lệ hoặc đã bị thu hồi.' }, { status: 401 });
   }
 
+  // Chống chấm hộ: nếu nhân viên đã có thiết bị ACTIVE, chỉ thiết bị đó được chấm.
+  // Chưa có bind nào -> cho qua (tương thích ngược / chưa đăng nhập bind).
+  const deviceId = req.cookies.get('hstc_device')?.value || null;
+  const { data: binds } = await admin
+    .from('chamcong_device_bind')
+    .select('device_id, is_active')
+    .eq('employee_id', emp.id);
+  if (binds && binds.length > 0) {
+    const active = binds.find((b) => b.is_active);
+    if (active && active.device_id !== deviceId) {
+      return NextResponse.json(
+        {
+          error: 'Thiết bị này chưa được duyệt để chấm công. Vui lòng chờ TBP duyệt thiết bị mới.',
+          blocked: 'device',
+        },
+        { status: 403 },
+      );
+    }
+  }
+
   const cfg = await getSystemConfig();
   const { dateStr, hhmm, dow } = vnNow();
 
@@ -141,7 +161,7 @@ export async function POST(req: NextRequest) {
     status,
     address,
     note: (body.note || '').trim() || null,
-    device_id: body.deviceId || null,
+    device_id: deviceId,
   });
 
   if (error) {

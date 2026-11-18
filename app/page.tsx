@@ -1,23 +1,19 @@
+import NvLogin from './_components/NvLogin';
+
 export default function HomePage() {
   return (
-    <main className="wrap">
-      <h1>Chấm Công HSTC — 2027</h1>
+    <main className="wrap" style={{ maxWidth: 400 }}>
+      <h1 style={{ marginBottom: 2 }}>Chấm Công HSTC</h1>
       <p className="muted">Công ty CP Siêu Thanh Hà Nội</p>
 
       <div className="card" style={{ marginTop: 16 }}>
-        <h3 style={{ marginTop: 0 }}>Khu vực</h3>
-        <ul>
-          <li>
-            <b>CBNV</b> — mở link/QR cá nhân <code>/c/&lt;token&gt;</code> để chấm công.
-          </li>
-          <li>
-            <b>TBP / Admin</b> — <a href="/login">Đăng nhập</a> để vào trang quản trị.
-          </li>
-        </ul>
-        <p className="muted" style={{ fontSize: 13 }}>
-          Khung Bước 2 — các màn nghiệp vụ sẽ bổ sung ở các bước sau.
-        </p>
+        <h3 style={{ marginTop: 0, textAlign: 'center' }}>Đăng nhập CBNV</h3>
+        <NvLogin />
       </div>
+
+      <p className="muted" style={{ textAlign: 'center', marginTop: 16, fontSize: 13 }}>
+        <a href="/login">Đăng nhập Quản trị / TBP</a>
+      </p>
     </main>
   );
 }
