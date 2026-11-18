@@ -17,6 +17,7 @@ export default function TbpGiaiTrinh({
   month,
   prevHref,
   nextHref,
+  isAdmin,
 }: {
   items: GtItem[];
   departments: string[];
@@ -24,6 +25,7 @@ export default function TbpGiaiTrinh({
   month: number;
   prevHref: string;
   nextHref: string | null;
+  isAdmin: boolean;
 }) {
   const router = useRouter();
   const [dept, setDept] = useState('');
@@ -73,9 +75,11 @@ export default function TbpGiaiTrinh({
         <Link href="/tbp/nscl" className="tbp-tablink">
           Bảng điểm NSCL
         </Link>
-        <Link href="/tbp/thiet-bi" className="tbp-tablink">
-          Thiết bị
-        </Link>
+        {isAdmin && (
+          <Link href="/tbp/thiet-bi" className="tbp-tablink">
+            Thiết bị
+          </Link>
+        )}
       </div>
 
       <div className="ls-nav">

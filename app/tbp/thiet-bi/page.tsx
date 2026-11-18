@@ -26,8 +26,28 @@ export default async function ThietBiPage() {
     );
   }
 
-  const isAdmin = staff.role === 'admin';
-  const seeAll = isAdmin || staff.viewAll;
+  // Chỉ Admin được duyệt thiết bị (theo chính sách: TBP không quản lý thiết bị).
+  if (staff.role !== 'admin') {
+    return (
+      <main className="wrap">
+        <div className="ls-top">
+          <div>
+            <h1 style={{ margin: 0, fontSize: 22 }}>Thiết bị</h1>
+            <div className="muted" style={{ fontSize: 13 }}>
+              {staff.email} · {staff.department}
+            </div>
+          </div>
+          <SignOutButton />
+        </div>
+        <div className="card" style={{ marginTop: 16 }}>
+          <p>Việc duyệt thiết bị do <b>Admin</b> phụ trách. <a href="/tbp">← Về Duyệt giải trình</a></p>
+        </div>
+      </main>
+    );
+  }
+
+  const isAdmin = true;
+  const seeAll = true;
   const admin = createAdminClient();
 
   const { data } = await admin

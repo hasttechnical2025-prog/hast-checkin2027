@@ -35,9 +35,8 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
   if (!bind) return NextResponse.json({ error: 'Không tìm thấy thiết bị.' }, { status: 404 });
 
-  const emp = bind.chamcong_employees as unknown as { department: string };
-  if (!isAdmin && emp.department !== session.department) {
-    return NextResponse.json({ error: 'Ngoài phạm vi phòng.' }, { status: 403 });
+  if (!isAdmin) {
+    return NextResponse.json({ error: 'Chỉ Admin được duyệt thiết bị.' }, { status: 403 });
   }
 
   const nowIso = new Date().toISOString();
