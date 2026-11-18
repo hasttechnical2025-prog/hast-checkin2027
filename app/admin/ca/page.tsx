@@ -1,5 +1,4 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import AdminNav from '@/app/admin/admin-nav';
 import ShiftAdmin, { type ShiftRow } from './shift-admin';
 
 export const dynamic = 'force-dynamic';
@@ -23,10 +22,5 @@ export default async function CaPage() {
     b_end: hm(r.b_end as string | null),
   }));
 
-  return (
-    <main className="wrap" style={{ maxWidth: 820 }}>
-      <AdminNav active="ca" />
-      <ShiftAdmin initial={rows} />
-    </main>
-  );
+  return <ShiftAdmin initial={rows} />;
 }

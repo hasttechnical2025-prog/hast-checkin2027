@@ -1,5 +1,4 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import AdminNav from '@/app/admin/admin-nav';
 import EmployeesAdmin, { type Emp } from './employees-admin';
 
 export const dynamic = 'force-dynamic';
@@ -29,10 +28,5 @@ export default async function NhanVienPage() {
 
   const departments = [...new Set(emps.map((e) => e.department).filter(Boolean))].sort();
 
-  return (
-    <main className="wrap" style={{ maxWidth: 1100 }}>
-      <AdminNav active="nhan-vien" />
-      <EmployeesAdmin initial={emps} departments={departments} />
-    </main>
-  );
+  return <EmployeesAdmin initial={emps} departments={departments} />;
 }

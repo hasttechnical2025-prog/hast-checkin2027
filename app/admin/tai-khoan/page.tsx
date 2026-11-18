@@ -1,5 +1,4 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import AdminNav from '@/app/admin/admin-nav';
 import AccountsAdmin, { type Account } from './accounts-admin';
 
 export const dynamic = 'force-dynamic';
@@ -29,10 +28,5 @@ export default async function TaiKhoanPage() {
 
   const departments = [...new Set((emps ?? []).map((e) => e.department as string).filter(Boolean))].sort();
 
-  return (
-    <main className="wrap" style={{ maxWidth: 900 }}>
-      <AdminNav active="tai-khoan" />
-      <AccountsAdmin accounts={accounts} departments={departments} />
-    </main>
-  );
+  return <AccountsAdmin accounts={accounts} departments={departments} />;
 }

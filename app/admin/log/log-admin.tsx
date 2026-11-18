@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useConfirm } from '@/lib/confirm';
 
 export interface LogRow {
   id: string;
@@ -45,6 +46,7 @@ export default function LogAdmin({
   nextHref: string | null;
 }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [busy, setBusy] = useState<string | null>(null);
   const [edit, setEdit] = useState<LogRow | null>(null);
   const [note, setNote] = useState('');
@@ -56,7 +58,7 @@ export default function LogAdmin({
   }
 
   async function del(id: string) {
-    if (!confirm('Xóa log này? (không hoàn tác)')) return;
+    if (!(await confirm({ message: 'Xóa log này? (không hoàn tác)', danger: true, okText: 'Xóa' }))) return;
     setBusy(id);
     try {
       await fetch('/api/admin/log', {

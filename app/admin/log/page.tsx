@@ -1,6 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { vnNow } from '@/lib/attendance';
-import AdminNav from '@/app/admin/admin-nav';
 import LogAdmin, { type LogRow } from './log-admin';
 
 export const dynamic = 'force-dynamic';
@@ -56,17 +55,14 @@ export default async function LogPage({ searchParams }: { searchParams: Promise<
   const curIdx = Number(now.dateStr.slice(0, 4)) * 12 + Number(now.dateStr.slice(5, 7));
 
   return (
-    <main className="wrap" style={{ maxWidth: 1100 }}>
-      <AdminNav active="log" />
-      <LogAdmin
-        rows={rows}
-        names={names}
-        selEmp={emp || ''}
-        year={year}
-        month={month}
-        prevHref={`/admin/log?m=${toM(idx - 1)}${emp ? `&emp=${encodeURIComponent(emp)}` : ''}`}
-        nextHref={idx + 1 <= curIdx ? `/admin/log?m=${toM(idx + 1)}${emp ? `&emp=${encodeURIComponent(emp)}` : ''}` : null}
-      />
-    </main>
+    <LogAdmin
+      rows={rows}
+      names={names}
+      selEmp={emp || ''}
+      year={year}
+      month={month}
+      prevHref={`/admin/log?m=${toM(idx - 1)}${emp ? `&emp=${encodeURIComponent(emp)}` : ''}`}
+      nextHref={idx + 1 <= curIdx ? `/admin/log?m=${toM(idx + 1)}${emp ? `&emp=${encodeURIComponent(emp)}` : ''}` : null}
+    />
   );
 }

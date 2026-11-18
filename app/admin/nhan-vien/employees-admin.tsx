@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import QrCode from '@/app/_components/QrCode';
+import DateField from '@/app/_components/DateField';
+import { useConfirm } from '@/lib/confirm';
 
 export interface Emp {
   id: number;
@@ -43,6 +45,7 @@ const EMPTY: FormState = {
 
 export default function EmployeesAdmin({ initial, departments }: { initial: Emp[]; departments: string[] }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [q, setQ] = useState('');
   const [form, setForm] = useState<FormState | null>(null);
   const [busy, setBusy] = useState(false);
@@ -118,7 +121,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
   }
 
   async function resetPin(e: Emp) {
-    if (!confirm(`Cấp lại PIN cho ${e.name}?`)) return;
+    if (!(await confirm({ message: `Cấp lại PIN cho ${e.name}?`, okText: 'Cấp lại' }))) return;
     try {
       const j = await post({ op: 'reset_pin', id: e.id });
       setResult({ title: `🔑 PIN mới của ${e.maNv}`, lines: [`PIN: ${j.pin}  (báo cho nhân viên)`] });
@@ -128,7 +131,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
   }
 
   async function revokeToken(e: Emp) {
-    if (!confirm(`Thu hồi & cấp QR mới cho ${e.name}? (QR cũ sẽ không dùng được)`)) return;
+    if (!(await confirm({ message: `Thu hồi & cấp QR mới cho ${e.name}? QR cũ sẽ không dùng được.`, danger: true, okText: 'Thu hồi' }))) return;
     try {
       await post({ op: 'revoke_token', id: e.id });
       router.refresh();
@@ -140,7 +143,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
 
   async function toggleStatus(e: Emp) {
     const next = e.status === 'Đang làm việc' ? 'Đã nghỉ việc' : 'Đang làm việc';
-    if (!confirm(`Đổi trạng thái ${e.name} → ${next}?`)) return;
+    if (!(await confirm({ message: `Đổi trạng thái ${e.name} → ${next}?` }))) return;
     try {
       await post({ op: 'set_status', id: e.id, status: next });
       router.refresh();
@@ -297,7 +300,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
                 </select>
               </label>
               <label>Ngày vào làm
-                <input className="field" type="date" value={form.ngayVaoLam} onChange={(e) => setForm({ ...form, ngayVaoLam: e.target.value })} />
+                <DateField value={form.ngayVaoLam} onChange={(v) => setForm({ ...form, ngayVaoLam: v })} />
               </label>
               <label>Telegram chat id
                 <input className="field" value={form.telegram} onChange={(e) => setForm({ ...form, telegram: e.target.value.replace(/[^0-9-]/g, '') })} />

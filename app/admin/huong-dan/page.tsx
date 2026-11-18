@@ -1,5 +1,4 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import AdminNav from '@/app/admin/admin-nav';
 import GuideAdmin, { type GuideItem } from './guide-admin';
 
 export const dynamic = 'force-dynamic';
@@ -18,10 +17,5 @@ export default async function HuongDanPage() {
     content: map.get(id)?.content || '',
   }));
 
-  return (
-    <main className="wrap" style={{ maxWidth: 760 }}>
-      <AdminNav active="huong-dan" />
-      <GuideAdmin initial={items} />
-    </main>
-  );
+  return <GuideAdmin initial={items} />;
 }

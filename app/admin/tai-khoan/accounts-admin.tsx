@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useConfirm } from '@/lib/confirm';
 
 export interface Account {
   userId: string;
@@ -13,6 +14,7 @@ export interface Account {
 
 export default function AccountsAdmin({ accounts, departments }: { accounts: Account[]; departments: string[] }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -85,7 +87,7 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
   }
 
   async function del(a: Account) {
-    if (!confirm(`Xóa tài khoản ${a.email}? (không hoàn tác)`)) return;
+    if (!(await confirm({ message: `Xóa tài khoản ${a.email}? (không hoàn tác)`, danger: true, okText: 'Xóa' }))) return;
     try {
       await post({ op: 'delete', userId: a.userId });
       router.refresh();

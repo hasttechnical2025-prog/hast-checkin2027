@@ -1,5 +1,4 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import AdminNav from '@/app/admin/admin-nav';
 import ConfigAdmin from './config-admin';
 
 export const dynamic = 'force-dynamic';
@@ -17,10 +16,5 @@ export default async function CauHinhPage() {
   });
   const printConfig = (printRow?.config as Record<string, string | number>) || {};
 
-  return (
-    <main className="wrap" style={{ maxWidth: 760 }}>
-      <AdminNav active="cau-hinh" />
-      <ConfigAdmin config={config} printConfig={printConfig} />
-    </main>
-  );
+  return <ConfigAdmin config={config} printConfig={printConfig} />;
 }

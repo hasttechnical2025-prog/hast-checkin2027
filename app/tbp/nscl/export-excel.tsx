@@ -100,7 +100,7 @@ export default function ExportExcel({ year, month }: { year: number; month: numb
           {linked ? `📁 ${linked.name} ▸ ${linked.sheet}` : '📁 Chọn file đích'}
         </button>
       )}
-      <button className="btn-approve" disabled={busy} onClick={doExport}>
+      <button className="btn-undo" disabled={busy} onClick={doExport}>
         📊 Xuất Excel
       </button>
       {msg && <span className="muted" style={{ fontSize: 13 }}>{msg}</span>}

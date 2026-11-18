@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import DateField from '@/app/_components/DateField';
+import { useConfirm } from '@/lib/confirm';
 
 export interface Holiday {
   date: string;
@@ -15,6 +17,7 @@ function dmy(ymd: string): string {
 
 export default function HolidaysAdmin({ initial }: { initial: Holiday[] }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [date, setDate] = useState('');
   const [desc, setDesc] = useState('');
   const [busy, setBusy] = useState(false);
@@ -47,7 +50,7 @@ export default function HolidaysAdmin({ initial }: { initial: Holiday[] }) {
   }
 
   async function del(d: string) {
-    if (!confirm(`Xóa ngày lễ ${dmy(d)}?`)) return;
+    if (!(await confirm({ message: `Xóa ngày lễ ${dmy(d)}?`, danger: true, okText: 'Xóa' }))) return;
     await fetch('/api/admin/holiday', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -63,7 +66,7 @@ export default function HolidaysAdmin({ initial }: { initial: Holiday[] }) {
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <label>
             Ngày
-            <input className="field" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <DateField value={date} onChange={setDate} />
           </label>
           <label style={{ flex: 1, minWidth: 160 }}>
             Tên ngày lễ
