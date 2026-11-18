@@ -7,6 +7,8 @@ const TABS: { key: string; href: string; label: string }[] = [
   { key: 'ngay-le', href: '/admin/ngay-le', label: 'Ngày lễ' },
   { key: 'ca', href: '/admin/ca', label: 'Cấu hình ca' },
   { key: 'cau-hinh', href: '/admin/cau-hinh', label: 'Cấu hình' },
+  { key: 'tai-khoan', href: '/admin/tai-khoan', label: 'Tài khoản' },
+  { key: 'huong-dan', href: '/admin/huong-dan', label: 'Hướng dẫn' },
 ];
 
 export default function AdminNav({ active }: { active: string }) {
