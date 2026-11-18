@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getSystemConfig } from '@/lib/config';
+import { sendTelegram } from '@/lib/telegram';
 import {
   haversine,
   vnNow,
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   const { data: emp } = await admin
     .from('chamcong_employees')
-    .select('id, name, status')
+    .select('id, name, status, telegram_chat_id')
     .eq('token', body.token)
     .maybeSingle();
 
@@ -167,6 +168,14 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: 'Lỗi ghi chấm công: ' + error.message }, { status: 500 });
   }
+
+  // Sự kiện 1: xác nhận chấm công cho CBNV (best-effort).
+  const timeStr = `${String(Math.floor(hhmm / 100)).padStart(2, '0')}:${String(hhmm % 100).padStart(2, '0')}`;
+  await sendTelegram(
+    emp.telegram_chat_id,
+    `✅ <b>${emp.name}</b> đã chấm công <b>${sessionLabel(session)}</b> lúc ${timeStr}\n` +
+      `${inside ? '📍 Trong phạm vi' : '⚠️ Ngoài phạm vi'} · ${dist} m · ${cfg.office.name}`,
+  );
 
   return NextResponse.json({
     ok: true,

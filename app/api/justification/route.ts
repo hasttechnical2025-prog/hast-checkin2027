@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendTelegramMany } from '@/lib/telegram';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   const { data: emp } = await admin
     .from('chamcong_employees')
-    .select('id, name, status')
+    .select('id, name, status, department')
     .eq('token', body.token)
     .maybeSingle();
   if (!emp || emp.status !== 'Đang làm việc') {
@@ -75,6 +76,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Lỗi lưu giải trình: ' + error.message }, { status: 500 });
   }
 
-  // TODO (Bước 7): gửi Telegram báo TBP có giải trình mới.
+  // Sự kiện 2: báo TBP phòng có giải trình mới (best-effort).
+  const { data: tbps } = await admin
+    .from('chamcong_employees')
+    .select('telegram_chat_id')
+    .eq('role', 'TBP')
+    .eq('department', emp.department)
+    .eq('status', 'Đang làm việc');
+  const dmy = body.date.split('-').reverse().join('/');
+  await sendTelegramMany(
+    (tbps ?? []).map((t) => t.telegram_chat_id),
+    `📝 <b>${emp.name}</b> (${emp.department}) gửi giải trình ngày ${dmy}:\n<i>${reason}</i>`,
+  );
+
   return NextResponse.json({ ok: true, reason, approve: 'Chờ' });
 }

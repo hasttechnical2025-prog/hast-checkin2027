@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getStaffSession } from '@/lib/auth';
+import { sendTelegram } from '@/lib/telegram';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -48,11 +49,10 @@ export async function POST(req: NextRequest) {
   const empIds = [...new Set(body.approvals.map((a) => a.employeeId))];
   const { data: emps } = await admin
     .from('chamcong_employees')
-    .select('id, name, department')
+    .select('id, name, department, telegram_chat_id')
     .in('id', empIds);
-  const empById = new Map<number, { id: number; name: string; department: string }>(
-    (emps ?? []).map((e) => [e.id as number, e as { id: number; name: string; department: string }]),
-  );
+  type EmpInfo = { id: number; name: string; department: string; telegram_chat_id: number | null };
+  const empById = new Map<number, EmpInfo>((emps ?? []).map((e) => [e.id as number, e as EmpInfo]));
 
   const nowIso = new Date().toISOString();
   const results: { employeeId: number; date: string; ok: boolean; error?: string }[] = [];
@@ -104,9 +104,18 @@ export async function POST(req: NextRequest) {
       .from('chamcong_attendance_records')
       .upsert(update, { onConflict: 'employee_id,date' });
     results.push({ ...ap, ok: !error, error: error?.message });
+
+    // Sự kiện 3: báo CBNV kết quả duyệt (best-effort; không báo khi Hủy -> 'Chờ').
+    if (!error && status !== 'Chờ') {
+      const dmy = ap.date.split('-').reverse().join('/');
+      await sendTelegram(
+        emp.telegram_chat_id,
+        `${status === 'Đồng ý' ? '✅' : '❌'} Giải trình ngày ${dmy} của bạn đã được <b>${status}</b>` +
+          (status === 'Từ chối' && note ? `:\n<i>${note}</i>` : ''),
+      );
+    }
   }
 
-  // TODO (Bước 7): gửi Telegram báo CBNV kết quả duyệt.
   const okCount = results.filter((r) => r.ok).length;
   return NextResponse.json({ ok: true, okCount, total: results.length, results });
 }
