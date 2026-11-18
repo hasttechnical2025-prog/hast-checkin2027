@@ -1,12 +1,31 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getSystemConfig } from '@/lib/config';
 import { vnNow } from '@/lib/attendance';
 import ChamCong from './cham-cong';
+import PwaClient from './pwa-client';
 
 // Định danh CBNV ở PATH (token). Server giải định danh mỗi request -> không phụ thuộc
 // localStorage/cookie (fix iOS). Luôn render động.
 export const dynamic = 'force-dynamic';
+
+// Manifest ĐỘNG theo token + meta iOS A2HS (chỉ trang CBNV là PWA cài được).
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}): Promise<Metadata> {
+  const { token } = await params;
+  return {
+    title: 'Chấm Công HSTC',
+    manifest: `/c/${token}/manifest.webmanifest`,
+    appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Chấm Công' },
+    icons: { apple: '/icon.svg', icon: '/icon.svg' },
+    // iOS đời cũ vẫn cần meta apple-prefixed để A2HS vào chế độ standalone.
+    other: { 'apple-mobile-web-app-capable': 'yes' },
+  };
+}
 
 export default async function CbnvPage({
   params,
@@ -52,16 +71,31 @@ export default async function CbnvPage({
     }
   }
 
+  // Nội dung hướng dẫn (p1..p4) cho sheet Cài đặt.
+  const { data: guideRows } = await admin
+    .from('chamcong_guide_content')
+    .select('id, title, content')
+    .order('id');
+  const guide = (guideRows ?? []).map((g) => ({
+    id: g.id as string,
+    title: (g.title as string) || '',
+    content: (g.content as string) || '',
+  }));
+
   return (
-    <ChamCong
-      token={token}
-      employee={{ name: emp!.name, maNv: emp!.ma_nv, department: emp!.department }}
-      office={cfg.office}
-      maxDistance={cfg.maxDistance}
-      gpsExpireMs={cfg.gpsExpireMs}
-      companyName={cfg.companyName}
-      today={today ?? null}
-      holiday={holiday}
-    />
+    <>
+      <ChamCong
+        token={token}
+        employee={{ name: emp!.name, maNv: emp!.ma_nv, department: emp!.department }}
+        office={cfg.office}
+        maxDistance={cfg.maxDistance}
+        gpsExpireMs={cfg.gpsExpireMs}
+        companyName={cfg.companyName}
+        today={today ?? null}
+        holiday={holiday}
+        guide={guide}
+      />
+      <PwaClient />
+    </>
   );
 }

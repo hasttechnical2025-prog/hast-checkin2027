@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { APP_VERSION } from '@/lib/version';
 
 export interface OfficeProp {
   name: string;
@@ -23,6 +24,7 @@ export interface ChamCongProps {
   companyName: string;
   today: TodayRecord | null;
   holiday: { isHoliday: boolean; reason: string };
+  guide: { id: string; title: string; content: string }[];
 }
 
 type LocType = 'idle' | 'ok' | 'warn' | 'err';
@@ -54,7 +56,7 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number): numb
 const hm = (t: string | null) => (t ? String(t).slice(0, 5) : '—');
 
 export default function ChamCong(props: ChamCongProps) {
-  const { token, employee, office, maxDistance, gpsExpireMs, holiday } = props;
+  const { token, employee, office, maxDistance, gpsExpireMs, holiday, guide } = props;
 
   const [today, setToday] = useState<TodayRecord>(
     props.today ?? { morning_in: null, morning_out: null, afternoon_in: null, afternoon_out: null },
@@ -67,6 +69,7 @@ export default function ChamCong(props: ChamCongProps) {
   });
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; title: string; lines: string[] } | null>(null);
   const [confirmDlg, setConfirmDlg] = useState<{ label: string; time: string } | null>(null);
   const gettingRef = useRef(false);
@@ -215,6 +218,9 @@ export default function ChamCong(props: ChamCongProps) {
 
   return (
     <main className="cc-wrap">
+      <button type="button" className="cc-gear" onClick={() => setSheetOpen(true)} aria-label="Cài đặt">
+        ⚙️
+      </button>
       <div className="cc-banner">{props.companyName}</div>
 
       <div className="cc-head">
@@ -321,6 +327,63 @@ export default function ChamCong(props: ChamCongProps) {
                 Đóng
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {sheetOpen && (
+        <div className="cc-sheet-overlay" onClick={() => setSheetOpen(false)}>
+          <div className="cc-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="cc-sheet-handle" />
+            <h3 style={{ marginTop: 0 }}>Cài đặt</h3>
+
+            <div className="cc-sheet-sec">
+              <div className="cc-sheet-k">Nhân viên</div>
+              <div>
+                {employee.name} · {employee.maNv}
+              </div>
+              <div className="muted">{employee.department}</div>
+            </div>
+
+            <div className="cc-sheet-sec">
+              <div className="cc-sheet-k">Hướng dẫn sử dụng</div>
+              {guide.length === 0 ? (
+                <p className="muted">(Chưa có nội dung)</p>
+              ) : (
+                guide.map((g) => (
+                  <details key={g.id} className="cc-guide">
+                    <summary>{g.title || g.id}</summary>
+                    <div className="muted" style={{ whiteSpace: 'pre-wrap', marginTop: 4 }}>
+                      {g.content || '(Chưa có nội dung)'}
+                    </div>
+                  </details>
+                ))
+              )}
+            </div>
+
+            <div className="cc-sheet-sec">
+              <div className="cc-sheet-k">Cài vào Màn hình chính</div>
+              <p className="muted">
+                iPhone: bấm <b>Chia sẻ</b> ⬆️ → <b>Thêm vào MH chính</b>. Android: menu <b>⋮</b> → <b>Cài ứng dụng</b>.
+              </p>
+            </div>
+
+            <div className="cc-sheet-sec">
+              <div className="cc-sheet-k">Phiên bản</div>
+              <div className="muted">{APP_VERSION}</div>
+              <button
+                type="button"
+                className="btn cc-btn-ghost"
+                style={{ marginTop: 8 }}
+                onClick={() => window.location.reload()}
+              >
+                🔄 Tải lại ứng dụng
+              </button>
+            </div>
+
+            <button type="button" className="btn" style={{ width: '100%', marginTop: 4 }} onClick={() => setSheetOpen(false)}>
+              Đóng
+            </button>
           </div>
         </div>
       )}
