@@ -175,6 +175,7 @@ a {
 }
 
 .cc-banner {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -698,23 +699,28 @@ textarea.field {
 }
 
 /* ===== Sheet Cài đặt ===== */
-.cc-wrap {
-  position: relative;
-}
 .cc-gear {
   position: absolute;
-  top: 14px;
-  right: 16px;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
   z-index: 5;
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  opacity: 0.6;
   cursor: pointer;
   display: grid;
   place-items: center;
+}
+.cc-gear:hover,
+.cc-gear:focus-visible {
+  opacity: 1;
+  background: var(--surface-3, #eef2f7);
 }
 .cc-sheet-overlay {
   position: fixed;

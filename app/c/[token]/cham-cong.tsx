@@ -250,12 +250,12 @@ export default function ChamCong(props: ChamCongProps) {
 
   return (
     <main className="cc-wrap">
-      <button type="button" className="cc-gear" onClick={() => setSheetOpen(true)} aria-label="Cài đặt">
-        ⚙️
-      </button>
       <div className="cc-banner">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt={props.companyName} className="cc-logo" onError={(e) => { e.currentTarget.replaceWith(Object.assign(document.createElement('span'), { className: 'cc-banner-text', textContent: props.companyName })); }} />
+        <button type="button" className="cc-gear" onClick={() => setSheetOpen(true)} aria-label="Cài đặt">
+          ⚙️
+        </button>
       </div>
 
       <div className="cc-head">
