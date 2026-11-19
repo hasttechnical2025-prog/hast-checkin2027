@@ -133,6 +133,13 @@ a {
   display: flex;
   align-items: center;
   min-height: 34px;
+  padding-right: 8px;
+}
+.datefield-ic {
+  margin-left: auto;
+  flex: none;
+  color: var(--muted);
+  pointer-events: none;
 }
 .datefield-native {
   position: absolute;
@@ -514,6 +521,48 @@ textarea.field {
 }
 .badge {
   font-size: 13px;
+}
+
+/* ===== Bảng cấu hình ca (giờ A/B/D) ===== */
+.shift-table {
+  width: auto;
+  white-space: normal;
+}
+.shift-table th,
+.shift-table td {
+  text-align: left;
+  vertical-align: top;
+}
+.shift-table thead th {
+  position: static;
+}
+.shift-table th.shift-c-ca,
+.shift-table td.shift-c-ca {
+  min-width: 96px;
+  font-weight: 500;
+  padding-top: 12px;
+}
+.shift-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 132px;
+}
+.shift-hint {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.field.shift-time {
+  width: 132px;
+  margin-top: 0;
+  text-align: center;
+}
+.shift-none {
+  display: inline-block;
+  width: 132px;
+  color: var(--border-strong);
+  padding-top: 20px;
 }
 .ls-flabel {
   display: block;

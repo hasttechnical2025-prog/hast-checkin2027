@@ -83,10 +83,10 @@ export default function ShiftAdmin({ initial }: { initial: ShiftRow[] }) {
         <div className="card" key={st} style={{ marginBottom: 14 }}>
           <h3 style={{ marginTop: 0 }}>{SHIFT_LABEL[st] || st}</h3>
           <div className="ls-table-wrap" style={{ border: 'none' }}>
-            <table className="ls-table">
+            <table className="ls-table shift-table">
               <thead>
                 <tr>
-                  <th>Ca</th>
+                  <th className="shift-c-ca">Ca</th>
                   <th>Mốc 1</th>
                   <th>Mốc 2</th>
                 </tr>
@@ -98,24 +98,23 @@ export default function ShiftAdmin({ initial }: { initial: ShiftRow[] }) {
                   const fields = FIELDS[se];
                   return (
                     <tr key={se}>
-                      <td style={{ textAlign: 'left' }}>{SESSION_LABEL[se]}</td>
+                      <td className="shift-c-ca">{SESSION_LABEL[se]}</td>
                       {[0, 1].map((i) => {
                         const f = fields[i];
                         return (
                           <td key={i}>
                             {f ? (
-                              <label style={{ fontSize: 11, color: 'var(--muted)' }}>
-                                {FIELD_HINT[f]}
+                              <label className="shift-field">
+                                <span className="shift-hint">{FIELD_HINT[f]}</span>
                                 <input
-                                  className="field"
+                                  className="field shift-time"
                                   type="time"
                                   value={row[f]}
                                   onChange={(e) => setField(st, se, f, e.target.value)}
-                                  style={{ marginTop: 2 }}
                                 />
                               </label>
                             ) : (
-                              <span className="muted">—</span>
+                              <span className="shift-none">—</span>
                             )}
                           </td>
                         );
