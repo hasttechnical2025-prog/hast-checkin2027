@@ -38,6 +38,7 @@ html,
 body {
   margin: 0;
   padding: 0;
+  overscroll-behavior: none; /* tắt hiệu ứng nảy khi kéo (vẫn cuộn bình thường nếu nội dung dài) */
 }
 
 body {
