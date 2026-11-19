@@ -259,7 +259,10 @@ export default function ChamCong(props: ChamCongProps) {
         </button>
       </header>
 
-      {/* 2) Họ tên + phòng ban (ngay dưới logo) */}
+      {/* Tiêu đề ứng dụng (dưới logo) */}
+      <div className="cc-apptitle">CHẤM CÔNG CBNV</div>
+
+      {/* 2) Họ tên + phòng ban */}
       <div className="cc-ident">
         <div className="cc-ident-name">{employee.name}</div>
         <div className="cc-ident-sub">
