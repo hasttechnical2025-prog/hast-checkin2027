@@ -175,6 +175,10 @@ a {
 }
 
 .cc-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   text-align: center;
   font-weight: 700;
   font-size: 13px;
@@ -183,8 +187,18 @@ a {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 0 0 14px 14px;
-  padding: 10px 12px;
+  padding: 12px;
   margin-bottom: 18px;
+}
+.cc-logo {
+  height: 44px;
+  width: auto;
+  max-width: 80%;
+  object-fit: contain;
+  display: block;
+}
+.cc-banner-text {
+  line-height: 1.3;
 }
 
 .cc-head {
