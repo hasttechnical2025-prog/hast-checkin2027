@@ -24,7 +24,7 @@ export async function generateMetadata({
     title: 'Chấm Công HSTC',
     manifest: `/c/${token}/manifest.webmanifest`,
     appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Chấm Công' },
-    icons: { apple: '/icon.svg', icon: '/icon.svg' },
+    icons: { apple: '/apple-touch-icon.png', icon: '/icon-192.png' },
     // iOS đời cũ vẫn cần meta apple-prefixed để A2HS vào chế độ standalone.
     other: { 'apple-mobile-web-app-capable': 'yes' },
   };

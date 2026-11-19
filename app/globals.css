@@ -168,6 +168,8 @@ a {
 .cc-wrap {
   max-width: 460px;
   margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh; /* lấp đầy chiều cao màn hình (kể cả standalone PWA) */
   padding: 0 16px 16px;
   display: flex;
   flex-direction: column;
@@ -261,13 +263,16 @@ a {
 
 .cc-ring-area {
   display: flex;
+  flex: 1 1 auto; /* co giãn nuốt khoảng trống -> vòng tròn canh giữa phần còn lại, hết co cụm */
   justify-content: center;
-  padding: 2px 0 6px;
+  align-items: center;
+  padding: 8px 0;
+  min-height: 160px;
 }
 .cc-ring {
   position: relative;
-  width: 140px;
-  height: 140px;
+  width: 150px;
+  height: 150px;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -721,10 +726,16 @@ textarea.cc-note:focus {
 
 /* ===== Gợi ý cài app (A2HS) ===== */
 .pwa-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 436px;
+  z-index: 60;
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin: 0 16px 14px;
   padding: 11px 13px;
   border: 1px solid var(--accent);
   background: var(--accent-weak, #e8effd);
@@ -732,6 +743,7 @@ textarea.cc-note:focus {
   border-radius: 11px;
   font-size: 13px;
   line-height: 1.5;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.18);
 }
 .pwa-hint-warn {
   border-color: var(--warn);
