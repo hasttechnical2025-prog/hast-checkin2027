@@ -234,6 +234,21 @@ a {
   stroke-linecap: round;
   transition: stroke-dasharray 0.4s ease;
 }
+/* 4 cung cố định — mỗi cung 1 ca. Mặc định = rãnh mờ; done = xanh lá; current = xanh dương nhạt. */
+.cc-ring-seg {
+  fill: none;
+  stroke: var(--surface-3, #e2e8f0);
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke 0.3s ease, opacity 0.3s ease;
+}
+.cc-ring-seg.done {
+  stroke: var(--ok);
+}
+.cc-ring-seg.current {
+  stroke: var(--accent);
+  opacity: 0.5;
+}
 .cc-ring-center {
   position: absolute;
   inset: 0;

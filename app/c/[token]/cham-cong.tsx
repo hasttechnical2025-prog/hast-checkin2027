@@ -55,6 +55,16 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number): numb
 
 const hm = (t: string | null) => (t ? String(t).slice(0, 5) : '—');
 
+/** Ca "đang tới giờ" theo giờ VN — mốc phân ca khớp trigger (Vào sáng ≤10:00). */
+function currentSessionKey(): keyof TodayRecord {
+  const now = new Date(Date.now() + 7 * 3600 * 1000);
+  const hhmm = now.getUTCHours() * 100 + now.getUTCMinutes();
+  if (hhmm <= 1000) return 'morning_in';
+  if (hhmm <= 1245) return 'morning_out';
+  if (hhmm <= 1500) return 'afternoon_in';
+  return 'afternoon_out';
+}
+
 export default function ChamCong(props: ChamCongProps) {
   const { token, employee, office, maxDistance, gpsExpireMs, holiday, guide } = props;
 
@@ -73,6 +83,11 @@ export default function ChamCong(props: ChamCongProps) {
   const [result, setResult] = useState<{ ok: boolean; title: string; lines: string[] } | null>(null);
   const [confirmDlg, setConfirmDlg] = useState<{ label: string; time: string } | null>(null);
   const gettingRef = useRef(false);
+  // Ca "đang tới giờ" — set sau khi mount để tránh lệch hydrate (server không biết giờ client).
+  const [curSession, setCurSession] = useState<keyof TodayRecord | null>(null);
+  useEffect(() => {
+    setCurSession(currentSessionKey());
+  }, []);
 
   const filled = SESSIONS.filter((s) => today[s.key]).length;
 
@@ -211,10 +226,11 @@ export default function ChamCong(props: ChamCongProps) {
           ? 'Không thể chấm'
           : 'Chạm để chấm công';
 
-  // Vòng tiến trình 4 ca
+  // Vòng tiến trình: 4 cung cố định, mỗi cung = 1 ca (Vào sáng ¼1 → Ra chiều ¼4).
   const R = 92;
   const C = 2 * Math.PI * R;
-  const prog = (filled / 4) * C;
+  const GAP_DEG = 7; // khoảng hở giữa 2 cung
+  const ARC_LEN = C * ((90 - GAP_DEG) / 360);
 
   return (
     <main className="cc-wrap">
@@ -239,15 +255,22 @@ export default function ChamCong(props: ChamCongProps) {
           aria-label="Chấm công"
         >
           <svg viewBox="0 0 220 220" className="cc-ring-svg">
-            <circle cx="110" cy="110" r={R} className="cc-ring-bg" />
-            <circle
-              cx="110"
-              cy="110"
-              r={R}
-              className="cc-ring-fg"
-              strokeDasharray={`${prog} ${C - prog}`}
-              transform="rotate(-90 110 110)"
-            />
+            {SESSIONS.map((s, i) => {
+              const done = !!today[s.key];
+              const current = !done && s.key === curSession;
+              const rot = -90 + i * 90 + GAP_DEG / 2;
+              return (
+                <circle
+                  key={s.key}
+                  cx="110"
+                  cy="110"
+                  r={R}
+                  className={`cc-ring-seg${done ? ' done' : current ? ' current' : ''}`}
+                  strokeDasharray={`${ARC_LEN} ${C - ARC_LEN}`}
+                  transform={`rotate(${rot} 110 110)`}
+                />
+              );
+            })}
           </svg>
           <span className="cc-ring-center">
             <span className="cc-ring-count">{filled}/4</span>
