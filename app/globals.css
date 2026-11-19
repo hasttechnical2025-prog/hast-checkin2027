@@ -174,8 +174,7 @@ a {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 9px; /* khoảng cách tối thiểu giữa các khối */
-  justify-content: space-between; /* dàn đều hết chiều cao -> không dồn 1 khoảng trống lớn */
+  gap: 10px; /* khoảng cách gọn, cố định giữa các khối (không giãn) */
 }
 
 /* Màn chặn khi mở trên PC / máy tính bảng / iPad (công tắc "chỉ điện thoại") */
@@ -259,13 +258,14 @@ a {
 
 .cc-ring-area {
   display: flex;
+  flex: 1 1 auto; /* chỉ vùng này nuốt khoảng trống còn lại -> các khối trên bám sát nhau */
   justify-content: center;
   align-items: center;
   padding: 0;
 }
 .cc-ring {
   position: relative;
-  width: min(62vw, 230px, 27vh); /* 27vh để phone nhỏ (SE) vẫn gọn 1 màn hình */
+  width: min(66vw, 280px, 26vh); /* cap theo 26vh để phone nhỏ (SE) không tràn */
   aspect-ratio: 1;
   border: none;
   background: transparent;

@@ -259,7 +259,15 @@ export default function ChamCong(props: ChamCongProps) {
         </button>
       </header>
 
-      {/* 1) Giờ chấm + grade từng ca (ô ca hiện tại được tô sáng) */}
+      {/* 2) Họ tên + phòng ban (ngay dưới logo) */}
+      <div className="cc-ident">
+        <div className="cc-ident-name">{employee.name}</div>
+        <div className="cc-ident-sub">
+          {employee.maNv} · {employee.department}
+        </div>
+      </div>
+
+      {/* 3) Giờ chấm + grade từng ca (ô ca hiện tại được tô sáng) */}
       <div className="cc-strip">
         {SESSIONS.map((s, i) => {
           const g = today[s.key] ? gradeArr[i] : '';
@@ -288,14 +296,6 @@ export default function ChamCong(props: ChamCongProps) {
           rows={1}
         />
       )}
-
-      {/* 4) Họ tên + phòng ban (có chỗ cho tên dài) */}
-      <div className="cc-ident">
-        <div className="cc-ident-name">{employee.name}</div>
-        <div className="cc-ident-sub">
-          {employee.maNv} · {employee.department}
-        </div>
-      </div>
 
       {/* 5) Vị trí (tô màu trạng thái) — nút Định vị lại xuống dưới chữ */}
       <div className={`cc-loc cc-loc-${loc.type}`}>
