@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { APP_VERSION } from '@/lib/version';
 
 export interface OfficeProp {
@@ -372,9 +373,9 @@ export default function ChamCong(props: ChamCongProps) {
       </div>
 
       {/* 5) Dữ liệu tháng — link nhỏ */}
-      <a className="cc-monthlink" href={`/c/${token}/lich-su`}>
+      <Link className="cc-monthlink" href={`/c/${token}/lich-su`} prefetch>
         📅 Dữ liệu tháng &amp; giải trình
-      </a>
+      </Link>
 
       {confirmDlg && (
         <div className="cc-dlg-overlay" onClick={() => setConfirmDlg(null)}>
