@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getSystemConfig } from '@/lib/config';
+import { isPhone } from '@/lib/device';
 import { sendTelegram } from '@/lib/telegram';
 import {
   haversine,
@@ -78,16 +79,12 @@ export async function POST(req: NextRequest) {
 
   const cfg = await getSystemConfig();
 
-  // Công tắc: chỉ cho chấm công trên điện thoại (khóa PC) — nhận diện qua User-Agent.
-  if (cfg.requireMobile) {
-    const ua = req.headers.get('user-agent') || '';
-    const isMobile = /Mobi|Android|iPhone|iPod|iPad|Windows Phone/i.test(ua);
-    if (!isMobile) {
-      return NextResponse.json(
-        { error: 'Chấm công chỉ thực hiện trên điện thoại. Hãy dùng điện thoại đã cài app.', blocked: 'desktop' },
-        { status: 403 },
-      );
-    }
+  // Công tắc: chỉ cho chấm công trên ĐIỆN THOẠI (khóa PC/tablet/iPad) — nhận diện qua User-Agent.
+  if (cfg.requireMobile && !isPhone(req.headers.get('user-agent'))) {
+    return NextResponse.json(
+      { error: 'Chấm công chỉ thực hiện trên điện thoại. Hãy dùng điện thoại đã cài app.', blocked: 'desktop' },
+      { status: 403 },
+    );
   }
 
   const { dateStr, hhmm, dow } = vnNow();

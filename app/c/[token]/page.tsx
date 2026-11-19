@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getSystemConfig } from '@/lib/config';
+import { isPhone } from '@/lib/device';
 import { vnNow } from '@/lib/attendance';
 import ChamCong from './cham-cong';
+import DeviceBlock from './device-block';
 import PwaClient from './pwa-client';
 
 // Định danh CBNV ở PATH (token). Server giải định danh mỗi request -> không phụ thuộc
@@ -46,6 +49,18 @@ export default async function CbnvPage({
   }
 
   const cfg = await getSystemConfig();
+
+  // Công tắc "chỉ điện thoại": chặn NGAY khi mở trang trên PC / máy tính bảng / iPad,
+  // thay vì cho thao tác rồi mới báo khi bấm chấm công.
+  if (cfg.requireMobile) {
+    const h = await headers();
+    if (!isPhone(h.get('user-agent'))) {
+      const host = h.get('host') ?? '';
+      const proto = h.get('x-forwarded-proto') ?? 'https';
+      return <DeviceBlock url={`${proto}://${host}/c/${token}`} employeeName={emp!.name} />;
+    }
+  }
+
   const { dateStr, dow } = vnNow();
 
   // Bản ghi ngày hôm nay (để hiện tiến trình 4 ca)
