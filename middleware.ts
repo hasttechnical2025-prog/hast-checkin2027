@@ -55,12 +55,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?e=norole', req.url));
   }
 
+  // Khu /admin (gồm cả Duyệt thiết bị /admin/thiet-bi) chỉ dành cho Admin.
   if (path.startsWith('/admin') && role.role !== 'admin') {
-    return NextResponse.redirect(new URL('/tbp', req.url));
-  }
-
-  // Duyệt thiết bị chỉ dành cho Admin -> TBP biết URL cũng bị đá về Duyệt giải trình.
-  if (path.startsWith('/tbp/thiet-bi') && role.role !== 'admin') {
     return NextResponse.redirect(new URL('/tbp', req.url));
   }
 
