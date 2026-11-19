@@ -690,8 +690,21 @@ textarea.cc-note:focus {
 }
 .ls-reason {
   text-align: left !important;
-  white-space: normal;
-  min-width: 120px;
+  width: 160px;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* Nội dung lý do chỉ 1 dòng; lý do dài -> cắt bớt (…) để bảng không nở */
+.ls-reason .ls-gt,
+.ls-reason .ls-leave-tag,
+.ls-reason > span {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 .ls-leave-tag {
   color: #1e40af;
