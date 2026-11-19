@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useConfirm } from '@/lib/confirm';
 
 export interface DeviceItem {
   id: string;
@@ -26,6 +27,7 @@ function shortUA(ua: string): string {
 
 export default function DevicePanel({ items }: { items: DeviceItem[] }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [busy, setBusy] = useState<string | null>(null);
 
   async function act(id: string, action: 'approve' | 'reject') {
@@ -42,6 +44,18 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
     } finally {
       setBusy(null);
     }
+  }
+
+  async function reject(it: DeviceItem) {
+    const warnActive = it.active
+      ? ' Thiết bị này đang hoạt động — thu hồi xong nhân viên sẽ KHÔNG chấm công được cho tới khi có thiết bị khác được duyệt.'
+      : '';
+    const ok = await confirm({
+      message: `${it.active ? 'Thu hồi' : 'Từ chối'} thiết bị của ${it.name}?${warnActive}`,
+      danger: true,
+      okText: it.active ? 'Thu hồi' : 'Từ chối',
+    });
+    if (ok) await act(it.id, 'reject');
   }
 
   return (
@@ -85,19 +99,26 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
                   )}
                 </td>
                 <td className="tbp-act">
-                  {i.status === 'Chờ' && i.canApprove ? (
+                  {!i.canApprove ? (
+                    <span className="muted" style={{ fontSize: 12 }}>—</span>
+                  ) : i.status === 'Chờ' ? (
                     <>
                       <button className="btn-approve" disabled={busy === i.id} onClick={() => act(i.id, 'approve')}>
                         ✅ Duyệt
                       </button>
-                      <button className="btn-reject" disabled={busy === i.id} onClick={() => act(i.id, 'reject')}>
-                        ❌
+                      <button className="btn-reject" disabled={busy === i.id} onClick={() => reject(i)}>
+                        ❌ Từ chối
                       </button>
                     </>
+                  ) : i.status === 'Từ chối' ? (
+                    <button className="btn-approve" disabled={busy === i.id} onClick={() => act(i.id, 'approve')}>
+                      ↩️ Duyệt lại
+                    </button>
                   ) : (
-                    <span className="muted" style={{ fontSize: 12 }}>
-                      —
-                    </span>
+                    // Đồng ý
+                    <button className="btn-undo" disabled={busy === i.id} onClick={() => reject(i)}>
+                      Thu hồi
+                    </button>
                   )}
                 </td>
               </tr>
