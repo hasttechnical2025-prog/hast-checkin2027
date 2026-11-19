@@ -27,6 +27,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* tắt ô mờ vuông khi chạm trên mobile */
 }
 
 html {
