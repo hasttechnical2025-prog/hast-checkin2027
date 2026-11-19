@@ -250,16 +250,10 @@ export default function ChamCong(props: ChamCongProps) {
 
   return (
     <main className="cc-wrap">
-      {/* Header mỏng: logo trái · tên NV giữa · cài đặt phải */}
+      {/* 1) Logo công ty (rộng) + nút cài đặt */}
       <header className="cc-top">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt={props.companyName} className="cc-top-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-        <div className="cc-top-id">
-          <div className="cc-top-name">{employee.name}</div>
-          <div className="cc-top-sub">
-            {employee.maNv} · {employee.department}
-          </div>
-        </div>
         <button type="button" className="cc-gear" onClick={() => setSheetOpen(true)} aria-label="Cài đặt">
           ⚙️
         </button>
@@ -284,7 +278,7 @@ export default function ChamCong(props: ChamCongProps) {
         })}
       </div>
 
-      {/* 2) Ghi chú (1 dòng, nở ra khi gõ) */}
+      {/* 3) Ghi chú (1 dòng, nở ra khi gõ) */}
       {!holiday.isHoliday && (
         <textarea
           className="field cc-note"
@@ -295,7 +289,15 @@ export default function ChamCong(props: ChamCongProps) {
         />
       )}
 
-      {/* 3) Vị trí (tô màu trạng thái) + Định vị lại cùng hàng */}
+      {/* 4) Họ tên + phòng ban (có chỗ cho tên dài) */}
+      <div className="cc-ident">
+        <div className="cc-ident-name">{employee.name}</div>
+        <div className="cc-ident-sub">
+          {employee.maNv} · {employee.department}
+        </div>
+      </div>
+
+      {/* 5) Vị trí (tô màu trạng thái) — nút Định vị lại xuống dưới chữ */}
       <div className={`cc-loc cc-loc-${loc.type}`}>
         <div className="cc-loc-main">
           <div className="cc-loc-title">{loc.title}</div>

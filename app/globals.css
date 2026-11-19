@@ -174,7 +174,7 @@ a {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 14px; /* khoảng cách tối thiểu giữa các khối */
+  gap: 9px; /* khoảng cách tối thiểu giữa các khối */
   justify-content: space-between; /* dàn đều hết chiều cao -> không dồn 1 khoảng trống lớn */
 }
 
@@ -227,39 +227,34 @@ a {
   word-break: break-all;
 }
 
-/* Header mỏng: logo trái · tên NV · nút cài đặt — gộp 1 thanh để gọn 1 màn hình */
+/* 1) Logo công ty (rộng ~ đường kính vòng chấm công) + nút cài đặt góc phải */
 .cc-top {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 2px;
+  justify-content: center;
+  min-height: 42px;
 }
 .cc-top-logo {
-  height: 34px;
+  height: min(72px, 9vh); /* co theo chiều cao màn hình -> phone nhỏ vẫn gọn */
   width: auto;
-  max-width: 112px;
+  max-width: 72vw;
   object-fit: contain;
-  flex: none;
 }
-.cc-top-id {
-  flex: 1;
-  min-width: 0;
+
+/* 4) Họ tên + phòng ban (tên dài tự xuống dòng, không cắt) */
+.cc-ident {
+  text-align: center;
 }
-.cc-top-name {
-  font-size: 17px;
+.cc-ident-name {
+  font-size: 19px;
   font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.25;
 }
-.cc-top-sub {
+.cc-ident-sub {
   color: var(--muted);
-  font-size: 12px;
-  margin-top: 1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 13px;
+  margin-top: 2px;
 }
 
 .cc-ring-area {
@@ -270,7 +265,7 @@ a {
 }
 .cc-ring {
   position: relative;
-  width: min(64vw, 230px);
+  width: min(62vw, 230px, 27vh); /* 27vh để phone nhỏ (SE) vẫn gọn 1 màn hình */
   aspect-ratio: 1;
   border: none;
   background: transparent;
@@ -403,8 +398,8 @@ a {
 
 .cc-loc {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
   border: 1px solid var(--border);
   border-left-width: 4px;
   border-radius: 10px;
@@ -412,7 +407,6 @@ a {
   background: var(--surface);
 }
 .cc-loc-main {
-  flex: 1;
   min-width: 0;
 }
 .cc-loc-title {
@@ -430,7 +424,7 @@ a {
 .cc-loc-err { border-left-color: var(--err); background: #fdf0f0; }
 .cc-loc-idle { border-left-color: var(--accent); background: var(--surface); }
 .cc-reloc {
-  flex: none;
+  align-self: flex-end; /* nằm dưới chữ, canh phải */
   margin-top: 0;
   appearance: none;
   border: 1px solid var(--border);
@@ -438,7 +432,7 @@ a {
   color: var(--accent);
   font-size: 12.5px;
   font-weight: 600;
-  padding: 7px 10px;
+  padding: 7px 12px;
   border-radius: 9px;
   white-space: nowrap;
   cursor: pointer;
@@ -779,7 +773,10 @@ textarea.cc-note:focus {
 
 /* ===== Sheet Cài đặt ===== */
 .cc-gear {
-  flex: none;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 34px;
   height: 34px;
   border: none;
