@@ -250,21 +250,69 @@ export default function ChamCong(props: ChamCongProps) {
 
   return (
     <main className="cc-wrap">
-      <div className="cc-banner">
+      {/* Header mỏng: logo trái · tên NV giữa · cài đặt phải */}
+      <header className="cc-top">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt={props.companyName} className="cc-logo" onError={(e) => { e.currentTarget.replaceWith(Object.assign(document.createElement('span'), { className: 'cc-banner-text', textContent: props.companyName })); }} />
+        <img src="/logo.png" alt={props.companyName} className="cc-top-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+        <div className="cc-top-id">
+          <div className="cc-top-name">{employee.name}</div>
+          <div className="cc-top-sub">
+            {employee.maNv} · {employee.department}
+          </div>
+        </div>
         <button type="button" className="cc-gear" onClick={() => setSheetOpen(true)} aria-label="Cài đặt">
           ⚙️
         </button>
+      </header>
+
+      {/* 1) Giờ chấm + grade từng ca (ô ca hiện tại được tô sáng) */}
+      <div className="cc-strip">
+        {SESSIONS.map((s, i) => {
+          const g = today[s.key] ? gradeArr[i] : '';
+          const isCurrent = !today[s.key] && s.key === curSession;
+          return (
+            <div key={s.key} className={`cc-chip ${today[s.key] ? 'done' : ''}${isCurrent ? ' current' : ''}`}>
+              <span className="cc-chip-label">{s.label}</span>
+              <span className="cc-chip-time">{hm(today[s.key])}</span>
+              {g && GRADE_CLASS[g] ? (
+                <span className={`cc-chip-grade ${GRADE_CLASS[g]}`}>{g}</span>
+              ) : (
+                <span className="cc-chip-grade cc-chip-grade-empty" aria-hidden="true" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      <div className="cc-head">
-        <div className="cc-name">{employee.name}</div>
-        <div className="cc-sub">
-          {employee.maNv} · {employee.department}
+      {/* 2) Ghi chú (1 dòng, nở ra khi gõ) */}
+      {!holiday.isHoliday && (
+        <textarea
+          className="field cc-note"
+          placeholder="Ghi chú (tuỳ chọn): đi muộn, công tác, lý do…"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          rows={1}
+        />
+      )}
+
+      {/* 3) Vị trí (tô màu trạng thái) + Định vị lại cùng hàng */}
+      <div className={`cc-loc cc-loc-${loc.type}`}>
+        <div className="cc-loc-main">
+          <div className="cc-loc-title">{loc.title}</div>
+          {loc.lines.map((l, i) => (
+            <div key={i} className="cc-loc-line">
+              {l}
+            </div>
+          ))}
         </div>
+        {!holiday.isHoliday && (
+          <button type="button" className="cc-reloc" onClick={requestGps} disabled={busy}>
+            📡 Định vị lại
+          </button>
+        )}
       </div>
 
+      {/* 4) Nút chấm công — vòng tròn thu nhỏ, ở đáy (hành động cuối) */}
       <div className="cc-ring-area">
         <button
           type="button"
@@ -298,47 +346,7 @@ export default function ChamCong(props: ChamCongProps) {
         </button>
       </div>
 
-      <div className="cc-strip">
-        {SESSIONS.map((s, i) => {
-          const g = today[s.key] ? gradeArr[i] : '';
-          return (
-            <div key={s.key} className={`cc-chip ${today[s.key] ? 'done' : ''}`}>
-              <span className="cc-chip-label">{s.label}</span>
-              <span className="cc-chip-time">{hm(today[s.key])}</span>
-              {g && GRADE_CLASS[g] ? (
-                <span className={`cc-chip-grade ${GRADE_CLASS[g]}`}>{g}</span>
-              ) : (
-                <span className="cc-chip-grade cc-chip-grade-empty" aria-hidden="true" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className={`cc-loc cc-loc-${loc.type}`}>
-        <div className="cc-loc-title">{loc.title}</div>
-        {loc.lines.map((l, i) => (
-          <div key={i} className="cc-loc-line">
-            {l}
-          </div>
-        ))}
-        {!holiday.isHoliday && (
-          <button type="button" className="cc-reloc" onClick={requestGps} disabled={busy}>
-            📡 Định vị lại
-          </button>
-        )}
-      </div>
-
-      {!holiday.isHoliday && (
-        <textarea
-          className="field"
-          placeholder="Ghi chú (tuỳ chọn): công tác, đi muộn, lý do…"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={2}
-        />
-      )}
-
+      {/* 5) Dữ liệu tháng — link nhỏ */}
       <a className="cc-monthlink" href={`/c/${token}/lich-su`}>
         📅 Dữ liệu tháng &amp; giải trình
       </a>
