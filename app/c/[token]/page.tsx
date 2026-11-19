@@ -51,7 +51,7 @@ export default async function CbnvPage({
   // Bản ghi ngày hôm nay (để hiện tiến trình 4 ca)
   const { data: today } = await admin
     .from('chamcong_attendance_records')
-    .select('morning_in, morning_out, afternoon_in, afternoon_out')
+    .select('morning_in, morning_out, afternoon_in, afternoon_out, grades')
     .eq('employee_id', emp!.id)
     .eq('date', dateStr)
     .maybeSingle();

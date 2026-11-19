@@ -182,6 +182,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Lỗi ghi chấm công: ' + error.message }, { status: 500 });
   }
 
+  // Đọc lại grade do trigger vừa tính (để client hiện ngay, khỏi reload).
+  let grade: string | null = null;
+  const { data: rec2 } = await admin
+    .from('chamcong_attendance_records')
+    .select('grades')
+    .eq('employee_id', emp.id)
+    .eq('date', dateStr)
+    .maybeSingle();
+  if (rec2?.grades) {
+    const order = ['morning_in', 'morning_out', 'afternoon_in', 'afternoon_out'];
+    const idx = order.indexOf(session);
+    const parts = String(rec2.grades).split(',').map((g) => g.trim());
+    grade = idx >= 0 ? parts[idx] ?? null : null;
+  }
+
   // Sự kiện 1: xác nhận chấm công cho CBNV (best-effort).
   const timeStr = `${String(Math.floor(hhmm / 100)).padStart(2, '0')}:${String(hhmm % 100).padStart(2, '0')}`;
   await sendTelegram(
@@ -199,5 +214,6 @@ export async function POST(req: NextRequest) {
     address,
     session,
     sessionLabel: sessionLabel(session),
+    grade,
   });
 }

@@ -14,6 +14,7 @@ export interface TodayRecord {
   morning_out: string | null;
   afternoon_in: string | null;
   afternoon_out: string | null;
+  grades: string | null; // "A,B,A,D" theo thứ tự SESSIONS
 }
 export interface ChamCongProps {
   token: string;
@@ -55,6 +56,9 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number): numb
 
 const hm = (t: string | null) => (t ? String(t).slice(0, 5) : '—');
 
+// Màu + nhãn phụ cho grade. A=đạt, B=trễ nhẹ, D=không đạt.
+const GRADE_CLASS: Record<string, string> = { A: 'grade-a', B: 'grade-b', D: 'grade-d' };
+
 /** Ca "đang tới giờ" theo giờ VN — mốc phân ca khớp trigger (Vào sáng ≤10:00). */
 function currentSessionKey(): keyof TodayRecord {
   const now = new Date(Date.now() + 7 * 3600 * 1000);
@@ -69,7 +73,7 @@ export default function ChamCong(props: ChamCongProps) {
   const { token, employee, office, maxDistance, gpsExpireMs, holiday, guide } = props;
 
   const [today, setToday] = useState<TodayRecord>(
-    props.today ?? { morning_in: null, morning_out: null, afternoon_in: null, afternoon_out: null },
+    props.today ?? { morning_in: null, morning_out: null, afternoon_in: null, afternoon_out: null, grades: null },
   );
   const [gps, setGps] = useState<Gps | null>(null);
   const [loc, setLocState] = useState<{ type: LocType; title: string; lines: string[] }>({
@@ -90,6 +94,7 @@ export default function ChamCong(props: ChamCongProps) {
   }, []);
 
   const filled = SESSIONS.filter((s) => today[s.key]).length;
+  const gradeArr = (today.grades ?? '').split(',').map((g) => g.trim());
 
   const requestGps = useCallback(() => {
     if (gettingRef.current || holiday.isHoliday) return;
@@ -183,7 +188,18 @@ export default function ChamCong(props: ChamCongProps) {
         // Thành công: cập nhật ca vừa chấm (optimistic) để vòng + dải cập nhật.
         const now = new Date(Date.now() + 7 * 3600 * 1000);
         const nowHm = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
-        setToday((t) => ({ ...t, [data.session]: nowHm }));
+        setToday((t) => {
+          const order = SESSIONS.map((s) => s.key);
+          const idx = order.indexOf(data.session);
+          let grades = t.grades;
+          if (idx >= 0 && data.grade) {
+            const parts = (t.grades ?? ',,,').split(',');
+            while (parts.length < 4) parts.push('');
+            parts[idx] = data.grade;
+            grades = parts.join(',');
+          }
+          return { ...t, [data.session]: nowHm, grades };
+        });
         setResult({
           ok: true,
           title: 'Đã chấm công',
@@ -283,12 +299,20 @@ export default function ChamCong(props: ChamCongProps) {
       </div>
 
       <div className="cc-strip">
-        {SESSIONS.map((s) => (
-          <div key={s.key} className={`cc-chip ${today[s.key] ? 'done' : ''}`}>
-            <span className="cc-chip-label">{s.label}</span>
-            <span className="cc-chip-time">{hm(today[s.key])}</span>
-          </div>
-        ))}
+        {SESSIONS.map((s, i) => {
+          const g = today[s.key] ? gradeArr[i] : '';
+          return (
+            <div key={s.key} className={`cc-chip ${today[s.key] ? 'done' : ''}`}>
+              <span className="cc-chip-label">{s.label}</span>
+              <span className="cc-chip-time">{hm(today[s.key])}</span>
+              {g && GRADE_CLASS[g] ? (
+                <span className={`cc-chip-grade ${GRADE_CLASS[g]}`}>{g}</span>
+              ) : (
+                <span className="cc-chip-grade cc-chip-grade-empty" aria-hidden="true" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className={`cc-loc cc-loc-${loc.type}`}>
