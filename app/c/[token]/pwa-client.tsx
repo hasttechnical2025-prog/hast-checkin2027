@@ -60,7 +60,11 @@ export default function PwaClient() {
   async function install() {
     if (!installEvt) return;
     await installEvt.prompt();
-    dismiss();
+    // Chỉ ẩn banner cho phiên này; KHÔNG đặt cờ tắt vĩnh viễn.
+    // Nếu người dùng cài thành công -> lần sau mở là standalone nên banner tự ẩn.
+    // Nếu họ hủy / chỉ ra shortcut -> lần sau beforeinstallprompt lại kích, banner hiện lại.
+    setInstallEvt(null);
+    setHint(null);
   }
 
   if (installEvt) {
