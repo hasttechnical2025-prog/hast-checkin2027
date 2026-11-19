@@ -82,6 +82,8 @@ export default function ChamCong(props: ChamCongProps) {
     lines: holiday.isHoliday ? [holiday.reason] : ['Đang chuẩn bị định vị…'],
   });
   const [busy, setBusy] = useState(false);
+  const [locating, setLocating] = useState(false); // đang lấy GPS (sau khi chạm)
+  const [justDone, setJustDone] = useState(false); // hiệu ứng pop khi chấm xong
   const [note, setNote] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; title: string; lines: string[] } | null>(null);
@@ -107,6 +109,7 @@ export default function ChamCong(props: ChamCongProps) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         gettingRef.current = false;
+        setLocating(false);
         const { latitude: lat, longitude: lng, accuracy: acc } = pos.coords;
         setGps({ lat, lng, acc, ts: Date.now() });
         const dist = Math.round(haversine(lat, lng, office.lat, office.lng));
@@ -135,6 +138,7 @@ export default function ChamCong(props: ChamCongProps) {
       },
       (err) => {
         gettingRef.current = false;
+        setLocating(false);
         setGps(null);
         const m: Record<number, string> = {
           1: 'Cần BẬT Định vị cho trình duyệt rồi thử lại.',
@@ -211,6 +215,8 @@ export default function ChamCong(props: ChamCongProps) {
         });
         setNote('');
         setBusy(false);
+        setJustDone(true);
+        setTimeout(() => setJustDone(false), 800);
       } catch {
         setResult({ ok: false, title: 'Lỗi kết nối', lines: ['Kiểm tra mạng rồi thử lại.'] });
         setBusy(false);
@@ -220,27 +226,31 @@ export default function ChamCong(props: ChamCongProps) {
   );
 
   const onTapRing = useCallback(() => {
-    if (holiday.isHoliday || busy) return;
+    if (holiday.isHoliday || busy || locating) return;
     const expired = !gps || Date.now() - gps.ts > gpsExpireMs;
     if (expired) {
       setGps(null);
+      setLocating(true);
       requestGps();
       return;
     }
     if (loc.type === 'err') return; // vượt max / lỗi GPS
     submit(false);
-  }, [holiday.isHoliday, busy, gps, gpsExpireMs, loc.type, requestGps, submit]);
+  }, [holiday.isHoliday, busy, locating, gps, gpsExpireMs, loc.type, requestGps, submit]);
 
+  const processing = busy || locating;
   const canCheck = !holiday.isHoliday && gps && loc.type !== 'err' && !busy;
   const ringCenter = busy
-    ? 'Đang xử lý…'
-    : holiday.isHoliday
-      ? 'Ngày nghỉ'
-      : !gps
-        ? 'Định vị'
-        : loc.type === 'err'
-          ? 'Không thể chấm'
-          : 'Chấm công';
+    ? 'Đang gửi…'
+    : locating
+      ? 'Đang lấy vị trí…'
+      : holiday.isHoliday
+        ? 'Ngày nghỉ'
+        : !gps
+          ? 'Định vị'
+          : loc.type === 'err'
+            ? 'Không thể chấm'
+            : 'Chấm công';
 
   // Vòng tiến trình: 4 cung cố định, mỗi cung = 1 ca (Vào sáng ¼1 → Ra chiều ¼4).
   const R = 92;
@@ -321,10 +331,11 @@ export default function ChamCong(props: ChamCongProps) {
       <div className="cc-ring-area">
         <button
           type="button"
-          className={`cc-ring cc-ring-${canCheck ? loc.type : holiday.isHoliday ? 'idle' : loc.type}`}
+          className={`cc-ring cc-ring-${canCheck ? loc.type : holiday.isHoliday ? 'idle' : loc.type}${processing ? ' processing' : ''}${justDone ? ' just-done' : ''}`}
           onClick={onTapRing}
-          disabled={busy}
+          disabled={processing}
           aria-label="Chấm công"
+          aria-busy={processing}
         >
           <svg viewBox="0 0 220 220" className="cc-ring-svg">
             {SESSIONS.map((s, i) => {
@@ -343,6 +354,15 @@ export default function ChamCong(props: ChamCongProps) {
                 />
               );
             })}
+            {processing && (
+              <circle
+                cx="110"
+                cy="110"
+                r={R}
+                className="cc-ring-spinner"
+                strokeDasharray={`${C * 0.26} ${C}`}
+              />
+            )}
           </svg>
           <span className="cc-ring-center">
             <span className="cc-ring-count">{filled}/4</span>

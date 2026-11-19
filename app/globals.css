@@ -317,6 +317,51 @@ a {
   stroke: var(--accent);
   opacity: 0.5;
 }
+
+/* Phản hồi chạm tức thì + animation lúc chấm công */
+.cc-ring {
+  transition: transform 0.09s ease;
+}
+.cc-ring:not(:disabled):active {
+  transform: scale(0.96);
+}
+/* Cung sáng quay vòng khi đang xử lý (lấy GPS / gửi) */
+.cc-ring-spinner {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 14;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cc-spin 0.9s linear infinite;
+}
+@keyframes cc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Mờ 4 cung khi đang xử lý để spinner nổi bật */
+.cc-ring.processing .cc-ring-seg {
+  opacity: 0.2;
+}
+.cc-ring.processing .cc-ring-text {
+  color: var(--accent);
+}
+/* Pop số đếm khi chấm xong */
+.cc-ring.just-done .cc-ring-count {
+  animation: cc-pop 0.55s ease;
+}
+@keyframes cc-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 .cc-ring-center {
   position: absolute;
   inset: 0;

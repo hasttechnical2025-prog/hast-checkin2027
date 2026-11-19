@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, after, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getSystemConfig } from '@/lib/config';
 import { isPhone } from '@/lib/device';
@@ -144,36 +144,25 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 4) Reverse geocode (best-effort — KHÔNG chặn luồng)
-  let address = 'Không xác định';
-  try {
-    const geo = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${body.latitude}&lon=${body.longitude}&format=json&accept-language=vi`,
-      { headers: { 'User-Agent': 'HSTC-ChamCong/2027' } },
-    );
-    if (geo.ok) {
-      const j = (await geo.json()) as { display_name?: string };
-      address = j.display_name || address;
-    }
-  } catch {
-    /* bỏ qua */
-  }
-
-  // 5) Ghi log -> trigger tổng hợp record + chấm A/B/D
+  // 4) Ghi log NGAY (không chờ geocode/Telegram) -> trigger tổng hợp record + chấm A/B/D.
   const status = inside ? STATUS_OK : STATUS_OUT;
-  const { error } = await admin.from('chamcong_attendance_logs').insert({
-    employee_id: emp.id,
-    employee_name: emp.name,
-    latitude: body.latitude,
-    longitude: body.longitude,
-    accuracy: body.accuracy != null ? Math.round(body.accuracy) : null,
-    nearest_office: cfg.office.name,
-    distance: dist,
-    status,
-    address,
-    note: (body.note || '').trim() || null,
-    device_id: deviceId,
-  });
+  const { data: logRow, error } = await admin
+    .from('chamcong_attendance_logs')
+    .insert({
+      employee_id: emp.id,
+      employee_name: emp.name,
+      latitude: body.latitude,
+      longitude: body.longitude,
+      accuracy: body.accuracy != null ? Math.round(body.accuracy) : null,
+      nearest_office: cfg.office.name,
+      distance: dist,
+      status,
+      address: null, // dịch địa chỉ ở bước nền bên dưới
+      note: (body.note || '').trim() || null,
+      device_id: deviceId,
+    })
+    .select('id')
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json({ error: 'Lỗi ghi chấm công: ' + error.message }, { status: 500 });
@@ -194,13 +183,35 @@ export async function POST(req: NextRequest) {
     grade = idx >= 0 ? parts[idx] ?? null : null;
   }
 
-  // Sự kiện 1: xác nhận chấm công cho CBNV (best-effort).
+  // Việc CHẬM (dịch địa chỉ + Telegram) chạy NỀN sau khi đã trả kết quả -> app phản hồi nhanh.
   const timeStr = `${String(Math.floor(hhmm / 100)).padStart(2, '0')}:${String(hhmm % 100).padStart(2, '0')}`;
-  await sendTelegram(
-    emp.telegram_chat_id,
-    `✅ <b>${emp.name}</b> đã chấm công <b>${sessionLabel(session)}</b> lúc ${timeStr}\n` +
-      `${inside ? '📍 Trong phạm vi' : '⚠️ Ngoài phạm vi'} · ${dist} m · ${cfg.office.name}`,
-  );
+  const logId = logRow?.id as string | number | undefined;
+  after(async () => {
+    // Reverse geocode (timeout ngắn) rồi cập nhật địa chỉ cho log — không chặn phản hồi.
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 3000);
+      const geo = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${body.latitude}&lon=${body.longitude}&format=json&accept-language=vi`,
+        { headers: { 'User-Agent': 'HSTC-ChamCong/2027' }, signal: ctrl.signal },
+      );
+      clearTimeout(timer);
+      if (geo.ok && logId != null) {
+        const j = (await geo.json()) as { display_name?: string };
+        if (j.display_name) {
+          await admin.from('chamcong_attendance_logs').update({ address: j.display_name }).eq('id', logId);
+        }
+      }
+    } catch {
+      /* bỏ qua */
+    }
+    // Thông báo Telegram xác nhận cho CBNV (best-effort).
+    await sendTelegram(
+      emp.telegram_chat_id,
+      `✅ <b>${emp.name}</b> đã chấm công <b>${sessionLabel(session)}</b> lúc ${timeStr}\n` +
+        `${inside ? '📍 Trong phạm vi' : '⚠️ Ngoài phạm vi'} · ${dist} m · ${cfg.office.name}`,
+    );
+  });
 
   return NextResponse.json({
     ok: true,
@@ -208,7 +219,6 @@ export async function POST(req: NextRequest) {
     distance: dist,
     status,
     office: cfg.office.name,
-    address,
     session,
     sessionLabel: sessionLabel(session),
     grade,
