@@ -25,11 +25,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     theme_color: '#1a73e8',
     lang: 'vi',
     icons: [
-      // PNG 192/512 là BẮT BUỘC để Android tạo app standalone thật (không thì ra shortcut mở trong trình duyệt).
+      // Icon = logo công ty (PNG 192/512 bắt buộc để Android tạo app standalone + ảnh splash khi mở app).
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
       { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-      { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
     ],
   };
   return new Response(JSON.stringify(manifest), {

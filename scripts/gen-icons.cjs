@@ -1,24 +1,30 @@
-// Tạo PNG icon cho PWA từ public/icon.svg (nguồn duy nhất).
+// Tạo PNG icon cho PWA từ public/logo.png (LOGO CÔNG TY).
+// Logo là ảnh ngang (trong suốt) -> ghép canh giữa trên nền trắng để thành icon vuông.
 // Chạy: node scripts/gen-icons.cjs   (cần sharp — đã có trong node_modules qua Next).
 const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const svg = fs.readFileSync(path.join(root, 'public', 'icon.svg'));
+const logo = fs.readFileSync(path.join(root, 'public', 'logo.png'));
 const out = (name) => path.join(root, 'public', name);
+const BG = '#ffffff';
 
-(async () => {
-  await sharp(svg).resize(192, 192).png().toFile(out('icon-192.png'));
-  await sharp(svg).resize(512, 512).png().toFile(out('icon-512.png'));
-  await sharp(svg).resize(180, 180).png().toFile(out('apple-touch-icon.png'));
-
-  // Maskable: nội dung co về ~80% trên nền xanh #1a73e8 để không bị mặt nạ cắt mất.
-  const inner = await sharp(svg).resize(410, 410).png().toBuffer();
-  await sharp({ create: { width: 512, height: 512, channels: 4, background: '#1a73e8' } })
+async function makeIcon(size, logoFrac, file) {
+  const inner = await sharp(logo)
+    .resize({ width: Math.round(size * logoFrac), fit: 'inside' })
+    .toBuffer();
+  await sharp({ create: { width: size, height: size, channels: 4, background: BG } })
     .composite([{ input: inner, gravity: 'center' }])
     .png()
-    .toFile(out('icon-maskable-512.png'));
+    .toFile(out(file));
+}
 
-  console.log('Đã tạo: icon-192.png, icon-512.png, icon-maskable-512.png, apple-touch-icon.png');
+(async () => {
+  await makeIcon(192, 0.9, 'icon-192.png');
+  await makeIcon(512, 0.9, 'icon-512.png');
+  // Maskable: logo nhỏ hơn (chừa safe zone 80%) để mặt nạ tròn/bo không cắt mất.
+  await makeIcon(512, 0.72, 'icon-maskable-512.png');
+  await makeIcon(180, 0.9, 'apple-touch-icon.png');
+  console.log('Đã tạo icon từ logo công ty: icon-192/512, icon-maskable-512, apple-touch-icon.');
 })();
