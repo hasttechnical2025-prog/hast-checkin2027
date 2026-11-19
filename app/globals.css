@@ -270,7 +270,6 @@ a {
 
 .cc-ring-area {
   display: flex;
-  flex: 1 1 auto; /* chỉ vùng này nuốt khoảng trống còn lại -> các khối trên bám sát nhau */
   justify-content: center;
   align-items: center;
   padding: 0;
