@@ -7,6 +7,7 @@ import { useState } from 'react';
 const ITEMS: { href: string; label: string; icon: string }[] = [
   { href: '/admin/nhan-vien', label: 'Nhân viên', icon: '👤' },
   { href: '/admin/log', label: 'Log chấm công', icon: '🗒️' },
+  { href: '/admin/sua-cong', label: 'Sửa công ngày', icon: '✏️' },
   { href: '/admin/ngay-le', label: 'Ngày lễ', icon: '📅' },
   { href: '/admin/ca', label: 'Cấu hình ca', icon: '⏱️' },
   { href: '/admin/cau-hinh', label: 'Cấu hình', icon: '⚙️' },
