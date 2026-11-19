@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     if (active && active.device_id !== deviceId) {
       return NextResponse.json(
         {
-          error: 'Thiết bị này chưa được duyệt để chấm công. Vui lòng chờ TBP duyệt thiết bị mới.',
+          error: 'Thiết bị này chưa được duyệt để chấm công. Vui lòng chờ!',
           blocked: 'device',
         },
         { status: 403 },
