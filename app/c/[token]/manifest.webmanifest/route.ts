@@ -9,7 +9,10 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const base = `/c/${token}/`;
+  // KHÔNG dấu "/" cuối: trang thật phục vụ ở /c/<token> (Next bỏ trailing slash).
+  // Nếu scope có "/" cuối thì URL app luôn nằm NGOÀI scope -> Chrome hiện thanh địa chỉ,
+  // không vào standalone. Để khớp URL thật, scope/start_url phải là /c/<token>.
+  const base = `/c/${token}`;
   const manifest = {
     name: 'Chấm Công HSTC',
     short_name: 'Chấm Công',
