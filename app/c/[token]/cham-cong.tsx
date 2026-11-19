@@ -237,10 +237,10 @@ export default function ChamCong(props: ChamCongProps) {
     : holiday.isHoliday
       ? 'Ngày nghỉ'
       : !gps
-        ? 'Chạm để định vị'
+        ? 'Định vị'
         : loc.type === 'err'
           ? 'Không thể chấm'
-          : 'Chạm để chấm công';
+          : 'Chấm công';
 
   // Vòng tiến trình: 4 cung cố định, mỗi cung = 1 ca (Vào sáng ¼1 → Ra chiều ¼4).
   const R = 92;
