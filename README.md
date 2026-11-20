@@ -3,6 +3,8 @@
 Bản dựng lại (Next.js + Vercel + Supabase mới) của app Chấm Công Siêu Thanh Hà Nội.
 Chạy **song song, độc lập** với app 2026 cũ (`D:\Claude Code\_github\hast_chamcong`) — không migrate dữ liệu 2026.
 
+- **Người mới vào dự án:** đọc [ONBOARDING.md](ONBOARDING.md) (setup, chạy local, kiến trúc, bẫy hay gặp).
+- **Quy ước code + nghiệp vụ bất biến:** [CLAUDE.md](CLAUDE.md).
 - Tài liệu phương án: artifact **Phương Án Final 2027** (`U465vUT6dhjTCRN6DPXrV4`).
 - Kiến trúc: 1 app Next.js, 3 vai theo route — CBNV `/c/[token]`, TBP `/tbp`, Admin `/admin/*`.
 - Ghi qua Route Handlers (service role chỉ ở server); đọc qua Server Components + cache.
