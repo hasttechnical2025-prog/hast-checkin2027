@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { APP_VERSION } from '@/lib/version';
+import { Icon } from '@/app/_components/icons';
 
 export interface OfficeProp {
   name: string;
@@ -17,6 +18,12 @@ export interface TodayRecord {
   afternoon_out: string | null;
   grades: string | null; // "A,B,A,D" theo thứ tự SESSIONS
 }
+export interface ShiftRow {
+  a_start: string | null;
+  a_end: string | null;
+  a_end2: string | null;
+  b_end: string | null;
+}
 export interface ChamCongProps {
   token: string;
   employee: { name: string; maNv: string; department: string };
@@ -27,9 +34,11 @@ export interface ChamCongProps {
   today: TodayRecord | null;
   holiday: { isHoliday: boolean; reason: string };
   guide: { id: string; title: string; content: string }[];
+  shiftConfig: Partial<Record<SessionKey, ShiftRow>>;
 }
 
 type LocType = 'idle' | 'ok' | 'warn' | 'err';
+type SessionKey = 'morning_in' | 'morning_out' | 'afternoon_in' | 'afternoon_out';
 interface Gps {
   lat: number;
   lng: number;
@@ -37,12 +46,19 @@ interface Gps {
   ts: number;
 }
 
-const SESSIONS: { key: keyof TodayRecord; label: string }[] = [
-  { key: 'morning_in', label: 'Vào sáng' },
-  { key: 'morning_out', label: 'Ra sáng' },
-  { key: 'afternoon_in', label: 'Vào chiều' },
-  { key: 'afternoon_out', label: 'Ra chiều' },
+const SESSIONS: { key: SessionKey; label: string; io: 'in' | 'out' }[] = [
+  { key: 'morning_in', label: 'Vào sáng', io: 'in' },
+  { key: 'morning_out', label: 'Ra sáng', io: 'out' },
+  { key: 'afternoon_in', label: 'Vào chiều', io: 'in' },
+  { key: 'afternoon_out', label: 'Ra chiều', io: 'out' },
 ];
+
+const GRADE_CLASS: Record<string, string> = { A: 'grade-a', B: 'grade-b', D: 'grade-d' };
+const GRADE_MEAN: Record<string, string> = { A: 'đúng giờ', B: 'trễ nhẹ', D: 'không đạt' };
+const DOW_VI = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const hm = (t: string | null) => (t ? String(t).slice(0, 5) : '—');
 
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371000;
@@ -55,23 +71,49 @@ function haversine(lat1: number, lng1: number, lat2: number, lng2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const hm = (t: string | null) => (t ? String(t).slice(0, 5) : '—');
+/** "HH:MM:SS" -> giây trong ngày. */
+function toSec(t: string | null): number | null {
+  if (!t) return null;
+  const [h, m, s] = t.split(':').map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return null;
+  return h * 3600 + m * 60 + (s || 0);
+}
 
-// Màu + nhãn phụ cho grade. A=đạt, B=trễ nhẹ, D=không đạt.
-const GRADE_CLASS: Record<string, string> = { A: 'grade-a', B: 'grade-b', D: 'grade-d' };
+/**
+ * Đoán công A/B/D NẾU chấm vào "nowSec" cho 1 ca — khớp logic server
+ * chamcong_calculate_session_grade (0004). Thiếu config -> null (không đoán).
+ */
+function predictGrade(session: SessionKey, nowSec: number, cfg?: ShiftRow): 'A' | 'B' | 'D' | null {
+  if (!cfg) return null;
+  const aEnd = toSec(cfg.a_end);
+  const bEnd = toSec(cfg.b_end);
+  const aStart = toSec(cfg.a_start);
+  const aEnd2 = toSec(cfg.a_end2);
+  if (session === 'morning_in' || session === 'afternoon_in') {
+    if (aEnd == null) return null;
+    if (nowSec <= aEnd) return 'A';
+    if (bEnd != null && nowSec <= bEnd) return 'B';
+    return 'D';
+  }
+  if (session === 'morning_out') {
+    if (aStart == null || aEnd2 == null) return null;
+    if (nowSec >= aStart && nowSec <= aEnd2) return 'A';
+    if (nowSec < aStart) return 'B';
+    return 'D';
+  }
+  // afternoon_out: có chấm -> A/B (không bao giờ D)
+  if (aEnd == null) return null;
+  return nowSec >= aEnd ? 'A' : 'B';
+}
 
-/** Ca "đang tới giờ" theo giờ VN — mốc phân ca khớp trigger (Vào sáng ≤10:00). */
-function currentSessionKey(): keyof TodayRecord {
-  const now = new Date(Date.now() + 7 * 3600 * 1000);
-  const hhmm = now.getUTCHours() * 100 + now.getUTCMinutes();
-  if (hhmm <= 1000) return 'morning_in';
-  if (hhmm <= 1245) return 'morning_out';
-  if (hhmm <= 1500) return 'afternoon_in';
-  return 'afternoon_out';
+interface Popover {
+  title: string;
+  body?: string;
+  giaiTrinh?: boolean;
 }
 
 export default function ChamCong(props: ChamCongProps) {
-  const { token, employee, office, maxDistance, gpsExpireMs, holiday, guide } = props;
+  const { token, employee, office, maxDistance, gpsExpireMs, holiday, guide, shiftConfig } = props;
 
   const [today, setToday] = useState<TodayRecord>(
     props.today ?? { morning_in: null, morning_out: null, afternoon_in: null, afternoon_out: null, grades: null },
@@ -83,21 +125,72 @@ export default function ChamCong(props: ChamCongProps) {
     lines: holiday.isHoliday ? [holiday.reason] : ['Đang chuẩn bị định vị…'],
   });
   const [busy, setBusy] = useState(false);
-  const [locating, setLocating] = useState(false); // đang lấy GPS (sau khi chạm)
-  const [justDone, setJustDone] = useState(false); // hiệu ứng pop khi chấm xong
+  const [locating, setLocating] = useState(false);
+  const [justDone, setJustDone] = useState(false);
   const [note, setNote] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [result, setResult] = useState<{ ok: boolean; title: string; lines: string[] } | null>(null);
+  const [result, setResult] = useState<{ ok: boolean; title: string; lines: string[]; giaiTrinh?: boolean } | null>(null);
   const [confirmDlg, setConfirmDlg] = useState<{ label: string; time: string } | null>(null);
   const gettingRef = useRef(false);
-  // Ca "đang tới giờ" — set sau khi mount để tránh lệch hydrate (server không biết giờ client).
-  const [curSession, setCurSession] = useState<keyof TodayRecord | null>(null);
-  useEffect(() => {
-    setCurSession(currentSessionKey());
-  }, []);
+
+  // Đồng hồ sống (giờ VN) + ca "đang tới giờ" — set sau mount để tránh lệch hydrate.
+  const [clock, setClock] = useState<string | null>(null);
+  const [clockDate, setClockDate] = useState('');
+  const [nowSec, setNowSec] = useState(0);
+  const [curSession, setCurSession] = useState<SessionKey | null>(null);
+
+  // Lớp nổi: popover ô ca + banner điểm B/D (tự đóng khi chạm ra ngoài).
+  const [popover, setPopover] = useState<Popover | null>(null);
+  const [bannerOpen, setBannerOpen] = useState(false);
+  const popRef = useRef<HTMLDivElement | null>(null);
+  const stripRef = useRef<HTMLDivElement | null>(null);
+  const bannerRef = useRef<HTMLDivElement | null>(null);
 
   const filled = SESSIONS.filter((s) => today[s.key]).length;
   const gradeArr = (today.grades ?? '').split(',').map((g) => g.trim());
+
+  useEffect(() => {
+    const update = () => {
+      const d = new Date(Date.now() + 7 * 3600 * 1000);
+      const hh = d.getUTCHours();
+      const mm = d.getUTCMinutes();
+      const ss = d.getUTCSeconds();
+      setClock(`${pad2(hh)}:${pad2(mm)}:${pad2(ss)}`);
+      setClockDate(`${DOW_VI[d.getUTCDay()]}, ${pad2(d.getUTCDate())}/${pad2(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}`);
+      setNowSec(hh * 3600 + mm * 60 + ss);
+      const hhmm = hh * 100 + mm;
+      setCurSession(hhmm <= 1000 ? 'morning_in' : hhmm <= 1245 ? 'morning_out' : hhmm <= 1500 ? 'afternoon_in' : 'afternoon_out');
+    };
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Banner điểm B/D: hiện khi vào trang nếu hôm nay có ca B/D; tự ẩn sau 7s.
+  useEffect(() => {
+    const bad = SESSIONS.some((s, i) => today[s.key] && (gradeArr[i] === 'B' || gradeArr[i] === 'D'));
+    if (!bad) return;
+    setBannerOpen(true);
+    const t = setTimeout(() => setBannerOpen(false), 7000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Chạm ra ngoài -> đóng popover / banner.
+  useEffect(() => {
+    if (!popover && !bannerOpen) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (popover && popRef.current && !popRef.current.contains(t) && stripRef.current && !stripRef.current.contains(t)) {
+        setPopover(null);
+      }
+      if (bannerOpen && bannerRef.current && !bannerRef.current.contains(t)) {
+        setBannerOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [popover, bannerOpen]);
 
   const requestGps = useCallback(() => {
     if (gettingRef.current || holiday.isHoliday) return;
@@ -190,9 +283,8 @@ export default function ChamCong(props: ChamCongProps) {
           return;
         }
 
-        // Thành công: cập nhật ca vừa chấm (optimistic) để vòng + dải cập nhật.
         const now = new Date(Date.now() + 7 * 3600 * 1000);
-        const nowHm = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
+        const nowHm = `${pad2(now.getUTCHours())}:${pad2(now.getUTCMinutes())}`;
         setToday((t) => {
           const order = SESSIONS.map((s) => s.key);
           const idx = order.indexOf(data.session);
@@ -205,15 +297,18 @@ export default function ChamCong(props: ChamCongProps) {
           }
           return { ...t, [data.session]: nowHm, grades };
         });
+        const isBad = data.grade === 'B' || data.grade === 'D';
         setResult({
           ok: true,
           title: 'Đã chấm công',
           lines: [
-            data.sessionLabel.charAt(0).toUpperCase() + data.sessionLabel.slice(1),
+            data.sessionLabel.charAt(0).toUpperCase() + data.sessionLabel.slice(1) + (data.grade ? ` · loại ${data.grade}` : ''),
             data.inside ? `Trong phạm vi · ${data.distance} m` : `Ngoài phạm vi · ${data.distance} m`,
             data.address && data.address !== 'Không xác định' ? data.address : '',
           ].filter(Boolean),
+          giaiTrinh: isBad,
         });
+        if (isBad) setBannerOpen(true);
         setNote('');
         setBusy(false);
         setJustDone(true);
@@ -235,72 +330,190 @@ export default function ChamCong(props: ChamCongProps) {
       requestGps();
       return;
     }
-    if (loc.type === 'err') return; // vượt max / lỗi GPS
+    if (loc.type === 'err') return;
     submit(false);
   }, [holiday.isHoliday, busy, locating, gps, gpsExpireMs, loc.type, requestGps, submit]);
 
-  const processing = busy || locating;
-  const canCheck = !holiday.isHoliday && gps && loc.type !== 'err' && !busy;
-  const ringCenter = busy
-    ? 'Đang gửi…'
-    : locating
-      ? 'Đang lấy vị trí…'
-      : holiday.isHoliday
-        ? 'Ngày nghỉ'
-        : !gps
-          ? 'Định vị'
-          : loc.type === 'err'
-            ? 'Không thể chấm'
-            : 'Chấm công';
+  // Chạm 1 ô ca -> popover giải thích/định tuyến (không tự chấm ca cũ: server quyết theo giờ).
+  const openChip = useCallback(
+    (i: number) => {
+      const s = SESSIONS[i];
+      const label = s.label;
+      if (holiday.isHoliday) {
+        setPopover({ title: 'Hôm nay là ngày nghỉ', body: 'Không chấm công hôm nay.' });
+        return;
+      }
+      if (today[s.key]) {
+        const g = gradeArr[i] || '';
+        setPopover({
+          title: `${label}: ${hm(today[s.key])}`,
+          body: g ? `Xếp loại ${g}${GRADE_MEAN[g] ? ` (${GRADE_MEAN[g]})` : ''}.` : undefined,
+          giaiTrinh: g === 'B' || g === 'D',
+        });
+        return;
+      }
+      const curIdx = curSession ? SESSIONS.findIndex((x) => x.key === curSession) : -1;
+      if (curIdx >= 0 && i < curIdx) {
+        setPopover({ title: `Đã qua giờ ${label}`, giaiTrinh: true });
+        return;
+      }
+      if (i === curIdx) {
+        setPopover({ title: `Giờ ${label}`, body: 'Chạm nút tròn bên dưới để chấm.' });
+        return;
+      }
+      setPopover({ title: `Chưa tới giờ ${label}`, body: 'Ca này chưa tới giờ chấm.' });
+    },
+    [holiday.isHoliday, today, gradeArr, curSession],
+  );
 
-  // Vòng tiến trình: 4 cung cố định, mỗi cung = 1 ca (Vào sáng ¼1 → Ra chiều ¼4).
+  const processing = busy || locating;
+  const canCheck = !holiday.isHoliday && !!gps && loc.type !== 'err' && !busy;
+  const ready = canCheck && !locating;
+  const curLabel = curSession ? SESSIONS.find((s) => s.key === curSession)?.label ?? '' : '';
+
+  // Dải ngữ cảnh dưới đồng hồ.
+  let ctx: { cls: string; text: string } | null = null;
+  if (clock) {
+    if (holiday.isHoliday) {
+      ctx = { cls: 'muted', text: 'Hôm nay là ngày nghỉ' };
+    } else if (curSession) {
+      if (today[curSession]) {
+        ctx = { cls: 'muted', text: `Đã chấm ${curLabel}` };
+      } else {
+        const g = predictGrade(curSession, nowSec, shiftConfig[curSession]);
+        ctx = {
+          cls: g === 'A' ? 'ok' : g === 'B' ? 'warn' : g === 'D' ? 'err' : 'muted',
+          text: g ? `Giờ ${curLabel} (công ${g})` : `Giờ ${curLabel}`,
+        };
+      }
+    }
+  }
+
+  // Nội dung tâm vòng.
+  let ringCenter: React.ReactNode;
+  if (busy) ringCenter = <span className="cc-ring-cta small">Đang gửi…</span>;
+  else if (locating) ringCenter = <span className="cc-ring-cta small">Đang lấy vị trí…</span>;
+  else if (holiday.isHoliday) ringCenter = <span className="cc-ring-cta">Ngày nghỉ</span>;
+  else if (!gps)
+    ringCenter = (
+      <>
+        <span className="cc-ring-cta">ĐỊNH VỊ</span>
+        <span className="cc-ring-sub">bấm để xác định vị trí</span>
+      </>
+    );
+  else if (loc.type === 'err') ringCenter = <span className="cc-ring-cta small">Không thể chấm</span>;
+  else
+    ringCenter = (
+      <>
+        <span className="cc-ring-cta">CHẠM ĐỂ CHẤM</span>
+        <span className="cc-ring-sub">{filled}/4 ca{curLabel ? ` · ${curLabel}` : ''}</span>
+      </>
+    );
+
   const R = 92;
   const C = 2 * Math.PI * R;
-  const GAP_DEG = 7; // khoảng hở giữa 2 cung
+  const GAP_DEG = 7;
   const ARC_LEN = C * ((90 - GAP_DEG) / 360);
 
   return (
     <main className="cc-wrap">
-      {/* 1) Logo công ty (rộng) + nút cài đặt */}
+      {bannerOpen && (
+        <div className="cc-banner" ref={bannerRef} role="status">
+          <Icon name="alert" size={16} className="cc-banner-ic" />
+          <span>Hôm nay có ca xếp loại B/D — bạn có thể giải trình.</span>
+          <Link className="cc-banner-btn" href={`/c/${token}/lich-su`} prefetch>
+            Giải trình
+          </Link>
+        </div>
+      )}
+
+      {/* 1) Logo công ty + nút cài đặt */}
       <header className="cc-top">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt={props.companyName} className="cc-top-logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
         <button type="button" className="cc-gear" onClick={() => setSheetOpen(true)} aria-label="Cài đặt">
-          ⚙️
+          <Icon name="settings" size={19} />
         </button>
       </header>
 
-      {/* Tiêu đề ứng dụng (dưới logo) */}
       <div className="cc-apptitle">CHẤM CÔNG CBNV</div>
 
-      {/* 2) Họ tên + phòng ban */}
+      {/* 2) Đồng hồ sống + ngữ cảnh ca */}
+      <div className="cc-clock">
+        <div className="cc-clock-time">{clock ?? '--:--:--'}</div>
+        <div className="cc-clock-date">{clockDate || ' '}</div>
+        {ctx && (
+          <div className={`cc-clock-ctx ${ctx.cls}`}>
+            <Icon name="clock" size={13} />
+            {ctx.text}
+          </div>
+        )}
+      </div>
+
+      {/* 3) Họ tên + phòng ban */}
       <div className="cc-ident">
-        <div className="cc-ident-name">{employee.name}</div>
+        <div className="cc-ident-name">
+          <Icon name="user" size={18} style={{ color: 'var(--muted)' }} />
+          {employee.name}
+        </div>
         <div className="cc-ident-sub">
           {employee.maNv} · {employee.department}
         </div>
       </div>
 
-      {/* 3) Giờ chấm + grade từng ca (ô ca hiện tại được tô sáng) */}
-      <div className="cc-strip">
-        {SESSIONS.map((s, i) => {
-          const g = today[s.key] ? gradeArr[i] : '';
-          const isCurrent = !today[s.key] && s.key === curSession;
-          return (
-            <div key={s.key} className={`cc-chip ${today[s.key] ? 'done' : ''}${isCurrent ? ' current' : ''}`}>
-              <span className="cc-chip-label">{s.label}</span>
-              <span className="cc-chip-time">{hm(today[s.key])}</span>
-              {g && GRADE_CLASS[g] ? (
-                <span className={`cc-chip-grade ${GRADE_CLASS[g]}`}>{g}</span>
-              ) : (
-                <span className="cc-chip-grade cc-chip-grade-empty" aria-hidden="true" />
-              )}
+      {/* 4) 4 ca — chạm để xem chú thích/giải trình */}
+      <div className="cc-strip-wrap" ref={stripRef}>
+        <div className="cc-strip">
+          {SESSIONS.map((s, i) => {
+            const done = !!today[s.key];
+            const g = done ? gradeArr[i] : '';
+            const curIdx = curSession ? SESSIONS.findIndex((x) => x.key === curSession) : -1;
+            const missed = !done && !holiday.isHoliday && curIdx >= 0 && i < curIdx;
+            const isCurrent = !done && s.key === curSession;
+            return (
+              <button
+                type="button"
+                key={s.key}
+                className={`cc-chip ${done ? 'done' : ''}${isCurrent ? ' current' : ''}${missed ? ' missed' : ''}`}
+                onClick={() => openChip(i)}
+              >
+                <span className="cc-chip-label">
+                  <Icon name={s.io === 'in' ? 'arrowIn' : 'arrowOut'} size={11} className="cc-chip-io" />
+                  {s.label}
+                </span>
+                <span className="cc-chip-time">{hm(today[s.key])}</span>
+                {g && GRADE_CLASS[g] ? (
+                  <span className={`cc-chip-grade ${GRADE_CLASS[g]}`}>{g}</span>
+                ) : missed ? (
+                  <span className="cc-chip-grade cc-chip-miss" aria-hidden="true">
+                    <Icon name="info" size={12} />
+                  </span>
+                ) : (
+                  <span className="cc-chip-grade cc-chip-grade-empty" aria-hidden="true" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {popover && (
+          <div className="cc-pop" ref={popRef}>
+            <div className="cc-pop-arrow" />
+            <div className="cc-pop-body">
+              <div className="cc-pop-title">{popover.title}</div>
+              {popover.body && <div className="cc-pop-text">{popover.body}</div>}
             </div>
-          );
-        })}
+            {popover.giaiTrinh && (
+              <Link className="cc-pop-btn" href={`/c/${token}/lich-su`} prefetch onClick={() => setPopover(null)}>
+                <Icon name="doc" size={15} />
+                Giải trình
+              </Link>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* 3) Ghi chú (1 dòng, nở ra khi gõ) */}
+      {/* 5) Ghi chú */}
       {!holiday.isHoliday && (
         <textarea
           className="field cc-note"
@@ -311,10 +524,13 @@ export default function ChamCong(props: ChamCongProps) {
         />
       )}
 
-      {/* 5) Vị trí (tô màu trạng thái) — nút Định vị lại xuống dưới chữ */}
+      {/* 6) Vị trí */}
       <div className={`cc-loc cc-loc-${loc.type}`}>
         <div className="cc-loc-main">
-          <div className="cc-loc-title">{loc.title}</div>
+          <div className="cc-loc-title">
+            <Icon name={loc.type === 'err' ? 'alert' : 'pin'} size={16} className="cc-loc-ic" />
+            {loc.title}
+          </div>
           {loc.lines.map((l, i) => (
             <div key={i} className="cc-loc-line">
               {l}
@@ -323,16 +539,17 @@ export default function ChamCong(props: ChamCongProps) {
         </div>
         {!holiday.isHoliday && (
           <button type="button" className="cc-reloc" onClick={requestGps} disabled={busy}>
-            📡 Định vị lại
+            <Icon name="refresh" size={14} />
+            Định vị lại
           </button>
         )}
       </div>
 
-      {/* 4) Nút chấm công — vòng tròn thu nhỏ, ở đáy (hành động cuối) */}
+      {/* 7) Nút chấm công */}
       <div className="cc-ring-area">
         <button
           type="button"
-          className={`cc-ring cc-ring-${canCheck ? loc.type : holiday.isHoliday ? 'idle' : loc.type}${processing ? ' processing' : ''}${justDone ? ' just-done' : ''}`}
+          className={`cc-ring cc-ring-${canCheck ? loc.type : holiday.isHoliday ? 'idle' : loc.type}${processing ? ' processing' : ''}${justDone ? ' just-done' : ''}${ready ? ' ready' : ''}`}
           onClick={onTapRing}
           disabled={processing}
           aria-label="Chấm công"
@@ -365,16 +582,14 @@ export default function ChamCong(props: ChamCongProps) {
               />
             )}
           </svg>
-          <span className="cc-ring-center">
-            <span className="cc-ring-count">{filled}/4</span>
-            <span className="cc-ring-text">{ringCenter}</span>
-          </span>
+          <span className="cc-ring-center">{ringCenter}</span>
         </button>
       </div>
 
-      {/* 5) Dữ liệu tháng — link nhỏ */}
+      {/* 8) Dữ liệu tháng */}
       <Link className="cc-monthlink" href={`/c/${token}/lich-su`} prefetch>
-        📅 Dữ liệu tháng &amp; giải trình
+        <Icon name="chart" size={16} />
+        Dữ liệu tháng &amp; giải trình
       </Link>
 
       {confirmDlg && (
@@ -407,7 +622,12 @@ export default function ChamCong(props: ChamCongProps) {
               </p>
             ))}
             <div className="cc-dlg-btns">
-              <button className="btn" onClick={() => setResult(null)}>
+              {result.giaiTrinh && (
+                <Link className="btn" href={`/c/${token}/lich-su`} prefetch onClick={() => setResult(null)}>
+                  Giải trình
+                </Link>
+              )}
+              <button className="btn cc-btn-ghost" onClick={() => setResult(null)}>
                 Đóng
               </button>
             </div>

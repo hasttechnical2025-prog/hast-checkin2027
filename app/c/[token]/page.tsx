@@ -40,7 +40,7 @@ export default async function CbnvPage({
 
   const { data: emp } = await admin
     .from('chamcong_employees')
-    .select('id, ma_nv, name, department, status')
+    .select('id, ma_nv, name, department, status, loai_ca')
     .eq('token', token)
     .maybeSingle();
 
@@ -97,6 +97,21 @@ export default async function CbnvPage({
     content: (g.content as string) || '',
   }));
 
+  // Ngưỡng ca (theo loai_ca của nhân viên) để client ĐOÁN công A/B cho "giờ hiện tại".
+  const { data: shiftRows } = await admin
+    .from('chamcong_shift_config')
+    .select('session, a_start, a_end, a_end2, b_end')
+    .eq('shift_type', emp!.loai_ca || 'tieu_chuan');
+  const shiftConfig: Record<string, { a_start: string | null; a_end: string | null; a_end2: string | null; b_end: string | null }> = {};
+  (shiftRows ?? []).forEach((r) => {
+    shiftConfig[r.session as string] = {
+      a_start: (r.a_start as string) ?? null,
+      a_end: (r.a_end as string) ?? null,
+      a_end2: (r.a_end2 as string) ?? null,
+      b_end: (r.b_end as string) ?? null,
+    };
+  });
+
   return (
     <>
       <ChamCong
@@ -109,6 +124,7 @@ export default async function CbnvPage({
         today={today ?? null}
         holiday={holiday}
         guide={guide}
+        shiftConfig={shiftConfig}
       />
       <PwaClient />
     </>
