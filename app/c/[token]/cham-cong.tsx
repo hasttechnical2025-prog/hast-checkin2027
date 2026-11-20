@@ -132,6 +132,8 @@ export default function ChamCong(props: ChamCongProps) {
   const [result, setResult] = useState<{ ok: boolean; title: string; lines: string[]; giaiTrinh?: boolean } | null>(null);
   const [confirmDlg, setConfirmDlg] = useState<{ label: string; time: string } | null>(null);
   const gettingRef = useRef(false);
+  // Cách B: cờ "định vị xong thì chấm luôn" (khi chạm vòng lúc GPS hết hạn).
+  const pendingSubmitRef = useRef(false);
 
   // Đồng hồ sống (giờ VN) + ca "đang tới giờ" — set sau mount để tránh lệch hydrate.
   const [clock, setClock] = useState<string | null>(null);
@@ -199,6 +201,7 @@ export default function ChamCong(props: ChamCongProps) {
       return;
     }
     gettingRef.current = true;
+    setLocating(true); // bật cho icon "Định vị lại" xoay + vòng hiện trạng thái
     setLocState({ type: 'idle', title: 'Đang xác định vị trí…', lines: ['Nếu hỏi quyền → bấm Cho phép'] });
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -234,6 +237,7 @@ export default function ChamCong(props: ChamCongProps) {
         gettingRef.current = false;
         setLocating(false);
         setGps(null);
+        pendingSubmitRef.current = false; // định vị lỗi -> hủy ý định tự chấm
         const m: Record<number, string> = {
           1: 'Cần BẬT Định vị cho trình duyệt rồi thử lại.',
           2: 'Không bắt được tín hiệu định vị. Ra chỗ thoáng rồi thử lại.',
@@ -325,14 +329,29 @@ export default function ChamCong(props: ChamCongProps) {
     if (holiday.isHoliday || busy || locating) return;
     const expired = !gps || Date.now() - gps.ts > gpsExpireMs;
     if (expired) {
+      // Cách B: chạm vòng = chấm. GPS hết hạn -> định vị lại RỒI tự chấm luôn
+      // (requestGps bật locating + xoay icon; hiệu ứng tự chấm xử lý ở effect dưới).
+      pendingSubmitRef.current = true;
       setGps(null);
-      setLocating(true);
       requestGps();
       return;
     }
     if (loc.type === 'err') return;
     submit(false);
   }, [holiday.isHoliday, busy, locating, gps, gpsExpireMs, loc.type, requestGps, submit]);
+
+  // Cách B: định vị lại xong (do chạm vòng lúc GPS hết hạn) -> tự chấm.
+  // Lỗi định vị đã xóa cờ ở requestGps; ngoài giới hạn (loc.type='err') -> hủy, hiện lỗi.
+  useEffect(() => {
+    if (!pendingSubmitRef.current) return;
+    if (!gps) return; // chưa có fix mới -> chờ
+    if (loc.type === 'err') {
+      pendingSubmitRef.current = false;
+      return;
+    }
+    pendingSubmitRef.current = false;
+    submit(false);
+  }, [gps, loc.type, submit]);
 
   // Chạm 1 ô ca -> popover giải thích/định tuyến (không tự chấm ca cũ: server quyết theo giờ).
   const openChip = useCallback(
@@ -538,9 +557,9 @@ export default function ChamCong(props: ChamCongProps) {
           ))}
         </div>
         {!holiday.isHoliday && (
-          <button type="button" className="cc-reloc" onClick={requestGps} disabled={busy}>
-            <Icon name="refresh" size={14} />
-            Định vị lại
+          <button type="button" className="cc-reloc" onClick={requestGps} disabled={busy || locating}>
+            <Icon name="refresh" size={14} className={locating ? 'cc-spin-ic' : undefined} />
+            {locating ? 'Đang định vị…' : 'Định vị lại'}
           </button>
         )}
       </div>
