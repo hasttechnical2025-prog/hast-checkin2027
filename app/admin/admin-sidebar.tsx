@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { Icon } from '@/app/_components/icons';
 
 const ITEMS: { href: string; label: string; icon: string }[] = [
   { href: '/admin/nhan-vien', label: 'Nhân viên', icon: '👤' },
@@ -50,8 +51,12 @@ export default function AdminSidebar() {
           ))}
         </nav>
         <form action="/auth/signout" method="post" className="admin-side-signout">
-          <button className="btn-undo" type="submit" style={{ width: '100%' }}>
-            Đăng xuất
+          <button
+            className="btn-undo"
+            type="submit"
+            style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+          >
+            <Icon name="logout" size={15} /> Đăng xuất
           </button>
         </form>
       </aside>
