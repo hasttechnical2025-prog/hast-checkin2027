@@ -47,7 +47,7 @@ export default async function NsclPage({ searchParams }: { searchParams: Promise
   const canNext = idx + 1 <= curY * 12 + curM;
 
   return (
-    <main className="wrap" style={{ maxWidth: 1180 }}>
+    <main className="tbp-page">
       <div className="ls-top">
         <div>
           <h1 style={{ margin: 0, fontSize: 22 }}>Bảng điểm NSCL</h1>

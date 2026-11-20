@@ -1295,6 +1295,47 @@ textarea.cc-note {
   margin-top: 3px;
 }
 
+/* ===== TBP full-width (quan điểm: full màn hình) ===== */
+.tbp-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 20px 28px;
+}
+@media (max-width: 640px) {
+  .tbp-page { padding: 14px 12px; }
+}
+
+/* badge: canh icon + chữ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+/* Bảng Giải trình full-width: cột Lý do rộng, XUỐNG DÒNG, không cắt */
+.gt-table { table-layout: fixed; }
+.gt-table td { vertical-align: top; }
+.gt-table .ls-reason {
+  white-space: normal;
+  width: auto;
+  max-width: none;
+  overflow: visible;
+}
+.gt-table .ls-reason .ls-leave-tag,
+.gt-table .ls-reason > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  max-width: none;
+}
+/* Hàng Chờ tô nhẹ (vá class r-partial trước đây không có style) */
+.gt-table tr.r-partial td { background: #fffdf7; }
+
 /* .tbp-tablink styling gộp chung với .tbp-tabs button ở trên. */
 
 /* ===== Admin nav ===== */

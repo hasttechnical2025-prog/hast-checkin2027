@@ -92,6 +92,36 @@ const PATHS: Record<string, ReactNode> = {
       <path d="M9 13h6M9 17h4" />
     </>
   ),
+  check: <path d="M5 12l5 5L20 7" />,
+  checks: (
+    <>
+      <path d="M3 12l4 4 7-8" />
+      <path d="M12 16l1.5 1.5L21 9" />
+    </>
+  ),
+  x: <path d="M6 6l12 12M18 6L6 18" />,
+  undoBack: (
+    <>
+      <path d="M9 13l-4-4 4-4" />
+      <path d="M5 9h8a6 6 0 0 1 6 6v2" />
+    </>
+  ),
+  plane: (
+    <>
+      <path d="M22 2L11 13" />
+      <path d="M22 2L15 22l-4-9-9-4 20-7z" />
+    </>
+  ),
+  filter: <path d="M3 5h18l-7 8v6l-4-2v-4L3 5z" />,
+  chevLeft: <path d="M15 6l-6 6 6 6" />,
+  chevRight: <path d="M9 6l6 6-6 6" />,
+  logout: (
+    <>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof PATHS;

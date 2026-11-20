@@ -45,7 +45,7 @@ export default async function TbpPage({ searchParams }: { searchParams: Promise<
   const canNext = idx + 1 <= curY * 12 + curM;
 
   return (
-    <main className="wrap" style={{ maxWidth: 820 }}>
+    <main className="tbp-page">
       <div className="ls-top">
         <div>
           <h1 style={{ margin: 0, fontSize: 22 }}>Trưởng bộ phận</h1>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { GtItem } from '@/lib/giaitrinh';
+import { Icon } from '@/app/_components/icons';
 
 function Grade({ g }: { g: string }) {
   const cls = g === 'A' ? 'grade-a' : g === 'B' ? 'grade-b' : 'grade-d';
@@ -78,18 +79,20 @@ export default function TbpGiaiTrinh({
       </div>
 
       <div className="ls-nav">
-        <Link href={prevHref} className="ls-navbtn">
-          ‹
+        <Link href={prevHref} className="ls-navbtn" aria-label="Tháng trước">
+          <Icon name="chevLeft" size={18} />
         </Link>
         <div className="ls-month">
           Tháng {month}/{year}
         </div>
         {nextHref ? (
-          <Link href={nextHref} className="ls-navbtn">
-            ›
+          <Link href={nextHref} className="ls-navbtn" aria-label="Tháng sau">
+            <Icon name="chevRight" size={18} />
           </Link>
         ) : (
-          <span className="ls-navbtn disabled">›</span>
+          <span className="ls-navbtn disabled">
+            <Icon name="chevRight" size={18} />
+          </span>
         )}
       </div>
 
@@ -105,16 +108,16 @@ export default function TbpGiaiTrinh({
           </select>
         )}
         <div className="tbp-stats">
-          <span className="badge badge-wait">⏳ {pending}</span>
-          <span className="badge badge-ok">✅ {approved}</span>
-          <span className="badge badge-no">❌ {rejected}</span>
+          <span className="badge badge-wait"><Icon name="clock" size={13} /> {pending}</span>
+          <span className="badge badge-ok"><Icon name="check" size={13} /> {approved}</span>
+          <span className="badge badge-no"><Icon name="x" size={13} /> {rejected}</span>
         </div>
         <div className="tbp-batch">
           <button className="btn-approve" disabled={busy} onClick={() => openBatch('Đồng ý')}>
-            ✅ Đồng ý tất cả
+            <Icon name="checks" size={15} /> Đồng ý tất cả
           </button>
           <button className="btn-reject" disabled={busy} onClick={() => openBatch('Từ chối')}>
-            ❌ Từ chối tất cả
+            <Icon name="x" size={15} /> Từ chối tất cả
           </button>
         </div>
       </div>
@@ -125,13 +128,21 @@ export default function TbpGiaiTrinh({
             Không có giải trình nào.
           </p>
         ) : (
-          <table className="ls-table">
+          <table className="ls-table gt-table">
+            <colgroup>
+              <col style={{ width: '18%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '32%' }} />
+              <col style={{ width: '12%' }} />
+              <col style={{ width: '17%' }} />
+            </colgroup>
             <thead>
               <tr>
-                <th>Họ tên</th>
+                <th style={{ textAlign: 'left' }}>Họ tên</th>
                 <th>Ngày</th>
                 <th>Đánh giá</th>
-                <th>Lý do</th>
+                <th style={{ textAlign: 'left' }}>Lý do</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
               </tr>
@@ -159,18 +170,24 @@ export default function TbpGiaiTrinh({
                     )}
                   </td>
                   <td className="ls-reason">
-                    {i.isLeave ? <span className="ls-leave-tag">🌴 {i.reason}</span> : i.reason || <span className="muted">(chưa có)</span>}
+                    {i.isLeave ? (
+                      <span className="ls-leave-tag">
+                        <Icon name="plane" size={14} /> {i.reason}
+                      </span>
+                    ) : (
+                      i.reason || <span className="muted">(chưa có)</span>
+                    )}
                     {i.approve === 'Từ chối' && i.approveNote && (
                       <div className="gt-reject-note">TBP: {i.approveNote}</div>
                     )}
                   </td>
                   <td>
                     {i.approve === 'Đồng ý' ? (
-                      <span className="badge badge-ok">✅ Đồng ý</span>
+                      <span className="badge badge-ok"><Icon name="check" size={13} /> Đồng ý</span>
                     ) : i.approve === 'Từ chối' ? (
-                      <span className="badge badge-no">❌ Từ chối</span>
+                      <span className="badge badge-no"><Icon name="x" size={13} /> Từ chối</span>
                     ) : (
-                      <span className="badge badge-wait">⏳ Chờ</span>
+                      <span className="badge badge-wait"><Icon name="clock" size={13} /> Chờ</span>
                     )}
                   </td>
                   <td className="tbp-act">
@@ -187,20 +204,22 @@ export default function TbpGiaiTrinh({
                         <button
                           className="btn-approve"
                           disabled={busy || !i.hasReason}
-                          title={i.hasReason ? '' : 'Chưa có lý do'}
+                          title={i.hasReason ? 'Đồng ý' : 'Chưa có lý do'}
+                          aria-label="Đồng ý"
                           onClick={() => apply([{ employeeId: i.employeeId, date: i.ymd }], 'Đồng ý')}
                         >
-                          ✅
+                          <Icon name="check" size={16} />
                         </button>
                         <button
                           className="btn-reject"
                           disabled={busy}
+                          aria-label="Từ chối"
                           onClick={() => {
                             setRejectNote('');
                             setReject({ employeeId: i.employeeId, date: i.ymd, name: i.name, d: i.date });
                           }}
                         >
-                          ❌
+                          <Icon name="x" size={16} />
                         </button>
                       </>
                     ) : (
@@ -209,7 +228,7 @@ export default function TbpGiaiTrinh({
                         disabled={busy}
                         onClick={() => apply([{ employeeId: i.employeeId, date: i.ymd }], 'Chờ')}
                       >
-                        ↩ Hủy
+                        <Icon name="undoBack" size={14} /> Hủy
                       </button>
                     )}
                   </td>
