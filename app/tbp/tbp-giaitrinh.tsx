@@ -39,6 +39,8 @@ export default function TbpGiaiTrinh({
   const pending = shown.filter((i) => i.approve === '').length;
   const approved = shown.filter((i) => i.approve === 'Đồng ý').length;
   const rejected = shown.filter((i) => i.approve === 'Từ chối').length;
+  // Còn mục mình được duyệt & đang chờ -> mới hiện thanh hành động (ẩn trên mobile khi rỗng)
+  const canBatch = shown.some((i) => i.canApprove && i.approve === '');
 
   async function apply(approvals: { employeeId: number; date: string }[], status: string, note?: string) {
     if (approvals.length === 0) return;
@@ -112,7 +114,7 @@ export default function TbpGiaiTrinh({
           <span className="badge badge-ok"><Icon name="check" size={13} /> {approved}</span>
           <span className="badge badge-no"><Icon name="x" size={13} /> {rejected}</span>
         </div>
-        <div className="tbp-batch">
+        <div className={`tbp-batch${canBatch ? '' : ' tbp-batch-off'}`}>
           <button className="btn-approve" disabled={busy} onClick={() => openBatch('Đồng ý')}>
             <Icon name="checks" size={15} /> Đồng ý tất cả
           </button>
