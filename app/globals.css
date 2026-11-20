@@ -171,13 +171,14 @@ a {
   position: relative; /* mốc cho các lớp nổi (popover/banner) */
   max-width: 460px;
   margin: 0 auto;
-  min-height: 100vh;
-  min-height: 100dvh; /* lấp đầy chiều cao màn hình (kể cả standalone PWA) */
-  padding: 10px 16px 16px;
+  height: 100vh;
+  height: 100dvh; /* KHÓA đúng chiều cao màn hình -> không cuộn, không xê dịch */
+  overflow: hidden;
+  padding: 10px 16px 14px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px; /* khoảng cách gọn, cố định giữa các khối (không giãn) */
+  gap: 7px; /* khoảng cách gọn, cố định giữa các khối (không giãn) */
 }
 
 /* Màn chặn khi mở trên PC / máy tính bảng / iPad (công tắc "chỉ điện thoại") */
@@ -280,8 +281,12 @@ a {
 }
 
 /* 4) Họ tên + phòng ban (tên dài tự xuống dòng, không cắt) — cách tiêu đề 15px */
+/* Tên + phòng ban trong khung riêng (như đồng hồ) — tôn trọng danh tính CBNV */
 .cc-ident {
-  margin-top: 2px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 8px 12px;
   text-align: center;
 }
 .cc-ident-name {
@@ -434,8 +439,8 @@ a {
 .cc-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin: 2px 0 0;
+  gap: 5px;
+  margin: 0;
 }
 /* Ô ca đang tới giờ mà chưa chấm — tô sáng để biết "đang ở ca nào" */
 .cc-chip.current {
@@ -445,7 +450,7 @@ a {
 .cc-chip {
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 3px 2px;
+  padding: 2px 2px;
   text-align: center;
   background: var(--surface);
 }
@@ -489,7 +494,7 @@ a {
 /* Giữ chỗ cho ca chưa chấm để 4 ô cao bằng nhau */
 .cc-chip-grade-empty {
   background: transparent;
-  min-height: 13px;
+  min-height: 11px;
 }
 
 .cc-loc {
@@ -537,13 +542,10 @@ a {
 /* Ghi chú: 1 dòng cho gọn, tự nở khi gõ */
 textarea.cc-note {
   margin: 0;
-  min-height: 40px;
-  resize: vertical;
+  height: 36px;         /* cố định -> gõ không nở ra, màn không xê dịch */
+  min-height: 36px;
+  resize: none;
   font-family: inherit;
-  transition: min-height 0.15s ease;
-}
-textarea.cc-note:focus {
-  min-height: 72px;
 }
 
 .cc-dlg-overlay {
