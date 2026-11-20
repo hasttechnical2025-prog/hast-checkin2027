@@ -156,6 +156,33 @@ const PATHS: Record<string, ReactNode> = {
       <path d="M5 21h14" />
     </>
   ),
+  mail: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3 7l9 6 9-6" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  eyeOff: (
+    <>
+      <path d="M3 3l18 18" />
+      <path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a18.5 18.5 0 0 1-3 3.9" />
+      <path d="M6.6 6.6A18.4 18.4 0 0 0 2 12s3.5 7 10 7a10.7 10.7 0 0 0 4-.8" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+    </>
+  ),
+  login: (
+    <>
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      <path d="M10 17l5-5-5-5" />
+      <path d="M15 12H3" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof PATHS;

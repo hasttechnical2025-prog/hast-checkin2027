@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { Icon } from '@/app/_components/icons';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(
     params.get('e') === 'norole'
@@ -51,38 +53,65 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit}>
-      <label>
+    <form onSubmit={onSubmit} className="auth-form">
+      <label className="auth-label" htmlFor="auth-email">
         Email
+      </label>
+      <div className="auth-ib">
+        <Icon name="mail" size={18} className="auth-ib-ic" />
         <input
-          className="field"
+          id="auth-email"
+          className="auth-in"
           type="email"
+          inputMode="email"
+          placeholder="ten@hstc.vn"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="username"
         />
-      </label>
-      <label style={{ display: 'block', marginTop: 12 }}>
+      </div>
+
+      <label className="auth-label" htmlFor="auth-pw">
         Mật khẩu
+      </label>
+      <div className="auth-ib">
+        <Icon name="lock" size={18} className="auth-ib-ic" />
         <input
-          className="field"
-          type="password"
+          id="auth-pw"
+          className="auth-in"
+          type={showPw ? 'text' : 'password'}
+          placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="current-password"
         />
-      </label>
+        <button
+          type="button"
+          className="auth-eye"
+          onClick={() => setShowPw((v) => !v)}
+          aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+          aria-pressed={showPw}
+        >
+          <Icon name={showPw ? 'eyeOff' : 'eye'} size={18} />
+        </button>
+      </div>
 
       {err && (
-        <p className="err" style={{ fontSize: 14 }}>
-          {err}
+        <p className="auth-err">
+          <Icon name="alert" size={15} /> {err}
         </p>
       )}
 
-      <button className="btn" type="submit" disabled={busy} style={{ marginTop: 14, width: '100%' }}>
-        {busy ? 'Đang đăng nhập…' : 'Đăng nhập'}
+      <button className="btn auth-btn" type="submit" disabled={busy}>
+        {busy ? (
+          'Đang đăng nhập…'
+        ) : (
+          <>
+            <Icon name="login" size={18} /> Đăng nhập
+          </>
+        )}
       </button>
     </form>
   );
