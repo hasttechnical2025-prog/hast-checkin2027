@@ -150,16 +150,16 @@ export default function TbpGiaiTrinh({
             <tbody>
               {shown.map((i) => (
                 <tr key={`${i.employeeId}_${i.ymd}`} className={i.isLeave ? 'r-leave' : i.approve === '' ? 'r-partial' : ''}>
-                  <td style={{ textAlign: 'left' }}>
+                  <td className="gt-name">
                     {i.name}
-                    <div className="muted" style={{ fontSize: 11 }}>
+                    <div className="muted" style={{ fontSize: 11, fontWeight: 400 }}>
                       {i.dept}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Ngày">
                     {i.date.slice(0, 5)} <span className="muted">{i.dowLabel}</span>
                   </td>
-                  <td className="ls-grades">
+                  <td className="ls-grades" data-label="Đánh giá">
                     {i.isFullLeave ? (
                       <span className="ls-p">P</span>
                     ) : (
@@ -169,7 +169,7 @@ export default function TbpGiaiTrinh({
                       </>
                     )}
                   </td>
-                  <td className="ls-reason">
+                  <td className="ls-reason" data-label="Lý do">
                     {i.isLeave ? (
                       <span className="ls-leave-tag">
                         <Icon name="plane" size={14} /> {i.reason}
@@ -181,7 +181,7 @@ export default function TbpGiaiTrinh({
                       <div className="gt-reject-note">TBP: {i.approveNote}</div>
                     )}
                   </td>
-                  <td>
+                  <td data-label="Trạng thái">
                     {i.approve === 'Đồng ý' ? (
                       <span className="badge badge-ok"><Icon name="check" size={13} /> Đồng ý</span>
                     ) : i.approve === 'Từ chối' ? (

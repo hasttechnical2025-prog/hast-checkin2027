@@ -1336,6 +1336,101 @@ textarea.cc-note {
 /* Hàng Chờ tô nhẹ (vá class r-partial trước đây không có style) */
 .gt-table tr.r-partial td { background: #fffdf7; }
 
+/* ===== Mobile: bảng Giải trình -> THẺ (mỗi dòng 1 card) ===== */
+@media (max-width: 640px) {
+  .ls-table-wrap:has(.gt-table) {
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+  .gt-table,
+  .gt-table tbody {
+    display: block;
+    width: 100%;
+    white-space: normal;
+  }
+  .gt-table thead {
+    display: none;
+  }
+  .gt-table tr {
+    display: block;
+    border: 1px solid var(--border);
+    border-left-width: 4px;
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 11px 13px;
+    margin-bottom: 10px;
+  }
+  .gt-table tr.r-partial {
+    border-left-color: var(--warn);
+    background: #fffdf7;
+  }
+  .gt-table tr.r-leave {
+    border-left-color: var(--accent);
+    background: #eff6ff;
+  }
+  .gt-table tr.r-partial td,
+  .gt-table tr.r-leave td {
+    background: transparent;
+  }
+  /* mỗi ô = 1 dòng "Nhãn — giá trị" */
+  .gt-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 4px 0;
+    border: none;
+    text-align: right;
+  }
+  .gt-table td::before {
+    content: attr(data-label);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: left;
+    flex: none;
+  }
+  /* Họ tên = tiêu đề thẻ */
+  .gt-table td.gt-name {
+    display: block;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 0 0 7px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gt-table td.gt-name::before {
+    content: none;
+  }
+  /* Lý do = nhãn trên, nội dung dưới (căn trái, đọc trọn) */
+  .gt-table td.ls-reason {
+    display: block;
+    text-align: left;
+  }
+  .gt-table td.ls-reason::before {
+    display: block;
+    margin-bottom: 2px;
+  }
+  /* Thao tác = hàng nút to, dễ chạm */
+  .gt-table td.tbp-act {
+    justify-content: stretch;
+    gap: 8px;
+    padding-top: 8px;
+  }
+  .gt-table td.tbp-act::before {
+    content: none;
+  }
+  .gt-table td.tbp-act .btn-approve,
+  .gt-table td.tbp-act .btn-reject,
+  .gt-table td.tbp-act .btn-undo {
+    flex: 1;
+    height: 38px;
+  }
+}
+
 /* .tbp-tablink styling gộp chung với .tbp-tabs button ở trên. */
 
 /* ===== Admin nav ===== */
