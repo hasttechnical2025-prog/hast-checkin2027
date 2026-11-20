@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { NsclData, NsclRow, NsclCell } from '@/lib/nscl';
 import ExportExcel from './export-excel';
+import { Icon } from '@/app/_components/icons';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -352,18 +353,20 @@ export default function NsclGrid({
       </div>
 
       <div className="ls-nav">
-        <Link href={prevHref} className="ls-navbtn">
-          ‹
+        <Link href={prevHref} className="ls-navbtn" aria-label="Tháng trước">
+          <Icon name="chevLeft" size={18} />
         </Link>
         <div className="ls-month">
           Tháng {data.month}/{data.year}
         </div>
         {nextHref ? (
-          <Link href={nextHref} className="ls-navbtn">
-            ›
+          <Link href={nextHref} className="ls-navbtn" aria-label="Tháng sau">
+            <Icon name="chevRight" size={18} />
           </Link>
         ) : (
-          <span className="ls-navbtn disabled">›</span>
+          <span className="ls-navbtn disabled">
+            <Icon name="chevRight" size={18} />
+          </span>
         )}
       </div>
 
@@ -379,35 +382,45 @@ export default function NsclGrid({
           </select>
         )}
         <button className="btn-undo" disabled={busy} onClick={fill10}>
-          ⚡ Điền nhanh 10
+          <Icon name="bolt" size={15} /> Điền nhanh 10
         </button>
         {lockDept && lockInfo ? (
           isAdmin ? (
             <button className="btn-reject" disabled={busy} onClick={() => doLock('unlock')}>
-              🔓 Mở khóa
+              <Icon name="lockOpen" size={15} /> Mở khóa
             </button>
           ) : (
-            <span className="badge badge-ok">🔏 Đã khóa</span>
+            <span className="badge badge-ok"><Icon name="lock" size={13} /> Đã khóa</span>
           )
         ) : (
           <button className="btn-approve" disabled={busy} onClick={() => doLock('lock')}>
-            🔏 Ký &amp; Khóa
+            <Icon name="lock" size={15} /> Ký &amp; Khóa
           </button>
         )}
-        <button className="btn-undo" onClick={printReport}>
-          🖨 In
+        <button className="btn-undo nscl-pc-only" onClick={printReport}>
+          <Icon name="printer" size={15} /> In
         </button>
-        {seeAll && <ExportExcel year={data.year} month={data.month} />}
+        {seeAll && (
+          <span className="nscl-pc-only" style={{ display: 'contents' }}>
+            <ExportExcel year={data.year} month={data.month} />
+          </span>
+        )}
         {toast && <span className="muted" style={{ fontSize: 13 }}>{toast}</span>}
       </div>
 
       {lockInfo && (
         <div className="muted" style={{ fontSize: 12, color: 'var(--ok)', marginBottom: 8 }}>
-          🔏 {lockDept} đã ký &amp; khóa bởi {lockInfo.nguoiKy}
+          <Icon name="lock" size={13} style={{ verticalAlign: '-2px', marginRight: 4 }} />
+          {lockDept} đã ký &amp; khóa bởi {lockInfo.nguoiKy}
           {lockInfo.thoiGianKy ? ' lúc ' + new Date(lockInfo.thoiGianKy).toLocaleString('vi-VN') : ''}
           {isAdmin ? ' — Admin có thể Mở khóa để chấm lại.' : ''}
         </div>
       )}
+
+      <div className="nscl-hint">
+        <Icon name="info" size={15} />
+        Bảng điểm rộng — vuốt ngang để xem/sửa. Nên dùng máy tính để thao tác nhanh (In &amp; Xuất Excel chỉ có trên PC).
+      </div>
 
       <div className="nscl-scroll">
         {shown.length === 0 ? (
