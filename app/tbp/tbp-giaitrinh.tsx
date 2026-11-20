@@ -272,8 +272,9 @@ export default function TbpGiaiTrinh({
       {batch && (
         <div className="cc-dlg-overlay" onClick={() => !busy && setBatch(null)}>
           <div className="cc-dlg" style={{ maxWidth: 360 }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0 }}>
-              {batch.action === 'Đồng ý' ? '✅ Đồng ý' : '❌ Từ chối'} hàng loạt
+            <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+              <Icon name={batch.action === 'Đồng ý' ? 'checks' : 'x'} size={18} />
+              {batch.action === 'Đồng ý' ? 'Đồng ý' : 'Từ chối'} hàng loạt
             </h3>
             <p className="muted">
               {batch.action === 'Đồng ý' ? 'Đồng ý' : 'Từ chối'} <b>{batch.list.length}</b> giải trình
