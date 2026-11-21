@@ -1561,6 +1561,16 @@ textarea.cc-note {
 .gt-table td { vertical-align: top; }
 /* Cột Họ tên căn giữa như các cột khác (desktop); mobile vẫn căn trái ở thẻ) */
 .gt-table td.gt-name { text-align: center; font-weight: 600; }
+/* Bảng giải trình: layout cố định nên không cần cuộn ngang -> bỏ overflow
+   để thead có thể dính viewport (bám dưới thanh tab sticky). */
+.ls-table-wrap:has(.gt-table) {
+  overflow: visible;
+}
+.gt-table thead th {
+  position: sticky;
+  top: 39px; /* ~ chiều cao thanh tab sticky ở trên */
+  z-index: 10;
+}
 .gt-table .ls-reason {
   white-space: normal;
   width: auto;
@@ -1945,6 +1955,11 @@ table.nscl-grid {
 .nscl-ro {
   display: block;
   color: var(--muted);
+}
+/* Tô xen kẽ hàng (zebra) để dễ dò ngang. Khai báo TRƯỚC các màu cột cuối tuần /
+   ô giá trị / sọc đỏ (cùng specificity 0,2,1) nên những ô đó vẫn thắng nhờ đứng sau. */
+.nscl-grid tr:nth-child(even) td {
+  background: #f4f7fb;
 }
 .nscl-grid td.t7 {
   background: #eef0f3;
