@@ -90,9 +90,10 @@ export default function TbpGiaiTrinh({
 
       <div className="ls-table-wrap">
         {shown.length === 0 ? (
-          <p className="muted" style={{ textAlign: 'center', padding: 20 }}>
-            Không có giải trình nào.
-          </p>
+          <div className="tbp-empty">
+            <Icon name="checks" size={30} />
+            <p>Không có giải trình nào.</p>
+          </div>
         ) : (
           <table className="ls-table gt-table">
             <colgroup>

@@ -707,11 +707,13 @@ textarea.cc-note {
   position: fixed;
   inset: 0;
   background: rgba(14, 23, 38, 0.45);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   z-index: 50;
+  animation: cc-dlg-fade 0.15s ease;
 }
 .cc-dlg {
   background: var(--surface);
@@ -720,6 +722,26 @@ textarea.cc-note {
   max-width: 340px;
   width: 100%;
   text-align: center;
+  box-shadow: 0 20px 48px rgba(14, 23, 38, 0.22);
+  animation: cc-dlg-pop 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes cc-dlg-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes cc-dlg-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .cc-dlg h3 {
   margin: 0 0 8px;
@@ -1049,6 +1071,10 @@ textarea.cc-note {
 .ls-table tr.r-leave td {
   background: #eff6ff;
 }
+/* Hover hàng (specificity cao để luôn thắng màu hàng) */
+.ls-table-wrap .ls-table tbody tr:hover td {
+  background: #eef4ff;
+}
 .ls-reason {
   text-align: left !important;
   width: 160px;
@@ -1075,18 +1101,28 @@ textarea.cc-note {
   font-weight: 700;
 }
 .grade {
-  display: inline-block;
-  min-width: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 3px;
+  border-radius: 6px;
+  font-size: 11.5px;
   font-weight: 700;
+  line-height: 1;
 }
 .grade-a {
   color: var(--ok);
+  background: #e8f6ee;
 }
 .grade-b {
   color: var(--warn);
+  background: #fdf2e0;
 }
 .grade-d {
   color: var(--err);
+  background: #fdeaea;
 }
 .ls-gt {
   appearance: none;
@@ -1315,6 +1351,22 @@ textarea.cc-note {
   gap: 12px;
   padding: 56px 0;
 }
+/* Trạng thái rỗng (không có giải trình) */
+.tbp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 44px 20px;
+  color: var(--muted);
+}
+.tbp-empty svg {
+  color: var(--border-strong);
+}
+.tbp-empty p {
+  margin: 0;
+  font-size: 14px;
+}
 .tbp-tabs button,
 .tbp-tablink {
   appearance: none;
@@ -1358,6 +1410,11 @@ textarea.cc-note {
   align-items: center;
   gap: 10px;
   margin: 10px 0 12px;
+}
+.tbp-select:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
 }
 .tbp-select {
   padding: 8px 10px;
