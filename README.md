@@ -27,6 +27,13 @@ Chạy **song song, độc lập** với app 2026 cũ (`D:\Claude Code\_github\h
 
 > **Lưu ý khi dev:** đừng chạy `next build` khi đang `next dev` (chung thư mục `.next` → hỏng CSS / lỗi 500). Dừng dev trước khi build, hoặc chỉ dùng `tsc` để kiểm kiểu.
 
+### Tinh chỉnh sau code-complete (UI/UX, đang tiếp diễn)
+Ngoài 7 bước trên, giao diện đang được đánh bóng dần (xem git log để biết mới nhất). Đã làm:
+- **Đăng nhập TBP/Admin:** redesign màn login + checkbox **"Ghi nhớ đăng nhập"** (`RememberGuard`).
+- **Khu TBP:** gộp khung chung (`app/tbp/layout.tsx` + `tbp-header.tsx`), tab giữ tháng qua `?m`, `loading.tsx` khi đổi tab, **sticky** cả khối đầu trang (`StickyTop`), chuẩn hoá nghiệp vụ duyệt (chưa có lý do → khoá cả 2 nút; bắt nhập lý do từ chối; xác nhận Ký & Khóa), tách cột Ngày/Thứ, hover sáng hàng ở lưới NSCL.
+
+Chi tiết pattern: ONBOARDING.md §4b; quy ước: CLAUDE.md.
+
 ## Bước 1 — chạy migration
 
 Thứ tự **bắt buộc** `0001 → 0011`:

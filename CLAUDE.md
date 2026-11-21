@@ -10,6 +10,8 @@ Người mới xem [ONBOARDING.md](ONBOARDING.md); trạng thái + migration xem
 - **1 app, 3 vai theo route:** CBNV `/c/[token]`, TBP `/tbp`, Admin `/admin/*`.
 - **GHI** đi qua **Route Handlers** (`app/api/*`) dùng **service role** (`lib/supabase/admin.ts`, `server-only`). **ĐỌC** qua Server Components.
 - **Định danh:** CBNV = token-path + PIN (xử lý ở server, client không gõ tên). TBP/Admin = Supabase Auth, phân vai qua `chamcong_app_roles` (`middleware.ts`).
+- **Đăng nhập TBP/Admin** có checkbox **"Ghi nhớ đăng nhập"** (mặc định bật): `login-form.tsx` lưu `cc_remember`/`cc_email` (localStorage), `RememberGuard` (ở layout TBP + admin) đăng xuất khi mở lại trình duyệt nếu tắt ghi nhớ — vì `@supabase/ssr` ép cookie phiên 400 ngày.
+- **TBP = 2 tab theo ROUTE** (`/tbp` ↔ `/tbp/nscl`), không phải tab client → KHÔNG dùng Radix Tabs. Khung chung ở `app/tbp/layout.tsx` (identity + tab + tháng, bọc `StickyTop` sticky), tháng lưu ở `?m`, mỗi route có `loading.tsx`. Chi tiết: ONBOARDING.md §4b.
 - Cấu trúc thư mục chi tiết: xem ONBOARDING.md §4.
 
 ## Lệnh
@@ -29,6 +31,9 @@ npx tsc --noEmit   # kiểm kiểu (KHÔNG build khi đang dev)
 4. CSS biến `:root` cho màu (`--accent` #2563eb, `--ok`, `--warn`, `--err`). Chỉ Light mode.
 5. **TUYỆT ĐỐI không** đưa `service_role` key / Telegram token / secret vào file client hay `localStorage`. Secret chỉ ở `process.env` phía server (không tiền tố `NEXT_PUBLIC_`).
 6. CORS GitHub Pages/webhook → Supabase phải kèm `Content-Type: application/json`.
+7. **Icon = inline SVG** qua `app/_components/icons.tsx` (`<Icon name size />`, viewBox 24, stroke currentColor) — hạn chế emoji trong UI mới (admin còn vài chỗ emoji = nợ kỹ thuật). Nút hành động nên có **chữ** trên PC, không chỉ icon.
+8. **Hộp thoại in-app** thay cho `alert()`/`confirm()` trình duyệt: TBP dùng overlay `.cc-dlg`; admin có `lib/confirm.tsx` (`useConfirm`). Thao tác quan trọng (Ký & Khóa, từ chối, xoá) phải xác nhận; từ chối giải trình **bắt buộc nhập lý do**.
+9. Dùng `useSearchParams`/`useLinkStatus` (client) thì **bọc `<Suspense>`** (nếu không `next build` lỗi; `tsc` không bắt).
 
 ## KHÔNG được đổi (nghiệp vụ)
 

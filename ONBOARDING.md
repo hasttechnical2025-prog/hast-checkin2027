@@ -73,12 +73,26 @@ Tài khoản test: tạo nhân viên bằng RPC (xem cuối README). Lưu ý mà
 
 ```
 app/
-├── page.tsx                 "/"  — đăng nhập CBNV (Mã NV + PIN)
+├── layout.tsx               root layout
+├── page.tsx                 "/"  — đăng nhập CBNV (Mã NV + PIN) [NvLogin]
+├── globals.css              TOÀN BỘ css (design tokens :root, chỉ Light mode)
 ├── login/                   đăng nhập TBP/Admin (Supabase Auth)
-├── c/[token]/               CBNV: cham-cong.tsx (màn chấm), lich-su/ (dữ liệu tháng + giải trình),
-│                            manifest.webmanifest/ (PWA động theo token), pwa-client.tsx
-├── tbp/                     Duyệt giải trình + NSCL (nscl/) + xuất Excel
-├── admin/                   nhan-vien, log, ngay-le, ca, cau-hinh, tai-khoan, huong-dan, sua-cong, thiet-bi
+│   ├── page.tsx             vỏ trang (logo + tiêu đề)
+│   └── login-form.tsx       form + checkbox "Ghi nhớ đăng nhập" (mắt hiện/ẩn mật khẩu)
+├── auth/signout/route.ts    đăng xuất (POST)
+├── c/[token]/               CBNV: page.tsx, cham-cong.tsx, device-block.tsx, loading.tsx,
+│                            lich-su/ (dữ liệu tháng + giải trình), pwa-client.tsx,
+│                            manifest.webmanifest/ (PWA động theo token)
+├── tbp/                     TBP — 2 tab THEO ROUTE (/tbp ↔ /tbp/nscl), không phải tab client
+│   ├── layout.tsx           khung chung: identity + tab + thanh tháng (trong StickyTop) + RememberGuard
+│   ├── StickyTop.tsx        bọc khối đầu trang thành sticky; đo chiều cao → biến CSS --tbp-stick
+│   ├── tbp-header.tsx       tab (Link giữ ?m) + thanh tháng (spinner khi tải: useLinkStatus)
+│   ├── page.tsx + tbp-giaitrinh.tsx   Duyệt giải trình
+│   ├── loading.tsx          khung chờ khi đổi tab
+│   └── nscl/                page.tsx, nscl-grid.tsx, export-excel.tsx, loading.tsx
+├── admin/                   layout.tsx (admin-sidebar) + 9 mục: nhan-vien, log, sua-cong,
+│   │                        thiet-bi, ngay-le, ca, cau-hinh, tai-khoan, huong-dan
+│   └── admin-nav.tsx        (CODE CHẾT — chưa import ở đâu; xoá khi dọn)
 ├── api/                     Route Handlers — ĐƯỜNG GHI (service role)
 │   ├── checkin/             chấm công (đường ghi CBNV duy nhất)
 │   ├── nv-login/            xác thực Mã NV + PIN
@@ -87,17 +101,24 @@ app/
 │   ├── admin/               employee, log, holiday, shift, config, account, guide, day
 │   ├── cron/reminder/       bot nhắc nhở (Vercel Cron)
 │   └── sync/nghi-phep/      webhook 1 chiều từ app "Sổ Công tác"
-├── _components/             DateField, NvLogin, QrCode, SignOutButton, icons.tsx
-└── globals.css
+└── _components/             DateField, NvLogin, QrCode, SignOutButton, RememberGuard, icons.tsx
 
-lib/                         config, attendance, auth, device, telegram, nscl, giaitrinh, month,
-                             export-nscl, fs-export, version, confirm, supabase/{server,admin,client}
+lib/                         config, attendance, auth (getStaffSession bọc React cache()),
+                             device, telegram, nscl, giaitrinh, month, export-nscl, fs-export,
+                             version, confirm, supabase/{server,admin,client}
 supabase/migrations/         0001..0011 (danh mục, vận hành, index, trigger chấm điểm, auth/RLS, seed, grants, …)
 middleware.ts                chặn /tbp + /admin theo vai
 vercel.json                  2 cron nhắc nhở (sáng/chiều, T2–T6)
 ```
 
 **Mỗi route HTML là vỏ mỏng**; logic GHI gom về `app/api/*` (service role, `lib/supabase/admin.ts`), ĐỌC qua Server Components.
+
+### 4b. Đăng nhập & giao diện TBP (patterns cần biết)
+
+- **"Ghi nhớ đăng nhập" (login-form + RememberGuard):** checkbox mặc định **bật**. Bật → lưu `cc_remember='1'` + `cc_email` vào `localStorage` (tự điền email lần sau); tắt → xoá email và **đăng xuất khi mở lại trình duyệt**. Lý do dùng guard thay vì cookie-phiên: `@supabase/ssr` **ép cookie phiên 400 ngày** (không tạo được session-cookie). `RememberGuard` (mount ở layout TBP + admin) dò `sessionStorage['cc_alive']`: trình duyệt mở lại mà `cc_remember='0'` → `signOut()` + về `/login`.
+- **Tab TBP là điều hướng route** (`/tbp` ↔ `/tbp/nscl`), **không** phải tab client. Nên KHÔNG dùng Radix Tabs. Tháng lưu ở `?m=YYYY-MM`: đổi tab giữ tháng, đổi tháng giữ tab (xem `tbp-header.tsx`). Mỗi route có `loading.tsx` → bấm tab là hiện khung chờ ngay (hết cảm giác treo).
+- **Khối đầu trang TBP sticky:** `StickyTop` bọc identity + tab + tháng, đo chiều cao đặt `--tbp-stick`; hàng tiêu đề bảng giải trình (`.gt-table thead th`) dùng `top: var(--tbp-stick)` để bám ngay dưới. Bảng giải trình bỏ `overflow` ở khung (layout cố định) để thead bám được viewport.
+- **getStaffSession bọc `cache()`** → layout + page gọi chung 1 lần/request.
 
 ---
 
@@ -137,6 +158,10 @@ vercel.json                  2 cron nhắc nhở (sáng/chiều, T2–T6)
 - Manifest CBNV **động theo token**, `start_url`/`scope` = `/c/<token>` **không có "/" cuối** (nếu có sẽ không vào standalone).
 - Màn CBNV `/c/[token]` **khoá cứng** `height: 100dvh` + `overflow: hidden` (không cuộn, không xê dịch) — khi thêm nội dung phải cân lại để không bị cắt ở đáy trên máy nhỏ.
 - RPC dùng `crypt/gen_salt` phải `SET search_path = public, extensions` (pgcrypto ở schema `extensions`).
+- **`@supabase/ssr` ép cookie phiên 400 ngày** → không tạo được "cookie phiên" để quên khi đóng trình duyệt; phần tắt "Ghi nhớ" dùng `RememberGuard` (xem §4b).
+- **`useSearchParams` (client) phải bọc `<Suspense>`** nếu không `next build` sẽ lỗi — `tbp-header.tsx` được bọc trong layout TBP. `tsc` KHÔNG bắt lỗi này, chỉ lộ khi build.
+- **thead sticky không bám viewport nếu khung bảng có `overflow`**: `overflow-x:auto` khiến `overflow-y` thành `auto` → tạo vùng cuộn riêng. Bảng giải trình (layout cố định) đã bỏ overflow; bảng admin/NSCL (cần cuộn ngang) thì thead chỉ sticky trong vùng cuộn của nó.
+- **`--tbp-stick`** do `StickyTop` đo bằng JS (ResizeObserver); nếu sửa chiều cao khối đầu trang thì thead tự bám theo, không cần số cứng.
 
 ---
 
