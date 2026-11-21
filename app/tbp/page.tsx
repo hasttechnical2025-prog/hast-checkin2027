@@ -1,21 +1,17 @@
 import { getStaffSession } from '@/lib/auth';
 import { buildGiaiTrinhItems } from '@/lib/giaitrinh';
 import { vnNow } from '@/lib/attendance';
-import SignOutButton from '@/app/_components/SignOutButton';
-import RememberGuard from '@/app/_components/RememberGuard';
 import TbpGiaiTrinh from './tbp-giaitrinh';
 
 export const dynamic = 'force-dynamic';
-
-const pad = (n: number) => String(n).padStart(2, '0');
 
 export default async function TbpPage({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
   const staff = await getStaffSession();
   if (!staff) {
     return (
-      <main className="wrap">
-        <p>Không có quyền. <a href="/login">Đăng nhập</a>.</p>
-      </main>
+      <p className="muted">
+        Không có quyền. <a href="/login">Đăng nhập</a>.
+      </p>
     );
   }
 
@@ -41,32 +37,5 @@ export default async function TbpPage({ searchParams }: { searchParams: Promise<
 
   const data = await buildGiaiTrinhItems(visibleDepts, approverDept, isAdmin, year, month);
 
-  const idx = year * 12 + month;
-  const toM = (i: number) => `${Math.floor((i - 1) / 12)}-${pad(((i - 1) % 12) + 1)}`;
-  const canNext = idx + 1 <= curY * 12 + curM;
-
-  return (
-    <main className="tbp-page">
-      <RememberGuard />
-      <div className="ls-top">
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22 }}>Trưởng bộ phận</h1>
-          <div className="muted" style={{ fontSize: 13 }}>
-            {staff.email} · {isAdmin ? 'Admin (toàn công ty)' : staff.department}
-            {staff.viewAll && !isAdmin ? ' · xem toàn công ty' : ''}
-          </div>
-        </div>
-        <SignOutButton />
-      </div>
-
-      <TbpGiaiTrinh
-        items={data.items}
-        departments={data.departments}
-        year={year}
-        month={month}
-        prevHref={`/tbp?m=${toM(idx - 1)}`}
-        nextHref={canNext ? `/tbp?m=${toM(idx + 1)}` : null}
-      />
-    </main>
-  );
+  return <TbpGiaiTrinh items={data.items} departments={data.departments} />;
 }

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import type { GtItem } from '@/lib/giaitrinh';
 import { Icon } from '@/app/_components/icons';
 
@@ -14,17 +13,9 @@ function Grade({ g }: { g: string }) {
 export default function TbpGiaiTrinh({
   items,
   departments,
-  year,
-  month,
-  prevHref,
-  nextHref,
 }: {
   items: GtItem[];
   departments: string[];
-  year: number;
-  month: number;
-  prevHref: string;
-  nextHref: string | null;
 }) {
   const router = useRouter();
   const [dept, setDept] = useState('');
@@ -71,31 +62,6 @@ export default function TbpGiaiTrinh({
 
   return (
     <>
-      <div className="tbp-tabs">
-        <button className="active">Duyệt giải trình</button>
-        <Link href="/tbp/nscl" className="tbp-tablink">
-          Bảng điểm NSCL
-        </Link>
-      </div>
-
-      <div className="ls-nav">
-        <Link href={prevHref} className="ls-navbtn" aria-label="Tháng trước">
-          <Icon name="chevLeft" size={18} />
-        </Link>
-        <div className="ls-month">
-          Tháng {month}/{year}
-        </div>
-        {nextHref ? (
-          <Link href={nextHref} className="ls-navbtn" aria-label="Tháng sau">
-            <Icon name="chevRight" size={18} />
-          </Link>
-        ) : (
-          <span className="ls-navbtn disabled">
-            <Icon name="chevRight" size={18} />
-          </span>
-        )}
-      </div>
-
       <div className="tbp-bar">
         {departments.length > 1 && (
           <select className="tbp-select" value={dept} onChange={(e) => setDept(e.target.value)}>
@@ -108,9 +74,9 @@ export default function TbpGiaiTrinh({
           </select>
         )}
         <div className="tbp-stats">
-          <span className="badge badge-wait"><Icon name="clock" size={13} /> {pending}</span>
-          <span className="badge badge-ok"><Icon name="check" size={13} /> {approved}</span>
-          <span className="badge badge-no"><Icon name="x" size={13} /> {rejected}</span>
+          <span className="badge badge-wait"><Icon name="clock" size={13} /> Chờ {pending}</span>
+          <span className="badge badge-ok"><Icon name="check" size={13} /> Đồng ý {approved}</span>
+          <span className="badge badge-no"><Icon name="x" size={13} /> Từ chối {rejected}</span>
         </div>
         <div className={`tbp-batch${canBatch ? '' : ' tbp-batch-off'}`}>
           <button className="btn-approve" disabled={busy} onClick={() => openBatch('Đồng ý')}>

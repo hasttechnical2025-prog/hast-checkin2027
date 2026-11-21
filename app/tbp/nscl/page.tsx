@@ -1,22 +1,17 @@
 import { getStaffSession } from '@/lib/auth';
 import { buildNsclData } from '@/lib/nscl';
 import { vnNow } from '@/lib/attendance';
-import SignOutButton from '@/app/_components/SignOutButton';
 import NsclGrid from './nscl-grid';
 
 export const dynamic = 'force-dynamic';
-
-const pad = (n: number) => String(n).padStart(2, '0');
 
 export default async function NsclPage({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
   const staff = await getStaffSession();
   if (!staff) {
     return (
-      <main className="wrap">
-        <p>
-          Không có quyền. <a href="/login">Đăng nhập</a>.
-        </p>
-      </main>
+      <p className="muted">
+        Không có quyền. <a href="/login">Đăng nhập</a>.
+      </p>
     );
   }
 
@@ -42,31 +37,5 @@ export default async function NsclPage({ searchParams }: { searchParams: Promise
 
   const data = await buildNsclData(visibleDepts, editorDept, isAdmin, year, month);
 
-  const idx = year * 12 + month;
-  const toM = (i: number) => `${Math.floor((i - 1) / 12)}-${pad(((i - 1) % 12) + 1)}`;
-  const canNext = idx + 1 <= curY * 12 + curM;
-
-  return (
-    <main className="tbp-page">
-      <div className="ls-top">
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22 }}>Bảng điểm NSCL</h1>
-          <div className="muted" style={{ fontSize: 13 }}>
-            {staff.email} · {isAdmin ? 'Admin (toàn công ty)' : staff.department}
-            {staff.viewAll && !isAdmin ? ' · xem toàn công ty' : ''}
-          </div>
-        </div>
-        <SignOutButton />
-      </div>
-
-      <NsclGrid
-        data={data}
-        prevHref={`/tbp/nscl?m=${toM(idx - 1)}`}
-        nextHref={canNext ? `/tbp/nscl?m=${toM(idx + 1)}` : null}
-        isAdmin={isAdmin}
-        seeAll={seeAll}
-        ownDept={staff.department}
-      />
-    </main>
-  );
+  return <NsclGrid data={data} isAdmin={isAdmin} seeAll={seeAll} ownDept={staff.department} />;
 }

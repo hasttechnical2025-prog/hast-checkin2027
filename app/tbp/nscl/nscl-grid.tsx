@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import type { NsclData, NsclRow, NsclCell } from '@/lib/nscl';
 import ExportExcel from './export-excel';
 import { Icon } from '@/app/_components/icons';
@@ -59,15 +58,11 @@ function computeTotals(cells: NsclCell[], adjust: string) {
 
 export default function NsclGrid({
   data,
-  prevHref,
-  nextHref,
   isAdmin,
   seeAll,
   ownDept,
 }: {
   data: NsclData;
-  prevHref: string;
-  nextHref: string | null;
   isAdmin: boolean;
   seeAll: boolean;
   ownDept: string | null;
@@ -346,31 +341,6 @@ export default function NsclGrid({
 
   return (
     <>
-      <div className="tbp-tabs">
-        <Link href="/tbp" className="tbp-tablink">
-          Duyệt giải trình
-        </Link>
-        <button className="active">Bảng điểm NSCL</button>
-      </div>
-
-      <div className="ls-nav">
-        <Link href={prevHref} className="ls-navbtn" aria-label="Tháng trước">
-          <Icon name="chevLeft" size={18} />
-        </Link>
-        <div className="ls-month">
-          Tháng {data.month}/{data.year}
-        </div>
-        {nextHref ? (
-          <Link href={nextHref} className="ls-navbtn" aria-label="Tháng sau">
-            <Icon name="chevRight" size={18} />
-          </Link>
-        ) : (
-          <span className="ls-navbtn disabled">
-            <Icon name="chevRight" size={18} />
-          </span>
-        )}
-      </div>
-
       <div className="tbp-bar">
         {seeAll && data.departments.length > 1 && (
           <select className="tbp-select" value={dept} onChange={(e) => setDept(e.target.value)}>

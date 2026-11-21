@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 
 export type StaffRole = 'admin' | 'TBP';
@@ -12,9 +13,10 @@ export interface StaffSession {
 
 /**
  * Lấy phiên TBP/Admin hiện tại kèm vai (đọc chamcong_app_roles qua RLS "chính mình").
+ * Bọc React cache() -> mỗi request chỉ truy vấn 1 lần dù gọi ở cả layout lẫn page.
  * @returns null nếu chưa đăng nhập hoặc chưa được gán vai.
  */
-export async function getStaffSession(): Promise<StaffSession | null> {
+export const getStaffSession = cache(async (): Promise<StaffSession | null> => {
   const supabase = await createClient();
 
   const {
@@ -37,4 +39,4 @@ export async function getStaffSession(): Promise<StaffSession | null> {
     department: role.department,
     viewAll: role.view_all,
   };
-}
+});
