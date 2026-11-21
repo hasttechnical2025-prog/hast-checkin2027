@@ -1337,16 +1337,19 @@ textarea.cc-note {
 
 /* ===== Trang TBP ===== */
 /* Tab thật: dải gạch chân, tab active có underline accent (không phải cục nút). */
+/* Cả khối đầu trang (định danh + tab + thanh tháng) dính đỉnh khi cuộn. */
+.tbp-stickytop {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  display: flow-root; /* chứa margin con -> đo chiều cao chính xác */
+}
 .tbp-tabs {
   display: flex;
   gap: 2px;
   margin: 18px 0 16px;
   border-bottom: 1px solid var(--border);
-  /* Dính đỉnh khi cuộn để luôn đổi tab được */
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--bg);
 }
 /* Spinner nhỏ hiện trên nút chuyển tháng khi đang tải (useLinkStatus) */
 .nav-spinner {
@@ -1568,7 +1571,7 @@ textarea.cc-note {
 }
 .gt-table thead th {
   position: sticky;
-  top: 39px; /* ~ chiều cao thanh tab sticky ở trên */
+  top: var(--tbp-stick, 150px); /* bám ngay dưới khối đầu trang (đo bằng JS) */
   z-index: 10;
 }
 .gt-table .ls-reason {
@@ -1956,11 +1959,6 @@ table.nscl-grid {
   display: block;
   color: var(--muted);
 }
-/* Tô xen kẽ hàng (zebra) để dễ dò ngang. Khai báo TRƯỚC các màu cột cuối tuần /
-   ô giá trị / sọc đỏ (cùng specificity 0,2,1) nên những ô đó vẫn thắng nhờ đứng sau. */
-.nscl-grid tr:nth-child(even) td {
-  background: #f4f7fb;
-}
 .nscl-grid td.t7 {
   background: #eef0f3;
 }
@@ -1992,6 +1990,11 @@ table.nscl-grid {
 .nscl-grid td.nv-block {
   background: repeating-linear-gradient(45deg, #fbe5e3, #fbe5e3 4px, #f7d2cf 4px, #f7d2cf 8px);
   cursor: not-allowed;
+}
+/* Rê chuột -> sáng CẢ hàng để dễ dò ngang (thay cho zebra). Cột tên sticky cũng sáng theo. */
+.nscl-grid tbody tr:hover td,
+.nscl-grid tbody tr:hover td.s-name {
+  background: var(--accent-weak);
 }
 .nscl-sum {
   font-weight: 700;

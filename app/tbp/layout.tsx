@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { getStaffSession } from '@/lib/auth';
 import SignOutButton from '@/app/_components/SignOutButton';
 import RememberGuard from '@/app/_components/RememberGuard';
+import StickyTop from './StickyTop';
 import TbpHeader from './tbp-header';
 
 /**
@@ -15,22 +16,24 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
     <main className="tbp-page">
       <RememberGuard />
 
-      {staff && (
-        <div className="ls-top">
-          <div>
-            <h1 style={{ margin: 0, fontSize: 22 }}>Trưởng bộ phận</h1>
-            <div className="muted" style={{ fontSize: 13 }}>
-              {staff.email} · {staff.role === 'admin' ? 'Admin (toàn công ty)' : staff.department}
-              {staff.viewAll && staff.role !== 'admin' ? ' · xem toàn công ty' : ''}
+      <StickyTop>
+        {staff && (
+          <div className="ls-top">
+            <div>
+              <h1 style={{ margin: 0, fontSize: 22 }}>Trưởng bộ phận</h1>
+              <div className="muted" style={{ fontSize: 13 }}>
+                {staff.email} · {staff.role === 'admin' ? 'Admin (toàn công ty)' : staff.department}
+                {staff.viewAll && staff.role !== 'admin' ? ' · xem toàn công ty' : ''}
+              </div>
             </div>
+            <SignOutButton />
           </div>
-          <SignOutButton />
-        </div>
-      )}
+        )}
 
-      <Suspense fallback={<div className="tbp-tabs" />}>
-        <TbpHeader />
-      </Suspense>
+        <Suspense fallback={<div className="tbp-tabs" />}>
+          <TbpHeader />
+        </Suspense>
+      </StickyTop>
 
       {children}
     </main>
