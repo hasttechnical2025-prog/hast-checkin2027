@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Icon } from '@/app/_components/icons';
@@ -13,12 +13,24 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
+  const [remember, setRemember] = useState(true);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(
     params.get('e') === 'norole'
       ? 'Tài khoản chưa được gán vai. Liên hệ Admin.'
       : null,
   );
+
+  // Khôi phục lựa chọn ghi nhớ + email đã lưu (tiện cho TBP ít khi đăng nhập).
+  useEffect(() => {
+    try {
+      setRemember(localStorage.getItem('cc_remember') !== '0');
+      const savedEmail = localStorage.getItem('cc_email');
+      if (savedEmail) setEmail(savedEmail);
+    } catch {
+      /* storage bị chặn -> giữ mặc định (ghi nhớ bật) */
+    }
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,6 +42,21 @@ export default function LoginForm() {
       setErr('Sai email hoặc mật khẩu.');
       setBusy(false);
       return;
+    }
+
+    // Lưu lựa chọn ghi nhớ cho RememberGuard + prefill lần sau.
+    try {
+      if (remember) {
+        localStorage.setItem('cc_remember', '1');
+        localStorage.setItem('cc_email', email);
+      } else {
+        localStorage.setItem('cc_remember', '0');
+        localStorage.removeItem('cc_email');
+        // Đánh dấu phiên hiện tại còn sống để không bị guard đăng xuất ngay.
+        sessionStorage.setItem('cc_alive', '1');
+      }
+    } catch {
+      /* storage bị chặn -> bỏ qua */
     }
 
     // Lấy vai để điều hướng đúng khu vực.
@@ -97,6 +124,15 @@ export default function LoginForm() {
           <Icon name={showPw ? 'eyeOff' : 'eye'} size={18} />
         </button>
       </div>
+
+      <label className="auth-remember">
+        <input
+          type="checkbox"
+          checked={remember}
+          onChange={(e) => setRemember(e.target.checked)}
+        />
+        Ghi nhớ đăng nhập trên máy này
+      </label>
 
       {err && (
         <p className="auth-err">

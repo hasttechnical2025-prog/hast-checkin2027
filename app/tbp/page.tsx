@@ -2,6 +2,7 @@ import { getStaffSession } from '@/lib/auth';
 import { buildGiaiTrinhItems } from '@/lib/giaitrinh';
 import { vnNow } from '@/lib/attendance';
 import SignOutButton from '@/app/_components/SignOutButton';
+import RememberGuard from '@/app/_components/RememberGuard';
 import TbpGiaiTrinh from './tbp-giaitrinh';
 
 export const dynamic = 'force-dynamic';
@@ -46,6 +47,7 @@ export default async function TbpPage({ searchParams }: { searchParams: Promise<
 
   return (
     <main className="tbp-page">
+      <RememberGuard />
       <div className="ls-top">
         <div>
           <h1 style={{ margin: 0, fontSize: 22 }}>Trưởng bộ phận</h1>
