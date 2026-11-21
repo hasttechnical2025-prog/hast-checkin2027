@@ -98,16 +98,18 @@ export default function TbpGiaiTrinh({
           <table className="ls-table gt-table">
             <colgroup>
               <col style={{ width: '18%' }} />
-              <col style={{ width: '9%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '7%' }} />
               <col style={{ width: '12%' }} />
-              <col style={{ width: '30%' }} />
+              <col style={{ width: '27%' }} />
               <col style={{ width: '12%' }} />
-              <col style={{ width: '19%' }} />
+              <col style={{ width: '16%' }} />
             </colgroup>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left' }}>Họ tên</th>
+                <th>Họ tên</th>
                 <th>Ngày</th>
+                <th>Thứ</th>
                 <th>Đánh giá</th>
                 <th style={{ textAlign: 'left' }}>Lý do</th>
                 <th>Trạng thái</th>
@@ -117,14 +119,10 @@ export default function TbpGiaiTrinh({
             <tbody>
               {shown.map((i) => (
                 <tr key={`${i.employeeId}_${i.ymd}`} className={i.isLeave ? 'r-leave' : i.approve === '' ? 'r-partial' : ''}>
-                  <td className="gt-name">
-                    {i.name}
-                    <div className="muted" style={{ fontSize: 11, fontWeight: 400 }}>
-                      {i.dept}
-                    </div>
-                  </td>
-                  <td data-label="Ngày">
-                    {i.date.slice(0, 5)} <span className="muted">{i.dowLabel}</span>
+                  <td className="gt-name">{i.name}</td>
+                  <td data-label="Ngày">{i.date.slice(0, 5)}</td>
+                  <td data-label="Thứ">
+                    <span className="muted">{i.dowLabel}</span>
                   </td>
                   <td className="ls-grades" data-label="Đánh giá">
                     {i.isFullLeave ? (

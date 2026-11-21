@@ -1342,6 +1342,21 @@ textarea.cc-note {
   gap: 2px;
   margin: 18px 0 16px;
   border-bottom: 1px solid var(--border);
+  /* Dính đỉnh khi cuộn để luôn đổi tab được */
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+}
+/* Spinner nhỏ hiện trên nút chuyển tháng khi đang tải (useLinkStatus) */
+.nav-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: cc-spin 0.7s linear infinite;
 }
 /* Khung chờ khi chuyển tab/tháng (hiện ngay, hết cảm giác treo) */
 .tbp-loading {
@@ -1544,6 +1559,8 @@ textarea.cc-note {
 /* Bảng Giải trình full-width: cột Lý do rộng, XUỐNG DÒNG, không cắt */
 .gt-table { table-layout: fixed; }
 .gt-table td { vertical-align: top; }
+/* Cột Họ tên căn giữa như các cột khác (desktop); mobile vẫn căn trái ở thẻ) */
+.gt-table td.gt-name { text-align: center; font-weight: 600; }
 .gt-table .ls-reason {
   white-space: normal;
   width: auto;

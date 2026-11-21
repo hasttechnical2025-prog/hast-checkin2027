@@ -1,11 +1,17 @@
 'use client';
 
-import Link from 'next/link';
+import Link, { useLinkStatus } from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Icon } from '@/app/_components/icons';
+import { Icon, type IconName } from '@/app/_components/icons';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const toM = (i: number) => `${Math.floor((i - 1) / 12)}-${pad(((i - 1) % 12) + 1)}`;
+
+/** Đổi icon thành spinner khi link đang điều hướng (chuyển tháng -> hết "ngơ"). */
+function NavIcon({ name }: { name: IconName }) {
+  const { pending } = useLinkStatus();
+  return pending ? <span className="nav-spinner" aria-hidden /> : <Icon name={name} size={18} />;
+}
 
 /**
  * Header dùng chung cho cả 2 tab TBP: [tab] + [thanh chọn tháng].
@@ -49,14 +55,14 @@ export default function TbpHeader() {
 
       <div className="ls-nav">
         <Link href={prevHref} className="ls-navbtn" aria-label="Tháng trước">
-          <Icon name="chevLeft" size={18} />
+          <NavIcon name="chevLeft" />
         </Link>
         <div className="ls-month">
           Tháng {month}/{year}
         </div>
         {nextHref ? (
           <Link href={nextHref} className="ls-navbtn" aria-label="Tháng sau">
-            <Icon name="chevRight" size={18} />
+            <NavIcon name="chevRight" />
           </Link>
         ) : (
           <span className="ls-navbtn disabled">
