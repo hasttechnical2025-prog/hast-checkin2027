@@ -77,6 +77,7 @@ export default function NsclGrid({
   const [dept, setDept] = useState('');
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [confirmLock, setConfirmLock] = useState<null | 'lock' | 'unlock'>(null);
 
   const monthStr = `${data.year}-${pad(data.month)}`;
   const date01 = `${monthStr}-01`;
@@ -386,14 +387,24 @@ export default function NsclGrid({
         </button>
         {lockDept && lockInfo ? (
           isAdmin ? (
-            <button className="btn-reject" disabled={busy} onClick={() => doLock('unlock')}>
+            <button className="btn-reject" disabled={busy} onClick={() => setConfirmLock('unlock')}>
               <Icon name="lockOpen" size={15} /> Mở khóa
             </button>
           ) : (
             <span className="badge badge-ok"><Icon name="lock" size={13} /> Đã khóa</span>
           )
         ) : (
-          <button className="btn-approve" disabled={busy} onClick={() => doLock('lock')}>
+          <button
+            className="btn-approve"
+            disabled={busy}
+            onClick={() => {
+              if (!lockDept) {
+                flash('Chọn một phòng để Ký & Khóa.');
+                return;
+              }
+              setConfirmLock('lock');
+            }}
+          >
             <Icon name="lock" size={15} /> Ký &amp; Khóa
           </button>
         )}
@@ -521,6 +532,44 @@ export default function NsclGrid({
       <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
         Ô sọc đỏ = có công B/D nhưng giải trình chưa Đồng ý (khóa chấm). P=phép, Ô=ốm, N=nghỉ lễ, 5=nửa ngày phép.
       </p>
+
+      {confirmLock && (
+        <div className="cc-dlg-overlay" onClick={() => !busy && setConfirmLock(null)}>
+          <div className="cc-dlg" style={{ maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+              <Icon name={confirmLock === 'lock' ? 'lock' : 'lockOpen'} size={18} />
+              {confirmLock === 'lock' ? 'Ký & Khóa bảng điểm' : 'Mở khóa bảng điểm'}
+            </h3>
+            <p className="muted">
+              {confirmLock === 'lock' ? (
+                <>
+                  Ký &amp; khóa bảng điểm phòng <b>{lockDept}</b> tháng{' '}
+                  <b>
+                    {data.month}/{data.year}
+                  </b>
+                  ? Sau khi khóa sẽ không sửa được điểm (chỉ Admin mới mở lại được).
+                </>
+              ) : (
+                <>
+                  Mở khóa bảng điểm phòng <b>{lockDept}</b> tháng{' '}
+                  <b>
+                    {data.month}/{data.year}
+                  </b>{' '}
+                  để chấm lại?
+                </>
+              )}
+            </p>
+            <div className="cc-dlg-btns">
+              <button className="btn" disabled={busy} onClick={() => doLock(confirmLock)}>
+                {busy ? 'Đang xử lý…' : confirmLock === 'lock' ? 'Ký & Khóa' : 'Mở khóa'}
+              </button>
+              <button className="btn cc-btn-ghost" disabled={busy} onClick={() => setConfirmLock(null)}>
+                Hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

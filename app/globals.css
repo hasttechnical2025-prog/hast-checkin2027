@@ -1399,6 +1399,7 @@ textarea.cc-note {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   white-space: nowrap;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
 }
@@ -1441,8 +1442,13 @@ textarea.cc-note {
 .tbp-act {
   white-space: nowrap;
   display: flex;
-  gap: 5px;
+  gap: 6px;
   justify-content: center;
+}
+/* Trạng thái "chưa có lý do" — không có gì để duyệt/từ chối */
+.tbp-wait {
+  font-size: 12px;
+  font-style: italic;
 }
 .gt-reject-note {
   font-size: 11.5px;

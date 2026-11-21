@@ -66,7 +66,6 @@ export default async function TbpPage({ searchParams }: { searchParams: Promise<
         month={month}
         prevHref={`/tbp?m=${toM(idx - 1)}`}
         nextHref={canNext ? `/tbp?m=${toM(idx + 1)}` : null}
-        isAdmin={isAdmin}
       />
     </main>
   );

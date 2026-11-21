@@ -18,7 +18,6 @@ export default function TbpGiaiTrinh({
   month,
   prevHref,
   nextHref,
-  isAdmin,
 }: {
   items: GtItem[];
   departments: string[];
@@ -26,7 +25,6 @@ export default function TbpGiaiTrinh({
   month: number;
   prevHref: string;
   nextHref: string | null;
-  isAdmin: boolean;
 }) {
   const router = useRouter();
   const [dept, setDept] = useState('');
@@ -34,13 +32,14 @@ export default function TbpGiaiTrinh({
   const [reject, setReject] = useState<{ employeeId: number; date: string; name: string; d: string } | null>(null);
   const [rejectNote, setRejectNote] = useState('');
   const [batch, setBatch] = useState<{ action: 'Đồng ý' | 'Từ chối'; list: GtItem[] } | null>(null);
+  const [batchNote, setBatchNote] = useState('');
 
   const shown = dept ? items.filter((i) => i.dept === dept) : items;
   const pending = shown.filter((i) => i.approve === '').length;
   const approved = shown.filter((i) => i.approve === 'Đồng ý').length;
   const rejected = shown.filter((i) => i.approve === 'Từ chối').length;
-  // Còn mục mình được duyệt & đang chờ -> mới hiện thanh hành động (ẩn trên mobile khi rỗng)
-  const canBatch = shown.some((i) => i.canApprove && i.approve === '');
+  // Chỉ mục ĐÃ CÓ LÝ DO mới duyệt/từ chối được -> mới hiện thanh hành động (ẩn trên mobile khi rỗng)
+  const canBatch = shown.some((i) => i.canApprove && i.approve === '' && i.hasReason);
 
   async function apply(approvals: { employeeId: number; date: string }[], status: string, note?: string) {
     if (approvals.length === 0) return;
@@ -63,11 +62,10 @@ export default function TbpGiaiTrinh({
   }
 
   function openBatch(action: 'Đồng ý' | 'Từ chối') {
-    const list =
-      action === 'Đồng ý'
-        ? shown.filter((i) => i.canApprove && i.approve === '' && i.hasReason)
-        : shown.filter((i) => i.canApprove && i.approve === '');
+    // Cả Đồng ý lẫn Từ chối chỉ áp dụng cho mục ĐÃ CÓ LÝ DO (chưa có lý do thì không có gì để xét).
+    const list = shown.filter((i) => i.canApprove && i.approve === '' && i.hasReason);
     if (list.length === 0) return;
+    setBatchNote('');
     setBatch({ action, list });
   }
 
@@ -135,9 +133,9 @@ export default function TbpGiaiTrinh({
               <col style={{ width: '18%' }} />
               <col style={{ width: '9%' }} />
               <col style={{ width: '12%' }} />
-              <col style={{ width: '32%' }} />
+              <col style={{ width: '30%' }} />
               <col style={{ width: '12%' }} />
-              <col style={{ width: '17%' }} />
+              <col style={{ width: '19%' }} />
             </colgroup>
             <thead>
               <tr>
@@ -202,28 +200,31 @@ export default function TbpGiaiTrinh({
                         —
                       </span>
                     ) : i.approve === '' ? (
-                      <>
-                        <button
-                          className="btn-approve"
-                          disabled={busy || !i.hasReason}
-                          title={i.hasReason ? 'Đồng ý' : 'Chưa có lý do'}
-                          aria-label="Đồng ý"
-                          onClick={() => apply([{ employeeId: i.employeeId, date: i.ymd }], 'Đồng ý')}
-                        >
-                          <Icon name="check" size={16} />
-                        </button>
-                        <button
-                          className="btn-reject"
-                          disabled={busy}
-                          aria-label="Từ chối"
-                          onClick={() => {
-                            setRejectNote('');
-                            setReject({ employeeId: i.employeeId, date: i.ymd, name: i.name, d: i.date });
-                          }}
-                        >
-                          <Icon name="x" size={16} />
-                        </button>
-                      </>
+                      !i.hasReason ? (
+                        <span className="muted tbp-wait">Chờ CBNV giải trình</span>
+                      ) : (
+                        <>
+                          <button
+                            className="btn-approve"
+                            disabled={busy}
+                            aria-label="Đồng ý"
+                            onClick={() => apply([{ employeeId: i.employeeId, date: i.ymd }], 'Đồng ý')}
+                          >
+                            <Icon name="check" size={16} /> <span className="tbp-act-label">Đồng ý</span>
+                          </button>
+                          <button
+                            className="btn-reject"
+                            disabled={busy}
+                            aria-label="Từ chối"
+                            onClick={() => {
+                              setRejectNote('');
+                              setReject({ employeeId: i.employeeId, date: i.ymd, name: i.name, d: i.date });
+                            }}
+                          >
+                            <Icon name="x" size={16} /> <span className="tbp-act-label">Từ chối</span>
+                          </button>
+                        </>
+                      )
                     ) : (
                       <button
                         className="btn-undo"
@@ -258,8 +259,8 @@ export default function TbpGiaiTrinh({
             <div className="cc-dlg-btns">
               <button
                 className="btn"
-                disabled={busy}
-                onClick={() => apply([{ employeeId: reject.employeeId, date: reject.date }], 'Từ chối', rejectNote)}
+                disabled={busy || !rejectNote.trim()}
+                onClick={() => apply([{ employeeId: reject.employeeId, date: reject.date }], 'Từ chối', rejectNote.trim())}
               >
                 {busy ? 'Đang gửi…' : 'Từ chối'}
               </button>
@@ -279,14 +280,29 @@ export default function TbpGiaiTrinh({
               {batch.action === 'Đồng ý' ? 'Đồng ý' : 'Từ chối'} hàng loạt
             </h3>
             <p className="muted">
-              {batch.action === 'Đồng ý' ? 'Đồng ý' : 'Từ chối'} <b>{batch.list.length}</b> giải trình
-              {batch.action === 'Đồng ý' ? ' có lý do' : ' đang chờ'} (phòng bạn duyệt).
+              {batch.action === 'Đồng ý' ? 'Đồng ý' : 'Từ chối'} <b>{batch.list.length}</b> giải trình có lý do
+              (phòng bạn duyệt).
             </p>
+            {batch.action === 'Từ chối' && (
+              <textarea
+                className="field"
+                rows={3}
+                placeholder="Lý do từ chối (gửi cho tất cả CBNV trong danh sách)…"
+                value={batchNote}
+                onChange={(e) => setBatchNote(e.target.value)}
+              />
+            )}
             <div className="cc-dlg-btns">
               <button
                 className="btn"
-                disabled={busy}
-                onClick={() => apply(batch.list.map((i) => ({ employeeId: i.employeeId, date: i.ymd })), batch.action)}
+                disabled={busy || (batch.action === 'Từ chối' && !batchNote.trim())}
+                onClick={() =>
+                  apply(
+                    batch.list.map((i) => ({ employeeId: i.employeeId, date: i.ymd })),
+                    batch.action,
+                    batch.action === 'Từ chối' ? batchNote.trim() : undefined,
+                  )
+                }
               >
                 {busy ? 'Đang xử lý…' : 'Xác nhận'}
               </button>
