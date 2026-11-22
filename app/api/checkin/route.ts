@@ -16,6 +16,17 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const DEVICE_COOKIE = 'hstc_device';
+function attachDeviceCookie(res: NextResponse, id: string) {
+  res.cookies.set(DEVICE_COOKIE, id, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 365,
+    secure: process.env.NODE_ENV === 'production',
+  });
+}
+
 interface CheckinBody {
   token: string;
   latitude: number;
@@ -57,24 +68,39 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Token không hợp lệ hoặc đã bị thu hồi.' }, { status: 401 });
   }
 
-  // Chống chấm hộ: nếu nhân viên đã có thiết bị ACTIVE, chỉ thiết bị đó được chấm.
-  // Chưa có bind nào -> cho qua (tương thích ngược / chưa đăng nhập bind).
-  const deviceId = req.cookies.get('hstc_device')?.value || null;
+  // Chống chấm hộ (Mức 2 — TOFU): thiết bị ĐẦU TIÊN chấm thành công cho nhân viên sẽ tự
+  // thành thiết bị active; máy khác chấm cho cùng người -> chặn tới khi TBP/Admin duyệt.
+  let deviceId = req.cookies.get(DEVICE_COOKIE)?.value || null;
+  const ua = (req.headers.get('user-agent') || '').slice(0, 180);
   const { data: binds } = await admin
     .from('chamcong_device_bind')
-    .select('device_id, is_active')
+    .select('id, device_id, is_active, approve_status')
     .eq('employee_id', emp.id);
-  if (binds && binds.length > 0) {
-    const active = binds.find((b) => b.is_active);
-    if (active && active.device_id !== deviceId) {
+  const activeBind = (binds || []).find((b) => b.is_active) || null;
+  const myBind = deviceId ? (binds || []).find((b) => b.device_id === deviceId) || null : null;
+
+  if (activeBind) {
+    // Đã có thiết bị được duyệt -> chỉ chính nó được chấm.
+    if (activeBind.device_id !== deviceId) {
       return NextResponse.json(
-        {
-          error: 'Thiết bị này chưa được duyệt để chấm công. Vui lòng chờ!',
-          blocked: 'device',
-        },
+        { error: 'Thiết bị này chưa được duyệt để chấm công. Vui lòng chờ!', blocked: 'device' },
         { status: 403 },
       );
     }
+  } else if (myBind && myBind.approve_status === 'Từ chối') {
+    // Thiết bị này từng bị từ chối -> chặn (không tự duyệt lại).
+    return NextResponse.json(
+      { error: 'Thiết bị này đã bị từ chối chấm công. Liên hệ TBP/Admin.', blocked: 'device' },
+      { status: 403 },
+    );
+  }
+
+  // Chưa có thiết bị active -> sẽ TOFU bind thiết bị này khi chấm THÀNH CÔNG.
+  const needBindDevice = !activeBind;
+  let cookieNeeded = false;
+  if (!deviceId) {
+    deviceId = globalThis.crypto.randomUUID();
+    cookieNeeded = true;
   }
 
   const cfg = await getSystemConfig();
@@ -135,12 +161,14 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
     const existing = rec ? (rec[session] as string | null) : null;
     if (existing) {
-      return NextResponse.json({
+      const res = NextResponse.json({
         needsConfirm: true,
         session,
         sessionLabel: sessionLabel(session),
         existingTime: String(existing).slice(0, 5),
       });
+      if (cookieNeeded && deviceId) attachDeviceCookie(res, deviceId);
+      return res;
     }
   }
 
@@ -166,6 +194,36 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: 'Lỗi ghi chấm công: ' + error.message }, { status: 500 });
+  }
+
+  // TOFU: chấm thành công lần đầu -> gắn thiết bị này làm active (auto). Lỗi bind KHÔNG chặn chấm công.
+  if (needBindDevice && deviceId) {
+    try {
+      if (myBind) {
+        await admin
+          .from('chamcong_device_bind')
+          .update({
+            is_active: true,
+            approve_status: 'Đồng ý',
+            approved_by: 'auto',
+            approved_at: new Date().toISOString(),
+            device_label: ua,
+          })
+          .eq('id', myBind.id);
+      } else {
+        await admin.from('chamcong_device_bind').insert({
+          employee_id: emp.id,
+          device_id: deviceId,
+          device_label: ua,
+          is_active: true,
+          approve_status: 'Đồng ý',
+          approved_by: 'auto',
+          approved_at: new Date().toISOString(),
+        });
+      }
+    } catch {
+      /* bỏ qua — không chặn chấm công nếu ghi bind lỗi */
+    }
   }
 
   // Đọc lại grade do trigger vừa tính (để client hiện ngay, khỏi reload).
@@ -213,7 +271,7 @@ export async function POST(req: NextRequest) {
     );
   });
 
-  return NextResponse.json({
+  const okRes = NextResponse.json({
     ok: true,
     inside,
     distance: dist,
@@ -223,4 +281,6 @@ export async function POST(req: NextRequest) {
     sessionLabel: sessionLabel(session),
     grade,
   });
+  if (cookieNeeded && deviceId) attachDeviceCookie(okRes, deviceId);
+  return okRes;
 }
