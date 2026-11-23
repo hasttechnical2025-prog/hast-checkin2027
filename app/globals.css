@@ -2353,6 +2353,28 @@ table.nscl-grid {
   box-shadow: 0 4px 6px -1px rgba(2, 6, 23, 0.07), 0 2px 4px -2px rgba(2, 6, 23, 0.07);
 }
 
+/* Bảng /tbp + /admin thoáng hơn (đỡ "thô"): nhiều padding, kẻ hàng nhạt, hover,
+   tiêu đề cột kiểu HAST (UPPERCASE + giãn chữ + nhạt). KHÔNG đụng CBNV /c. */
+.tbp-page .ls-table td,
+.tbp-page .ls-table th,
+.admin-content .ls-table td,
+.admin-content .ls-table th {
+  padding: 9px 11px;
+}
+.tbp-page .ls-table tbody td,
+.admin-content .ls-table tbody td {
+  border-top-color: var(--surface-2); /* kẻ hàng nhạt hơn -> mảnh mai */
+}
+.tbp-page .ls-table thead th,
+.admin-content .ls-table thead th {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tbp-page .ls-table tbody tr:hover td,
+.admin-content .ls-table tbody tr:hover td {
+  background: var(--accent-weak);
+}
+
 @media (max-width: 640px) {
   /* --- Thanh tab đáy --- */
   .botnav {
