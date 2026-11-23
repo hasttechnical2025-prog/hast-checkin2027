@@ -114,6 +114,19 @@ export default async function CbnvPage({
 
   return (
     <>
+      {/*
+        Đăng ký service worker NGAY từ đầu (chạy khi trang vừa parse, không đợi React mount
+        component nặng) + TỰ TẢI LẠI 1 lần khi SW vừa nắm quyền trang. Lý do: Chrome Android
+        kiểm "cài được không" ngay lúc trang tải xong; nếu lúc đó chưa có SW kiểm soát (lần đầu
+        mở từ QR, SW đăng ký muộn ~5s) -> Chrome chốt "This app cannot be installed" và không
+        kiểm lại. Tải lại 1 lần để lần sau trang có SW kiểm soát ngay từ đầu -> Chrome mời Cài đặt.
+      */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "(function(){if(!('serviceWorker' in navigator))return;try{navigator.serviceWorker.register('/sw.js');}catch(e){}if(!navigator.serviceWorker.controller){var done=false;navigator.serviceWorker.addEventListener('controllerchange',function(){if(done)return;done=true;location.reload();});}})();",
+        }}
+      />
       <ChamCong
         token={token}
         employee={{ name: emp!.name, maNv: emp!.ma_nv, department: emp!.department }}

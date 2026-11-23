@@ -14,11 +14,8 @@ export default function PwaClient() {
   const [installEvt, setInstallEvt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    // Đăng ký service worker (chỉ trang CBNV).
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    }
-
+    // Service worker đã được đăng ký SỚM bằng script inline trong page.tsx (để trang được
+    // SW kiểm soát ngay từ đầu -> Chrome Android mới mời Cài đặt). Ở đây chỉ lo gợi ý A2HS.
     const ua = navigator.userAgent || '';
     const standalone =
       (navigator as unknown as { standalone?: boolean }).standalone === true ||

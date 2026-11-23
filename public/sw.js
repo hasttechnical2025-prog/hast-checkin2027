@@ -1,12 +1,12 @@
 // Service Worker — app Chấm Công HSTC 2027.
 // VERSION là NGUỒN DUY NHẤT: đổi version khi deploy -> SW mới dọn cache cũ + reload.
-const VERSION = 'v2027.11.18.01';
+const VERSION = 'v2027.11.23.01';
 const CACHE = 'chamcong-' + VERSION;
-const SHELL = ['/icon.svg'];
 
-self.addEventListener('install', (e) => {
+// install: KHÔNG tải tài nguyên nào (tránh trễ) -> active NGAY để sớm nắm quyền trang.
+// (Trang /c/<token> phải được SW kiểm soát NGAY từ đầu thì Chrome Android mới mời "Cài đặt".)
+self.addEventListener('install', () => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL).catch(() => {})));
 });
 
 self.addEventListener('activate', (e) => {
