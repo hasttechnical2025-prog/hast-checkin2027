@@ -2230,3 +2230,36 @@ table.nscl-grid {
   background: var(--surface-2);
   font-size: 12px;
 }
+.bc-locktag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 10px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--warn-weak);
+  color: var(--warn);
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: 1px;
+}
+.bc-lockwarn {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 10px 0 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--warn-weak);
+  color: var(--warn);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.bc-lockwarn a {
+  color: var(--accent);
+  font-weight: 700;
+}
+.bc-lockwarn svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}

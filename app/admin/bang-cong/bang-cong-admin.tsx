@@ -46,6 +46,7 @@ interface EditTarget {
   name: string;
   ymd: string;
   dateLabel: string;
+  dept: string;
 }
 
 export default function BangCongAdmin({
@@ -154,7 +155,15 @@ export default function BangCongAdmin({
               {groups.map((g) => (
                 <Fragment key={g.dept}>
                   <tr className="bc-deptrow">
-                    <td colSpan={totalCols}>{g.dept || '(Chưa đặt phòng)'}</td>
+                    <td colSpan={totalCols}>
+                      {g.dept || '(Chưa đặt phòng)'}
+                      {matrix.locks[g.dept] && (
+                        <span className="bc-locktag" title={`Ký & Khóa bởi ${matrix.locks[g.dept].nguoiKy}`}>
+                          <Icon name="lock" size={12} /> Đã Ký &amp; Khóa
+                          {matrix.locks[g.dept].nguoiKy ? ` · ${matrix.locks[g.dept].nguoiKy}` : ''}
+                        </span>
+                      )}
+                    </td>
                   </tr>
                   {g.rows.map((r) => (
                     <tr key={r.id}>
@@ -176,6 +185,7 @@ export default function BangCongAdmin({
                                     name: r.name,
                                     ymd: c.ymd,
                                     dateLabel: `${String(c.d).padStart(2, '0')}/${String(matrix.month).padStart(2, '0')}/${matrix.year}`,
+                                    dept: r.dept,
                                   })
                                 }
                               >
@@ -204,7 +214,14 @@ export default function BangCongAdmin({
         )}
       </div>
 
-      {edit && <DayEditDialog target={edit} onClose={() => setEdit(null)} />}
+      {edit && (
+        <DayEditDialog
+          target={edit}
+          locked={!!matrix.locks[edit.dept]}
+          nsclHref={`/tbp/nscl?m=${matrix.year}-${String(matrix.month).padStart(2, '0')}`}
+          onClose={() => setEdit(null)}
+        />
+      )}
     </>
   );
 }
@@ -228,7 +245,17 @@ interface DayLog {
   note: string;
 }
 
-function DayEditDialog({ target, onClose }: { target: EditTarget; onClose: () => void }) {
+function DayEditDialog({
+  target,
+  locked,
+  nsclHref,
+  onClose,
+}: {
+  target: EditTarget;
+  locked: boolean;
+  nsclHref: string;
+  onClose: () => void;
+}) {
   const router = useRouter();
   const [times, setTimes] = useState<Times>({ ...EMPTY });
   const [grades, setGrades] = useState<string | null>(null);
@@ -299,6 +326,16 @@ function DayEditDialog({ target, onClose }: { target: EditTarget; onClose: () =>
         <p className="muted" style={{ marginTop: -4 }}>
           {target.name} · {target.dateLabel}
         </p>
+
+        {locked && (
+          <div className="bc-lockwarn">
+            <Icon name="alert" size={15} />
+            <span>
+              Phòng này đã <b>Ký &amp; Khóa</b> bảng điểm NSCL tháng này. Sửa ở đây sẽ <b>lệch</b> bảng đã ký — nên{' '}
+              <a href={nsclHref}>Mở khóa ở Bảng điểm NSCL</a> rồi chấm lại.
+            </span>
+          </div>
+        )}
 
         {loading ? (
           <p className="muted" style={{ padding: '10px 0' }}>Đang tải…</p>

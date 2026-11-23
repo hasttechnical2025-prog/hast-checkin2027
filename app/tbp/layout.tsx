@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { getStaffSession } from '@/lib/auth';
 import SignOutButton from '@/app/_components/SignOutButton';
 import RememberGuard from '@/app/_components/RememberGuard';
+import { Icon } from '@/app/_components/icons';
 import StickyTop from './StickyTop';
 import TbpHeader from './tbp-header';
 
@@ -26,7 +28,18 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
                 {staff.viewAll && staff.role !== 'admin' ? ' · xem toàn công ty' : ''}
               </div>
             </div>
-            <SignOutButton />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {staff.role === 'admin' && (
+                <Link
+                  href="/admin"
+                  className="btn-undo"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <Icon name="settings" size={15} /> Quản trị
+                </Link>
+              )}
+              <SignOutButton />
+            </div>
           </div>
         )}
 

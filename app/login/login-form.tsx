@@ -75,7 +75,12 @@ export default function LoginForm() {
       return;
     }
 
-    router.replace(role.role === 'admin' ? '/admin' : '/tbp');
+    // Tôn trọng ?next (deep-link, vd Admin mở thẳng /tbp/nscl) — chống open-redirect:
+    // chỉ nhận path nội bộ (bắt đầu '/', không '//', không quay lại /login).
+    const next = params.get('next');
+    const validNext = next && next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/login') ? next : null;
+    const dest = validNext ?? (role.role === 'admin' ? '/admin' : '/tbp');
+    router.replace(dest);
     router.refresh();
   }
 

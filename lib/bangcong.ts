@@ -43,6 +43,8 @@ export interface MonthMatrix {
   dows: number[]; // dow của từng ngày (index 0 = ngày 1)
   rows: EmpMonthRow[];
   departments: string[];
+  // Trạng thái Ký & Khóa NSCL theo PHÒNG (tháng này). Có mặt = đã khóa.
+  locks: Record<string, { nguoiKy: string; thoiGianKy: string }>;
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -94,11 +96,11 @@ export async function buildMonthMatrix(
   for (let d = 1; d <= daysInMonth; d++) dows.push(new Date(Date.UTC(year, month - 1, d)).getUTCDay());
 
   if (employees.length === 0) {
-    return { year, month, daysInMonth, dows, rows: [], departments: [] };
+    return { year, month, daysInMonth, dows, rows: [], departments: [], locks: {} };
   }
   const empIds = employees.map((e) => e.id);
 
-  const [holRes, recRes, leaveRes] = await Promise.all([
+  const [holRes, recRes, leaveRes, lockRes] = await Promise.all([
     admin.from('chamcong_holidays').select('date').gte('date', start).lte('date', end),
     admin
       .from('chamcong_attendance_records')
@@ -112,7 +114,20 @@ export async function buildMonthMatrix(
       .in('employee_id', empIds)
       .gte('ngay', start)
       .lte('ngay', end),
+    admin
+      .from('chamcong_nscl_lock')
+      .select('department, nguoi_ky, thoi_gian_ky')
+      .eq('thang', month)
+      .eq('nam', year),
   ]);
+
+  const locks: Record<string, { nguoiKy: string; thoiGianKy: string }> = {};
+  for (const l of lockRes.data ?? []) {
+    locks[l.department as string] = {
+      nguoiKy: (l.nguoi_ky as string) || '',
+      thoiGianKy: (l.thoi_gian_ky as string) || '',
+    };
+  }
 
   const holidays = new Set<string>((holRes.data ?? []).map((h) => h.date as string));
   const recMap = new Map<string, string>();
@@ -195,5 +210,5 @@ export async function buildMonthMatrix(
 
   rows.sort((a, b) => a.dept.localeCompare(b.dept) || a.name.localeCompare(b.name));
   const departments = [...new Set(employees.map((e) => e.department))].sort();
-  return { year, month, daysInMonth, dows, rows, departments };
+  return { year, month, daysInMonth, dows, rows, departments, locks };
 }

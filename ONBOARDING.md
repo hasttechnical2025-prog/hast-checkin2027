@@ -90,8 +90,10 @@ app/
 │   ├── page.tsx + tbp-giaitrinh.tsx   Duyệt giải trình
 │   ├── loading.tsx          khung chờ khi đổi tab
 │   └── nscl/                page.tsx, nscl-grid.tsx, export-excel.tsx, loading.tsx
-├── admin/                   layout.tsx (admin-sidebar) + 9 mục: nhan-vien, log, sua-cong,
-│   │                        thiet-bi, ngay-le, ca, cau-hinh, tai-khoan, huong-dan
+├── admin/                   layout.tsx (admin-sidebar) + các mục: nhan-vien, bang-cong,
+│   │                        log, thiet-bi, ngay-le, ca, cau-hinh, tai-khoan, huong-dan
+│   │                        (+ link "Duyệt & Bảng điểm" sang /tbp cho admin)
+│   │                        bang-cong/ = Bảng công tháng (ma trận NV×ngày, sửa công inline)
 │   └── admin-nav.tsx        (CODE CHẾT — chưa import ở đâu; xoá khi dọn)
 ├── api/                     Route Handlers — ĐƯỜNG GHI (service role)
 │   ├── checkin/             chấm công (đường ghi CBNV duy nhất)
