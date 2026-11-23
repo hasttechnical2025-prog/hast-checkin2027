@@ -1,5 +1,7 @@
 'use client';
 
+import PcHint from '@/app/admin/_components/pc-hint';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import QrCode from '@/app/_components/QrCode';
@@ -215,6 +217,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
 
   return (
     <>
+      <PcHint />
       <div className="tbp-bar">
         <input className="tbp-select" placeholder="🔎 Tìm tên / mã…" value={q} onChange={(e) => setQ(e.target.value)} style={{ minWidth: 180 }} />
         <span className="muted">{shown.length} nhân viên</span>

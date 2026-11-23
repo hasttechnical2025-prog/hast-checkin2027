@@ -1,5 +1,7 @@
 'use client';
 
+import PcHint from '@/app/admin/_components/pc-hint';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useConfirm } from '@/lib/confirm';
@@ -98,6 +100,7 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
 
   return (
     <>
+      <PcHint />
       <div className="tbp-bar">
         <span className="muted">{accounts.length} tài khoản</span>
         <button className="btn-approve" style={{ marginLeft: 'auto' }} onClick={() => { setErr(null); setCreateOpen(true); }}>

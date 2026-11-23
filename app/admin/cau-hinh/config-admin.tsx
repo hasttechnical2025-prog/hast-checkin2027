@@ -1,5 +1,7 @@
 'use client';
 
+import PcHint from '@/app/admin/_components/pc-hint';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -48,6 +50,7 @@ export default function ConfigAdmin({
 
   return (
     <>
+      <PcHint />
       <div className="card" style={{ marginBottom: 14 }}>
         <h3 style={{ marginTop: 0 }}>Công ty</h3>
         <label>Tên công ty (banner CBNV)

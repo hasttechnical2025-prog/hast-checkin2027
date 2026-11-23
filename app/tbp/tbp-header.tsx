@@ -70,6 +70,18 @@ export default function TbpHeader() {
           </span>
         )}
       </div>
+
+      {/* Thanh tab đáy — chỉ hiện trên mobile (CSS) */}
+      <nav className="botnav tbp-botnav" aria-label="Chuyển mục">
+        <Link href={`/tbp${mSuffix}`} className={`botnav-item${isNscl ? '' : ' active'}`}>
+          <Icon name="checks" size={20} />
+          <span>Giải trình</span>
+        </Link>
+        <Link href={`/tbp/nscl${mSuffix}`} className={`botnav-item${isNscl ? ' active' : ''}`}>
+          <Icon name="sheet" size={20} />
+          <span>Bảng điểm</span>
+        </Link>
+      </nav>
     </>
   );
 }

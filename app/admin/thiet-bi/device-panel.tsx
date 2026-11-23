@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useConfirm } from '@/lib/confirm';
+import { Icon } from '@/app/_components/icons';
 
 export interface DeviceItem {
   id: string;
@@ -65,7 +66,7 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
           Chưa có thiết bị nào.
         </p>
       ) : (
-        <table className="ls-table">
+        <table className="ls-table dev-table">
           <thead>
             <tr>
               <th>Nhân viên</th>
@@ -78,24 +79,32 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
           <tbody>
             {items.map((i) => (
               <tr key={i.id} className={i.status === 'Chờ' ? 'r-partial' : ''}>
-                <td style={{ textAlign: 'left' }}>
+                <td className="dev-name" data-label="Nhân viên" style={{ textAlign: 'left' }}>
                   {i.name}
-                  <div className="muted">
-                    {i.dept}
-                  </div>
+                  <div className="muted">{i.dept}</div>
                 </td>
-                <td style={{ textAlign: 'left' }}>
+                <td data-label="Thiết bị" style={{ textAlign: 'left' }}>
                   {shortUA(i.label)}
-                  {i.active && <span className="badge badge-ok" style={{ marginLeft: 6 }}>đang dùng</span>}
+                  {i.active && (
+                    <span className="badge badge-ok" style={{ marginLeft: 6 }}>
+                      đang dùng
+                    </span>
+                  )}
                 </td>
-                <td>{new Date(i.boundAt).toLocaleDateString('vi-VN')}</td>
-                <td>
+                <td data-label="Đăng ký">{new Date(i.boundAt).toLocaleDateString('vi-VN')}</td>
+                <td data-label="Trạng thái">
                   {i.status === 'Đồng ý' ? (
-                    <span className="badge badge-ok">✅ Đồng ý</span>
+                    <span className="badge badge-ok">
+                      <Icon name="check" size={13} /> Đồng ý
+                    </span>
                   ) : i.status === 'Từ chối' ? (
-                    <span className="badge badge-no">❌ Từ chối</span>
+                    <span className="badge badge-no">
+                      <Icon name="x" size={13} /> Từ chối
+                    </span>
                   ) : (
-                    <span className="badge badge-wait">⏳ Chờ</span>
+                    <span className="badge badge-wait">
+                      <Icon name="clock" size={13} /> Chờ
+                    </span>
                   )}
                 </td>
                 <td className="tbp-act">
@@ -104,18 +113,17 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
                   ) : i.status === 'Chờ' ? (
                     <>
                       <button className="btn-approve" disabled={busy === i.id} onClick={() => act(i.id, 'approve')}>
-                        ✅ Duyệt
+                        <Icon name="check" size={15} /> Duyệt
                       </button>
                       <button className="btn-reject" disabled={busy === i.id} onClick={() => reject(i)}>
-                        ❌ Từ chối
+                        <Icon name="x" size={15} /> Từ chối
                       </button>
                     </>
                   ) : i.status === 'Từ chối' ? (
                     <button className="btn-approve" disabled={busy === i.id} onClick={() => act(i.id, 'approve')}>
-                      ↩️ Duyệt lại
+                      <Icon name="undoBack" size={14} /> Duyệt lại
                     </button>
                   ) : (
-                    // Đồng ý
                     <button className="btn-undo" disabled={busy === i.id} onClick={() => reject(i)}>
                       Thu hồi
                     </button>

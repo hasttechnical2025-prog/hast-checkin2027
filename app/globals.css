@@ -2312,3 +2312,155 @@ table.nscl-grid {
 .admin-content .mono {
   font-weight: 700;
 }
+
+/* ===================================================================== */
+/* Khung mobile: thanh tab đáy (bottom nav) + tinh chỉnh khung Admin      */
+/* ===================================================================== */
+/* Icon sidebar (SVG) canh giữa */
+.admin-side-item .ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Tiêu đề cột bảng admin DÍNH khi cuộn */
+.admin-content .ls-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+/* Dòng nhắc "dùng máy tính" + thanh tab đáy: ẩn trên desktop */
+.admin-pc-hint {
+  display: none;
+}
+.botnav {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  /* --- Thanh tab đáy --- */
+  .botnav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50; /* dưới backdrop(55)/drawer(60) để khi mở "Thêm" bị che đúng */
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.06);
+  }
+  .botnav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 7px 2px 8px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .botnav-item.active {
+    color: var(--accent);
+  }
+
+  /* chừa chỗ cho thanh đáy */
+  .admin-content,
+  .tbp-page {
+    padding-bottom: calc(66px + env(safe-area-inset-bottom));
+  }
+
+  /* Admin: ẩn topbar (dùng bottom nav + "Thêm") */
+  .admin-topbar {
+    display: none;
+  }
+  /* TBP: ẩn tab trên (dùng bottom nav) */
+  .tbp-tabs {
+    display: none;
+  }
+
+  /* Dòng nhắc PC (mobile) */
+  .admin-pc-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: var(--accent-weak);
+    color: var(--accent);
+    font-size: var(--fs-t2);
+    font-weight: 600;
+  }
+  .admin-pc-hint svg {
+    flex: none;
+  }
+
+  /* Duyệt thiết bị -> thẻ (mỗi dòng 1 card) */
+  .ls-table-wrap:has(.dev-table) {
+    overflow: visible;
+    border: none;
+    background: transparent;
+  }
+  .dev-table thead {
+    display: none;
+  }
+  .dev-table,
+  .dev-table tbody,
+  .dev-table tr,
+  .dev-table td {
+    display: block;
+    width: 100%;
+  }
+  .dev-table tr {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 8px 12px;
+    margin-bottom: 10px;
+  }
+  .dev-table tr.r-partial {
+    border-left: 3px solid var(--accent);
+  }
+  .dev-table td {
+    border: 0;
+    padding: 4px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    text-align: right;
+    white-space: normal;
+  }
+  .dev-table td::before {
+    content: attr(data-label);
+    font-size: var(--fs-t2);
+    font-weight: 600;
+    color: var(--muted);
+    text-align: left;
+  }
+  .dev-table td.dev-name {
+    display: block;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+  }
+  .dev-table td.dev-name::before {
+    content: none;
+  }
+  .dev-table td.tbp-act {
+    justify-content: flex-end;
+    padding-top: 8px;
+  }
+  .dev-table td.tbp-act::before {
+    content: none;
+  }
+}

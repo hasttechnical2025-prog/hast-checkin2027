@@ -1,5 +1,7 @@
 'use client';
 
+import PcHint from '@/app/admin/_components/pc-hint';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -74,6 +76,7 @@ export default function ShiftAdmin({ initial }: { initial: ShiftRow[] }) {
 
   return (
     <>
+      <PcHint />
       <p className="muted">
         Ngưỡng chấm A/B/D (data-driven, đổi không cần deploy). IN: ≤ Cuối A → A, ≤ Cuối B → B, còn lại D. Ra sáng:
         Đầu A ≤ giờ ≤ Cuối A → A. Ra chiều: ≥ Cuối A → A.

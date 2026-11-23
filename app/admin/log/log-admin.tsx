@@ -1,5 +1,7 @@
 'use client';
 
+import PcHint from '@/app/admin/_components/pc-hint';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -90,6 +92,7 @@ export default function LogAdmin({
 
   return (
     <>
+      <PcHint />
       <div className="ls-nav">
         <Link href={prevHref} className="ls-navbtn">
           ‹

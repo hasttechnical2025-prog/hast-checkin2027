@@ -3,19 +3,26 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Icon } from '@/app/_components/icons';
+import { Icon, type IconName } from '@/app/_components/icons';
 
-const ITEMS: { href: string; label: string; icon: string }[] = [
-  { href: '/admin/nhan-vien', label: 'Nhân viên', icon: '👤' },
-  { href: '/admin/bang-cong', label: 'Bảng công tháng', icon: '📊' },
-  { href: '/tbp', label: 'Duyệt & Bảng điểm', icon: '✅' },
-  { href: '/admin/log', label: 'Log chấm công', icon: '🗒️' },
-  { href: '/admin/thiet-bi', label: 'Duyệt thiết bị', icon: '📱' },
-  { href: '/admin/ngay-le', label: 'Ngày lễ', icon: '📅' },
-  { href: '/admin/ca', label: 'Cấu hình ca', icon: '⏱️' },
-  { href: '/admin/cau-hinh', label: 'Cấu hình', icon: '⚙️' },
-  { href: '/admin/tai-khoan', label: 'Tài khoản', icon: '🔑' },
-  { href: '/admin/huong-dan', label: 'Hướng dẫn', icon: '📖' },
+const ITEMS: { href: string; label: string; icon: IconName }[] = [
+  { href: '/admin/nhan-vien', label: 'Nhân viên', icon: 'user' },
+  { href: '/admin/bang-cong', label: 'Bảng công tháng', icon: 'sheet' },
+  { href: '/tbp', label: 'Duyệt & Bảng điểm', icon: 'checks' },
+  { href: '/admin/log', label: 'Log chấm công', icon: 'doc' },
+  { href: '/admin/thiet-bi', label: 'Duyệt thiết bị', icon: 'phone' },
+  { href: '/admin/ngay-le', label: 'Ngày lễ', icon: 'calendar' },
+  { href: '/admin/ca', label: 'Cấu hình ca', icon: 'clock' },
+  { href: '/admin/cau-hinh', label: 'Cấu hình', icon: 'settings' },
+  { href: '/admin/tai-khoan', label: 'Tài khoản', icon: 'lock' },
+  { href: '/admin/huong-dan', label: 'Hướng dẫn', icon: 'info' },
+];
+
+// Thanh tab đáy (mobile) — các việc hay làm trên điện thoại + "Thêm" mở menu đầy đủ.
+const BOTTOM: { href: string; label: string; icon: IconName }[] = [
+  { href: '/admin/bang-cong', label: 'Bảng công', icon: 'sheet' },
+  { href: '/admin/thiet-bi', label: 'Thiết bị', icon: 'phone' },
+  { href: '/tbp', label: 'Duyệt/Điểm', icon: 'checks' },
 ];
 
 export default function AdminSidebar() {
@@ -26,7 +33,7 @@ export default function AdminSidebar() {
     <>
       <div className="admin-topbar">
         <button className="admin-ham" onClick={() => setOpen(true)} aria-label="Mở menu">
-          ☰
+          <Icon name="menu" size={20} />
         </button>
         <b>Quản trị</b>
       </div>
@@ -46,7 +53,9 @@ export default function AdminSidebar() {
               className={`admin-side-item${path.startsWith(it.href) ? ' active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              <span className="ic">{it.icon}</span>
+              <span className="ic">
+                <Icon name={it.icon} size={17} />
+              </span>
               {it.label}
             </Link>
           ))}
@@ -61,6 +70,24 @@ export default function AdminSidebar() {
           </button>
         </form>
       </aside>
+
+      {/* Thanh tab đáy — chỉ hiện trên mobile (CSS) */}
+      <nav className="botnav admin-botnav" aria-label="Điều hướng nhanh">
+        {BOTTOM.map((it) => (
+          <Link
+            key={it.href}
+            href={it.href}
+            className={`botnav-item${path.startsWith(it.href) ? ' active' : ''}`}
+          >
+            <Icon name={it.icon} size={20} />
+            <span>{it.label}</span>
+          </Link>
+        ))}
+        <button type="button" className="botnav-item" onClick={() => setOpen(true)}>
+          <Icon name="menu" size={20} />
+          <span>Thêm</span>
+        </button>
+      </nav>
     </>
   );
 }

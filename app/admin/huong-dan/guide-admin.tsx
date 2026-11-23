@@ -1,5 +1,7 @@
 'use client';
 
+import PcHint from '@/app/admin/_components/pc-hint';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -38,6 +40,7 @@ export default function GuideAdmin({ initial }: { initial: GuideItem[] }) {
 
   return (
     <>
+      <PcHint />
       <p className="muted">Nội dung 4 trang hướng dẫn hiển thị trong sheet Cài đặt của CBNV.</p>
       {items.map((it, idx) => (
         <div className="card" key={it.id} style={{ marginBottom: 12 }}>
