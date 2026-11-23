@@ -27,9 +27,13 @@ export function vnNow(): { dateStr: string; hhmm: number; dow: number } {
   };
 }
 
-/** Phân ca từ giờ (mốc hardcode GIỮ NGUYÊN: ≤9:00 / ≤12:45 / ≤15:00). */
+/**
+ * Phân ca từ giờ. PHẢI KHỚP trigger DB (migration 0011):
+ * Vào sáng ≤10:00 · Ra sáng ≤12:45 · Vào chiều ≤15:00 · còn lại Ra chiều.
+ * (Trước đây để ≤9:00 -> lệch với 0011 khiến giờ 09:00–10:00 bị xem nhầm là "Ra sáng".)
+ */
 export function sessionFromHHMM(hhmm: number): Session {
-  if (hhmm <= 900) return 'morning_in';
+  if (hhmm <= 1000) return 'morning_in';
   if (hhmm <= 1245) return 'morning_out';
   if (hhmm <= 1500) return 'afternoon_in';
   return 'afternoon_out';
