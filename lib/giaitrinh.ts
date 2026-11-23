@@ -44,6 +44,7 @@ interface EmpRow {
   name: string;
   department: string;
   ngay_vao_lam: string | null;
+  mien_cham_cong: boolean | null;
 }
 interface RecRow {
   employee_id: number;
@@ -73,7 +74,7 @@ export async function buildGiaiTrinhItems(
 
   let empQuery = admin
     .from('chamcong_employees')
-    .select('id, name, department, ngay_vao_lam')
+    .select('id, name, department, ngay_vao_lam, mien_cham_cong')
     .eq('status', 'Đang làm việc');
   if (visibleDepts) empQuery = empQuery.in('department', visibleDepts);
   const { data: empData } = await empQuery;
@@ -130,8 +131,14 @@ export async function buildGiaiTrinhItems(
       const reason = (rec?.justification || '').replace(/\|+$/, '').trim();
       const hasReason = reason.length > 0;
 
-      // Chỉ hiện ngày B/D hoặc có giải trình hoặc có nghỉ phép.
-      if (!hasBD && !hasReason && !leave) continue;
+      // Nhân viên miễn chấm công: KHÔNG phát sinh nghĩa vụ giải trình -> không đưa vào
+      // danh sách duyệt chỉ vì ngày chưa chấm (D/D). Chỉ hiện nếu họ thực sự có giải trình.
+      if (emp.mien_cham_cong) {
+        if (!hasReason) continue;
+      } else if (!hasBD && !hasReason && !leave) {
+        // Người thường: chỉ hiện ngày B/D hoặc có giải trình hoặc có nghỉ phép.
+        continue;
+      }
 
       const isFullLeave = !!leave && leave.buoi === 'ca_ngay';
       const approve = leave ? 'Đồng ý' : rec?.approve_status || '';
