@@ -1006,8 +1006,12 @@ textarea.cc-note {
   color: var(--accent);
   font-size: 20px;
   text-decoration: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
 }
-.ls-navbtn.disabled {
+.ls-navbtn.disabled,
+.ls-navbtn:disabled {
   color: var(--border);
   cursor: default;
 }

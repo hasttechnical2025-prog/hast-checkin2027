@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { getSystemConfig } from '@/lib/config';
+import { getSystemConfig, getGuideContent, getShiftConfig } from '@/lib/config';
 import { isPhone } from '@/lib/device';
 import { vnNow } from '@/lib/attendance';
 import ChamCong from './cham-cong';
@@ -38,79 +38,61 @@ export default async function CbnvPage({
   const { token } = await params;
   const admin = createAdminClient();
 
-  const { data: emp } = await admin
-    .from('chamcong_employees')
-    .select('id, ma_nv, name, department, status, loai_ca')
-    .eq('token', token)
-    .maybeSingle();
+  // emp + cấu hình hệ thống độc lập nhau -> chạy SONG SONG (giảm 1 chặng mạng).
+  const [{ data: emp }, cfg] = await Promise.all([
+    admin
+      .from('chamcong_employees')
+      .select('id, ma_nv, name, department, status, loai_ca')
+      .eq('token', token)
+      .maybeSingle(),
+    getSystemConfig(),
+  ]);
 
   if (!emp || emp.status !== 'Đang làm việc') {
     notFound();
   }
 
-  const cfg = await getSystemConfig();
-
-  // Công tắc "chỉ điện thoại": chặn NGAY khi mở trang trên PC / máy tính bảng / iPad,
-  // thay vì cho thao tác rồi mới báo khi bấm chấm công.
+  // Công tắc "chỉ điện thoại": chặn NGAY khi mở trang trên PC / máy tính bảng / iPad
+  // (trước khi query các dữ liệu nặng), thay vì cho thao tác rồi mới báo khi bấm chấm công.
   if (cfg.requireMobile) {
     const h = await headers();
     if (!isPhone(h.get('user-agent'))) {
       const host = h.get('host') ?? '';
       const proto = h.get('x-forwarded-proto') ?? 'https';
-      return <DeviceBlock url={`${proto}://${host}/c/${token}`} employeeName={emp!.name} />;
+      return <DeviceBlock url={`${proto}://${host}/c/${token}`} employeeName={emp.name} />;
     }
   }
 
   const { dateStr, dow } = vnNow();
+  const needHolidayLookup = !cfg.allowHoliday && dow !== 0 && dow !== 6;
 
-  // Bản ghi ngày hôm nay (để hiện tiến trình 4 ca)
-  const { data: today } = await admin
-    .from('chamcong_attendance_records')
-    .select('morning_in, morning_out, afternoon_in, afternoon_out, grades')
-    .eq('employee_id', emp!.id)
-    .eq('date', dateStr)
-    .maybeSingle();
+  // 4 nguồn còn lại chạy SONG SONG (thay vì tuần tự). guide/shift có data-cache nên
+  // thường không chạm DB -> mở app chỉ còn ~2 chặng mạng: [emp+cfg] rồi [today+holiday].
+  const [todayRes, holRes, guide, shiftConfig] = await Promise.all([
+    admin
+      .from('chamcong_attendance_records')
+      .select('morning_in, morning_out, afternoon_in, afternoon_out, grades')
+      .eq('employee_id', emp.id)
+      .eq('date', dateStr)
+      .maybeSingle(),
+    needHolidayLookup
+      ? admin.from('chamcong_holidays').select('description').eq('date', dateStr).maybeSingle()
+      : Promise.resolve({ data: null as { description: string } | null }),
+    getGuideContent(),
+    getShiftConfig(emp.loai_ca || 'tieu_chuan'),
+  ]);
+
+  const today = todayRes.data;
 
   // Trạng thái ngày nghỉ (để khóa chấm công)
   let holiday = { isHoliday: false, reason: '' };
   if (!cfg.allowHoliday) {
     if (dow === 0 || dow === 6) {
       holiday = { isHoliday: true, reason: `Hôm nay là ${dow === 0 ? 'Chủ Nhật' : 'Thứ Bảy'} — ngày nghỉ.` };
-    } else {
-      const { data: hol } = await admin
-        .from('chamcong_holidays')
-        .select('description')
-        .eq('date', dateStr)
-        .maybeSingle();
-      if (hol) holiday = { isHoliday: true, reason: `Hôm nay là ${hol.description} — ngày nghỉ lễ.` };
+    } else if (holRes.data) {
+      holiday = { isHoliday: true, reason: `Hôm nay là ${holRes.data.description} — ngày nghỉ lễ.` };
     }
   }
-
-  // Nội dung hướng dẫn (p1..p4) cho sheet Cài đặt.
-  const { data: guideRows } = await admin
-    .from('chamcong_guide_content')
-    .select('id, title, content')
-    .order('id');
-  const guide = (guideRows ?? []).map((g) => ({
-    id: g.id as string,
-    title: (g.title as string) || '',
-    content: (g.content as string) || '',
-  }));
-
-  // Ngưỡng ca (theo loai_ca của nhân viên) để client ĐOÁN công A/B cho "giờ hiện tại".
-  const { data: shiftRows } = await admin
-    .from('chamcong_shift_config')
-    .select('session, a_start, a_end, a_end2, b_end')
-    .eq('shift_type', emp!.loai_ca || 'tieu_chuan');
-  const shiftConfig: Record<string, { a_start: string | null; a_end: string | null; a_end2: string | null; b_end: string | null }> = {};
-  (shiftRows ?? []).forEach((r) => {
-    shiftConfig[r.session as string] = {
-      a_start: (r.a_start as string) ?? null,
-      a_end: (r.a_end as string) ?? null,
-      a_end2: (r.a_end2 as string) ?? null,
-      b_end: (r.b_end as string) ?? null,
-    };
-  });
 
   return (
     <>
@@ -129,7 +111,7 @@ export default async function CbnvPage({
       />
       <ChamCong
         token={token}
-        employee={{ name: emp!.name, maNv: emp!.ma_nv, department: emp!.department }}
+        employee={{ name: emp.name, maNv: emp.ma_nv, department: emp.department }}
         office={cfg.office}
         maxDistance={cfg.maxDistance}
         gpsExpireMs={cfg.gpsExpireMs}

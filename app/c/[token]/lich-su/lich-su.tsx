@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { Icon } from '@/app/_components/icons';
 import type { MonthData, DayRow } from '@/lib/month';
 
 type JType = 'phep' | 'om' | 'khac';
@@ -19,6 +19,10 @@ const BUOIS: { v: JBuoi; label: string }[] = [
   { v: 'chieu', label: 'Chiều' },
 ];
 
+const pad = (n: number) => String(n).padStart(2, '0');
+// idx = year*12 + month  <->  "YYYY-MM"
+const toM = (i: number) => `${Math.floor((i - 1) / 12)}-${pad(((i - 1) % 12) + 1)}`;
+
 const hm = (t: string) => {
   if (!t) return '';
   const s = String(t).trim();
@@ -34,16 +38,23 @@ export default function LichSu({
   token,
   employee,
   data,
-  prevHref,
-  nextHref,
+  maxIdx,
 }: {
   token: string;
   employee: { name: string; maNv: string };
   data: MonthData;
-  prevHref: string;
-  nextHref: string | null;
+  maxIdx: number; // tháng hiện tại (year*12+month) — không cho xem quá mốc này
 }) {
-  const router = useRouter();
+  const initialIdx = data.year * 12 + data.month;
+
+  // Cache dữ liệu các tháng đã tải (để chuyển qua lại tức thì + prefetch tháng liền kề).
+  const cacheRef = useRef<Map<number, MonthData>>(null as unknown as Map<number, MonthData>);
+  if (!cacheRef.current) cacheRef.current = new Map([[initialIdx, data]]);
+
+  const [idx, setIdx] = useState(initialIdx);
+  const [view, setView] = useState<MonthData>(data);
+  const [pending, setPending] = useState<'prev' | 'next' | null>(null);
+
   const [open, setOpen] = useState<DayRow | null>(null);
   const [type, setType] = useState<JType>('phep');
   const [buoi, setBuoi] = useState<JBuoi>('ca_ngay');
@@ -51,7 +62,71 @@ export default function LichSu({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const s = data.summary;
+  // Tải dữ liệu 1 tháng từ Route Handler JSON (có cache, force=bỏ qua cache để làm mới).
+  const fetchMonth = useCallback(
+    async (target: number, force = false): Promise<MonthData | null> => {
+      const cache = cacheRef.current;
+      if (!force && cache.has(target)) return cache.get(target)!;
+      try {
+        const res = await fetch(`/api/c/${token}/month?m=${toM(target)}`);
+        if (!res.ok) return null;
+        const d = (await res.json()) as MonthData;
+        cache.set(target, d);
+        return d;
+      } catch {
+        return null;
+      }
+    },
+    [token],
+  );
+
+  // Nạp trước tháng liền trước/sau (nền) để bấm ‹/› hiện gần như tức thì.
+  const prefetch = useCallback(
+    (center: number) => {
+      [center - 1, center + 1].forEach((n) => {
+        if (n <= maxIdx && !cacheRef.current.has(n)) void fetchMonth(n);
+      });
+    },
+    [fetchMonth, maxIdx],
+  );
+
+  useEffect(() => {
+    prefetch(initialIdx);
+  }, [prefetch, initialIdx]);
+
+  const go = useCallback(
+    async (target: number, dir: 'prev' | 'next') => {
+      if (target > maxIdx) return;
+      const cached = cacheRef.current.get(target);
+      if (cached) {
+        setView(cached);
+        setIdx(target);
+        try {
+          window.history.replaceState(null, '', `/c/${token}/lich-su?m=${toM(target)}`);
+        } catch {
+          /* ignore */
+        }
+        prefetch(target);
+        return;
+      }
+      setPending(dir);
+      const d = await fetchMonth(target);
+      setPending(null);
+      if (!d) return;
+      setView(d);
+      setIdx(target);
+      try {
+        window.history.replaceState(null, '', `/c/${token}/lich-su?m=${toM(target)}`);
+      } catch {
+        /* ignore */
+      }
+      prefetch(target);
+    },
+    [fetchMonth, prefetch, maxIdx, token],
+  );
+
+  const s = view.summary;
+  const canNext = idx < maxIdx;
 
   function openModal(day: DayRow) {
     const t = (day.jtype as JType) || 'phep';
@@ -84,7 +159,9 @@ export default function LichSu({
       }
       setOpen(null);
       setBusy(false);
-      router.refresh();
+      // Làm mới tháng đang xem (bỏ cache) để thấy giải trình vừa gửi.
+      const fresh = await fetchMonth(idx, true);
+      if (fresh) setView(fresh);
     } catch {
       setErr('Lỗi kết nối. Thử lại.');
       setBusy(false);
@@ -103,18 +180,32 @@ export default function LichSu({
       </div>
 
       <div className="ls-nav">
-        <Link href={prevHref} className="ls-navbtn">
-          ‹
-        </Link>
+        <button
+          type="button"
+          className="ls-navbtn"
+          onClick={() => go(idx - 1, 'prev')}
+          disabled={pending !== null}
+          aria-label="Tháng trước"
+        >
+          {pending === 'prev' ? <span className="nav-spinner" aria-hidden /> : <Icon name="chevLeft" size={18} />}
+        </button>
         <div className="ls-month">
-          Tháng {data.month}/{data.year}
+          Tháng {view.month}/{view.year}
         </div>
-        {nextHref ? (
-          <Link href={nextHref} className="ls-navbtn">
-            ›
-          </Link>
+        {canNext ? (
+          <button
+            type="button"
+            className="ls-navbtn"
+            onClick={() => go(idx + 1, 'next')}
+            disabled={pending !== null}
+            aria-label="Tháng sau"
+          >
+            {pending === 'next' ? <span className="nav-spinner" aria-hidden /> : <Icon name="chevRight" size={18} />}
+          </button>
         ) : (
-          <span className="ls-navbtn disabled">›</span>
+          <span className="ls-navbtn disabled">
+            <Icon name="chevRight" size={18} />
+          </span>
         )}
       </div>
 
@@ -144,7 +235,7 @@ export default function LichSu({
       </div>
 
       <div className="ls-table-wrap">
-        {data.days.length === 0 ? (
+        {view.days.length === 0 ? (
           <p className="muted" style={{ textAlign: 'center', padding: 20 }}>
             Chưa có dữ liệu.
           </p>
@@ -164,7 +255,7 @@ export default function LichSu({
               </tr>
             </thead>
             <tbody>
-              {data.days.map((d) => {
+              {view.days.map((d) => {
                 const rowCls = d.isHoliday
                   ? 'r-holiday'
                   : d.isWeekend

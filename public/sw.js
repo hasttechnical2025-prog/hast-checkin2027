@@ -1,6 +1,6 @@
 // Service Worker — app Chấm Công HSTC 2027.
 // VERSION là NGUỒN DUY NHẤT: đổi version khi deploy -> SW mới dọn cache cũ + reload.
-const VERSION = 'v2027.11.23.01';
+const VERSION = 'v2027.11.23.02';
 const CACHE = 'chamcong-' + VERSION;
 
 // install: KHÔNG tải tài nguyên nào (tránh trễ) -> active NGAY để sớm nắm quyền trang.
@@ -19,13 +19,31 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Network-first, fallback cache (dữ liệu chấm công cần tươi; offline mới dùng cache).
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  // Tài nguyên tĩnh BĂM NỘI DUNG của Next (/_next/static/...) là BẤT BIẾN -> CACHE-FIRST:
+  // lần mở sau trả ngay từ cache (không tải lại JS/CSS) => app mở nhanh hơn hẳn.
+  if (url.pathname.startsWith('/_next/static/')) {
+    e.respondWith(
+      (async () => {
+        const cached = await caches.match(req);
+        if (cached) return cached;
+        const net = await fetch(req);
+        if (net && net.ok) {
+          const c = await caches.open(CACHE);
+          c.put(req, net.clone()).catch(() => {});
+        }
+        return net;
+      })(),
+    );
+    return;
+  }
+
+  // Còn lại (HTML động, API...): network-first, fallback cache (dữ liệu cần tươi).
   e.respondWith(
     (async () => {
       try {

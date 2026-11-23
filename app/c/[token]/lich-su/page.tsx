@@ -6,8 +6,6 @@ import LichSu from './lich-su';
 
 export const dynamic = 'force-dynamic';
 
-const pad = (n: number) => String(n).padStart(2, '0');
-
 export default async function LichSuPage({
   params,
   searchParams,
@@ -43,19 +41,15 @@ export default async function LichSuPage({
 
   const data = await buildMonthData(emp!.id, emp!.ngay_vao_lam ?? null, year, month);
 
-  const idx = year * 12 + month;
-  const prevIdx = idx - 1;
-  const nextIdx = idx + 1;
-  const toM = (i: number) => `${Math.floor((i - 1) / 12)}-${pad(((i - 1) % 12) + 1)}`;
-  const canNext = nextIdx <= curY * 12 + curM;
+  // maxIdx = tháng hiện tại (giờ VN) — client dùng để chặn sang tháng tương lai.
+  const maxIdx = curY * 12 + curM;
 
   return (
     <LichSu
       token={token}
       employee={{ name: emp!.name, maNv: emp!.ma_nv }}
       data={data}
-      prevHref={`/c/${token}/lich-su?m=${toM(prevIdx)}`}
-      nextHref={canNext ? `/c/${token}/lich-su?m=${toM(nextIdx)}` : null}
+      maxIdx={maxIdx}
     />
   );
 }
