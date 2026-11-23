@@ -28,7 +28,7 @@ npx tsc --noEmit   # kiểm kiểu (KHÔNG build khi đang dev)
 1. TypeScript; mỗi file một trách nhiệm; không biến toàn cục ngầm.
 2. Mọi `await supabase/fetch` bọc `try/catch`. **Telegram & Nominatim lỗi → bỏ qua, KHÔNG chặn luồng chấm công.**
 3. Gom magic string trạng thái thành hằng: `'Chờ' | 'Đồng ý' | 'Từ chối'`, `'✓ Hợp lệ' | '✗ Ngoài phạm vi'`.
-4. CSS biến `:root` cho màu (`--accent` #2563eb, `--ok`, `--warn`, `--err`). Chỉ Light mode.
+4. CSS biến `:root` cho màu (`--accent` #2563eb, `--ok`, `--warn`, `--err`). Chỉ Light mode. **Font/giao diện theo [DESIGN_SYSTEM_SPEC.md](DESIGN_SYSTEM_SPEC.md)**: Inter + Geist Mono, root 14px; thang cỡ chữ theo vai trò `--fs-t1` 12.25px (chính/td) · `--fs-t2` 10.5px (phụ/th) · `--fs-t3` 10px (meta/badge) · `--fs-time` 8px (chip giờ); weight 400/500/600/700. Áp cho /tbp + /admin (scope `.tbp-page`/`.admin-content`), **không đụng CBNV `.cc-*`**.
 5. **TUYỆT ĐỐI không** đưa `service_role` key / Telegram token / secret vào file client hay `localStorage`. Secret chỉ ở `process.env` phía server (không tiền tố `NEXT_PUBLIC_`).
 6. CORS GitHub Pages/webhook → Supabase phải kèm `Content-Type: application/json`.
 7. **Icon = inline SVG** qua `app/_components/icons.tsx` (`<Icon name size />`, viewBox 24, stroke currentColor) — hạn chế emoji trong UI mới (admin còn vài chỗ emoji = nợ kỹ thuật). Nút hành động nên có **chữ** trên PC, không chỉ icon.

@@ -217,7 +217,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
     <>
       <div className="tbp-bar">
         <input className="tbp-select" placeholder="🔎 Tìm tên / mã…" value={q} onChange={(e) => setQ(e.target.value)} style={{ minWidth: 180 }} />
-        <span className="muted" style={{ fontSize: 13 }}>{shown.length} nhân viên</span>
+        <span className="muted">{shown.length} nhân viên</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
           <button className="btn-undo" onClick={printAll}>🖨 In tất cả QR</button>
           <button className="btn-approve" onClick={() => { setErr(null); setForm({ ...EMPTY }); }}>+ Thêm nhân viên</button>
@@ -243,7 +243,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
                 <td>{e.maNv}</td>
                 <td style={{ textAlign: 'left' }}>
                   {e.name}
-                  {e.mienChamCong && <span className="muted" style={{ fontSize: 11 }}> · miễn chấm</span>}
+                  {e.mienChamCong && <span className="muted"> · miễn chấm</span>}
                 </td>
                 <td style={{ textAlign: 'left' }}>{e.department}</td>
                 <td>{e.role}</td>
@@ -353,7 +353,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
           <div className="cc-dlg" style={{ textAlign: 'left', maxWidth: 400 }} onClick={(e) => e.stopPropagation()}>
             <h3 style={{ marginTop: 0 }}>{result.title}</h3>
             {result.lines.map((l, i) => (
-              <p key={i} style={{ fontSize: 14, wordBreak: 'break-all' }}>{l}</p>
+              <p key={i} style={{ wordBreak: 'break-all' }}>{l}</p>
             ))}
             <div className="cc-dlg-btns">
               <button className="btn" onClick={() => setResult(null)}>Đóng</button>

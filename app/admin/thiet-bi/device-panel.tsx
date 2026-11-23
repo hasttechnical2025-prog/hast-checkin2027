@@ -80,7 +80,7 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
               <tr key={i.id} className={i.status === 'Chờ' ? 'r-partial' : ''}>
                 <td style={{ textAlign: 'left' }}>
                   {i.name}
-                  <div className="muted" style={{ fontSize: 11 }}>
+                  <div className="muted">
                     {i.dept}
                   </div>
                 </td>
@@ -100,7 +100,7 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
                 </td>
                 <td className="tbp-act">
                   {!i.canApprove ? (
-                    <span className="muted" style={{ fontSize: 12 }}>—</span>
+                    <span className="muted">—</span>
                   ) : i.status === 'Chờ' ? (
                     <>
                       <button className="btn-approve" disabled={busy === i.id} onClick={() => act(i.id, 'approve')}>

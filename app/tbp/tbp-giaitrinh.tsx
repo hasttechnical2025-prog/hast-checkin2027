@@ -157,11 +157,11 @@ export default function TbpGiaiTrinh({
                   </td>
                   <td className="tbp-act">
                     {i.isLeave ? (
-                      <span className="muted" style={{ fontSize: 12 }}>
+                      <span className="muted">
                         (đồng bộ)
                       </span>
                     ) : !i.canApprove ? (
-                      <span className="muted" style={{ fontSize: 12 }}>
+                      <span className="muted">
                         —
                       </span>
                     ) : i.approve === '' ? (

@@ -399,11 +399,11 @@ export default function NsclGrid({
             <ExportExcel year={data.year} month={data.month} />
           </span>
         )}
-        {toast && <span className="muted" style={{ fontSize: 13 }}>{toast}</span>}
+        {toast && <span className="muted">{toast}</span>}
       </div>
 
       {lockInfo && (
-        <div className="muted" style={{ fontSize: 12, color: 'var(--ok)', marginBottom: 8 }}>
+        <div className="muted" style={{ color: 'var(--ok)', marginBottom: 8 }}>
           <Icon name="lock" size={13} style={{ verticalAlign: '-2px', marginRight: 4 }} />
           {lockDept} đã ký &amp; khóa bởi {lockInfo.nguoiKy}
           {lockInfo.thoiGianKy ? ' lúc ' + new Date(lockInfo.thoiGianKy).toLocaleString('vi-VN') : ''}
@@ -512,7 +512,7 @@ export default function NsclGrid({
         )}
       </div>
 
-      <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
+      <p className="muted" style={{ marginTop: 8 }}>
         Ô sọc đỏ = có công B/D nhưng giải trình chưa Đồng ý (khóa chấm). P=phép, Ô=ốm, N=nghỉ lễ, 5=nửa ngày phép.
       </p>
 

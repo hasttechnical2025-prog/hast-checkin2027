@@ -104,7 +104,7 @@ export default function ExportExcel({ year, month }: { year: number; month: numb
       <button className="btn-undo" disabled={busy} onClick={doExport}>
         <Icon name="sheet" size={15} /> Xuất Excel
       </button>
-      {msg && <span className="muted" style={{ fontSize: 13 }}>{msg}</span>}
+      {msg && <span className="muted">{msg}</span>}
 
       {pickOpen && (
         <div className="cc-dlg-overlay" onClick={() => setPickOpen(false)}>
@@ -112,12 +112,12 @@ export default function ExportExcel({ year, month }: { year: number; month: numb
             <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
               <Icon name="folder" size={18} /> Chọn file Excel đích
             </h3>
-            <p style={{ fontSize: 13, color: 'var(--err)' }}>
+            <p style={{ color: 'var(--err)' }}>
               Chọn một file <b>RIÊNG chỉ chứa bảng công</b> (vd <b>bang_cong.xlsx</b>). <b>Không chọn file lương / file nhiều sheet</b> — mỗi lần xuất app ghi đè toàn bộ file đích.
             </p>
             <label className="ls-flabel">Tên sheet trong file đó</label>
             <input className="field" value={sheet} onChange={(e) => setSheet(e.target.value.slice(0, 31))} />
-            <p className="muted" style={{ fontSize: 12.5 }}>
+            <p className="muted">
               Dùng tên này khi liên kết từ file lương (Power Query: Data → Get Data → From File → From Excel Workbook → chọn file này → mỗi tháng chỉ bấm Refresh).
             </p>
             <div className="cc-dlg-btns">

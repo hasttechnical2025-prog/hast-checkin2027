@@ -38,18 +38,18 @@ export default function GuideAdmin({ initial }: { initial: GuideItem[] }) {
 
   return (
     <>
-      <p className="muted" style={{ fontSize: 13 }}>Nội dung 4 trang hướng dẫn hiển thị trong sheet Cài đặt của CBNV.</p>
+      <p className="muted">Nội dung 4 trang hướng dẫn hiển thị trong sheet Cài đặt của CBNV.</p>
       {items.map((it, idx) => (
         <div className="card" key={it.id} style={{ marginBottom: 12 }}>
-          <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Trang {idx + 1} ({it.id}) — Tiêu đề</label>
+          <label style={{ color: 'var(--muted)', fontWeight: 600 }}>Trang {idx + 1} ({it.id}) — Tiêu đề</label>
           <input className="field" value={it.title} onChange={(e) => set(it.id, 'title', e.target.value)} style={{ marginBottom: 8 }} />
-          <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Nội dung</label>
+          <label style={{ color: 'var(--muted)', fontWeight: 600 }}>Nội dung</label>
           <textarea className="field" rows={4} value={it.content} onChange={(e) => set(it.id, 'content', e.target.value)} />
         </div>
       ))}
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <button className="btn" disabled={busy} onClick={save}>{busy ? 'Đang lưu…' : '💾 Lưu hướng dẫn'}</button>
-        {msg && <span className="muted" style={{ fontSize: 13 }}>{msg}</span>}
+        {msg && <span className="muted">{msg}</span>}
       </div>
     </>
   );

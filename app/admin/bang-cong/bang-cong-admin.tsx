@@ -81,7 +81,7 @@ export default function BangCongAdmin({
           <h1 style={{ margin: 0, fontSize: 22, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Icon name="sheet" size={20} /> Bảng công tháng
           </h1>
-          <div className="muted" style={{ fontSize: 13 }}>
+          <div className="muted">
             Toàn công ty · bấm 1 ô ngày để sửa công (tính lại A/B/D).
           </div>
         </div>
@@ -359,14 +359,14 @@ function DayEditDialog({
             </div>
 
             {grades && (
-              <p style={{ margin: '12px 0 0', fontSize: 13 }}>
+              <p style={{ margin: '12px 0 0' }}>
                 <span className="muted" style={{ marginRight: 8 }}>Điểm{saved ? ' (đã lưu)' : ''}:</span>
                 {grades.split(',').map((g, i) => {
                   const t = g.trim();
                   const cls = t === 'A' ? 'grade-a' : t === 'B' ? 'grade-b' : 'grade-d';
                   return (
                     <span key={i} style={{ marginRight: 8 }}>
-                      <span className="muted" style={{ fontSize: 11 }}>{SESS[i]}: </span>
+                      <span className="muted">{SESS[i]}: </span>
                       <span className={`grade ${cls}`}>{t}</span>
                     </span>
                   );
@@ -375,11 +375,11 @@ function DayEditDialog({
             )}
 
             <div className="bc-edit-logs">
-              <div className="muted" style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+              <div className="muted" style={{ fontWeight: 600, marginBottom: 4 }}>
                 Log chấm thô (tham khảo)
               </div>
               {logs.length === 0 ? (
-                <p className="muted" style={{ fontSize: 13, margin: 0 }}>Không có log thô.</p>
+                <p className="muted" style={{ margin: 0 }}>Không có log thô.</p>
               ) : (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {logs.map((l, i) => (
@@ -395,7 +395,7 @@ function DayEditDialog({
               )}
             </div>
 
-            {err && <p style={{ color: 'var(--err)', fontSize: 13, margin: '10px 0 0' }}>{err}</p>}
+            {err && <p style={{ color: 'var(--err)', margin: '10px 0 0' }}>{err}</p>}
 
             <div className="cc-dlg-btns" style={{ marginTop: 14 }}>
               <button className="btn" disabled={busy} onClick={save}>

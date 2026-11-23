@@ -113,7 +113,7 @@ export default function LogAdmin({
             </option>
           ))}
         </select>
-        <span className="muted" style={{ fontSize: 13 }}>{rows.length} lượt chấm</span>
+        <span className="muted">{rows.length} lượt chấm</span>
       </div>
 
       <div className="ls-table-wrap">
@@ -165,7 +165,7 @@ export default function LogAdmin({
           </table>
         )}
       </div>
-      <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
+      <p className="muted" style={{ marginTop: 8 }}>
         Lưu ý: xóa/sửa log thô KHÔNG tự tính lại bảng ngày (trigger chỉ chạy khi chấm mới). Dùng để dọn log lỗi.
       </p>
 

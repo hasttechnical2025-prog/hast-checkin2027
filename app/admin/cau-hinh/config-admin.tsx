@@ -128,7 +128,7 @@ export default function ConfigAdmin({
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <button className="btn" disabled={busy} onClick={save}>{busy ? 'Đang lưu…' : '💾 Lưu cấu hình'}</button>
-        {msg && <span className="muted" style={{ fontSize: 13 }}>{msg}</span>}
+        {msg && <span className="muted">{msg}</span>}
       </div>
     </>
   );

@@ -74,7 +74,7 @@ export default function ShiftAdmin({ initial }: { initial: ShiftRow[] }) {
 
   return (
     <>
-      <p className="muted" style={{ fontSize: 13 }}>
+      <p className="muted">
         Ngưỡng chấm A/B/D (data-driven, đổi không cần deploy). IN: ≤ Cuối A → A, ≤ Cuối B → B, còn lại D. Ra sáng:
         Đầu A ≤ giờ ≤ Cuối A → A. Ra chiều: ≥ Cuối A → A.
       </p>
@@ -132,7 +132,7 @@ export default function ShiftAdmin({ initial }: { initial: ShiftRow[] }) {
         <button className="btn" disabled={busy} onClick={save}>
           {busy ? 'Đang lưu…' : '💾 Lưu cấu hình'}
         </button>
-        {msg && <span className="muted" style={{ fontSize: 13 }}>{msg}</span>}
+        {msg && <span className="muted">{msg}</span>}
       </div>
     </>
   );

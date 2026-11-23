@@ -99,7 +99,7 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
   return (
     <>
       <div className="tbp-bar">
-        <span className="muted" style={{ fontSize: 13 }}>{accounts.length} tài khoản</span>
+        <span className="muted">{accounts.length} tài khoản</span>
         <button className="btn-approve" style={{ marginLeft: 'auto' }} onClick={() => { setErr(null); setCreateOpen(true); }}>
           + Thêm tài khoản
         </button>

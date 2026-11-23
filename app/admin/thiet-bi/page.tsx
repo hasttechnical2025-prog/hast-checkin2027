@@ -41,9 +41,9 @@ export default async function ThietBiPage() {
   return (
     <>
       <h2 style={{ marginTop: 0 }}>
-        Thiết bị{pending > 0 ? <span className="badge badge-wait" style={{ marginLeft: 8, fontSize: 13 }}>{pending} chờ duyệt</span> : ''}
+        Thiết bị{pending > 0 ? <span className="badge badge-wait" style={{ marginLeft: 8 }}>{pending} chờ duyệt</span> : ''}
       </h2>
-      <p className="muted" style={{ fontSize: 13, marginTop: -6 }}>
+      <p className="muted" style={{ marginTop: -6 }}>
         Duyệt thiết bị mới giúp chống chấm hộ: mỗi nhân viên chỉ 1 thiết bị hoạt động. Duyệt máy mới sẽ tự
         vô hiệu máy cũ.
       </p>

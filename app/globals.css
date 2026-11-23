@@ -23,6 +23,12 @@
   --err-hover: #dc2626; /* red-600 */
   --err-weak: #fee2e2;
   --bad-weak: #fee2e2;
+
+  /* Thang cỡ chữ theo vai trò (DESIGN_SYSTEM_SPEC.md §2) — px tuyệt đối. */
+  --fs-t1: 12.25px; /* chính/nhấn + thân bảng (td): tên, loại việc, dữ liệu dòng */
+  --fs-t2: 10.5px; /* phụ + tiêu đề cột (th): mã, địa chỉ, km, thời gian, muted */
+  --fs-t3: 10px; /* meta/badge: ghi chú mờ, badge */
+  --fs-time: 8px; /* chip giờ: chip buổi·giờ */
 }
 
 * {
@@ -2262,4 +2268,47 @@ table.nscl-grid {
 .bc-lockwarn svg {
   flex: 0 0 auto;
   margin-top: 1px;
+}
+
+/* ===================================================================== */
+/* Chuẩn hóa font theo vai trò — CHỈ /tbp + /admin (DESIGN_SYSTEM_SPEC §2) */
+/* Scope dưới .tbp-page / .admin-content để KHÔNG đụng màn CBNV (.cc-*).   */
+/* ===================================================================== */
+.tbp-page,
+.admin-content {
+  font-size: var(--fs-t1); /* nền dữ liệu = chính 12.25px */
+}
+/* phụ + meta */
+.tbp-page .muted,
+.admin-content .muted {
+  font-size: var(--fs-t2);
+}
+.tbp-page .badge,
+.admin-content .badge {
+  font-size: var(--fs-t3);
+}
+/* bảng dữ liệu (ls-table/gt-table/nscl-grid; KHÔNG đụng ma trận .bc-grid vốn đã nén riêng) */
+.tbp-page .ls-table td,
+.tbp-page .nscl-grid td,
+.admin-content .ls-table td,
+.admin-content .nscl-grid td {
+  font-size: var(--fs-t1);
+}
+.tbp-page .ls-table th,
+.tbp-page .nscl-grid th,
+.admin-content .ls-table th,
+.admin-content .nscl-grid th {
+  font-size: var(--fs-t2);
+  font-weight: 600;
+}
+/* chip giờ 8px */
+.tbp-page .bc-logchip,
+.admin-content .bc-logchip {
+  font-size: var(--fs-time);
+}
+/* tên/số nổi bật 700 */
+.tbp-page .gt-name,
+.admin-content .bc-name,
+.admin-content .mono {
+  font-weight: 700;
 }
