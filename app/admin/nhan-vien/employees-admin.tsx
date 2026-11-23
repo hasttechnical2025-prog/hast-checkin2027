@@ -222,13 +222,13 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
         <input className="tbp-select" placeholder="🔎 Tìm tên / mã…" value={q} onChange={(e) => setQ(e.target.value)} style={{ minWidth: 180 }} />
         <span className="muted">{shown.length} nhân viên</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-          <button className="btn-undo" onClick={printAll}>🖨 In tất cả QR</button>
+          <button className="btn-undo hide-mobile" onClick={printAll}>🖨 In tất cả QR</button>
           <button className="btn-approve" onClick={() => { setErr(null); setForm({ ...EMPTY }); }}>+ Thêm nhân viên</button>
         </div>
       </div>
 
       <div className="ls-table-wrap">
-        <table className="ls-table">
+        <table className="ls-table m-cards">
           <thead>
             <tr>
               <th>Mã</th>
@@ -243,15 +243,15 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
           <tbody>
             {shown.map((e) => (
               <tr key={e.id} className={e.status !== 'Đang làm việc' ? 'r-weekend' : ''}>
-                <td>{e.maNv}</td>
-                <td style={{ textAlign: 'left' }}>
+                <td data-label="Mã">{e.maNv}</td>
+                <td className="m-cards-name" data-label="Họ tên" style={{ textAlign: 'left' }}>
                   {e.name}
                   {e.mienChamCong && <span className="muted"> · miễn chấm</span>}
                 </td>
-                <td style={{ textAlign: 'left' }}>{e.department}</td>
-                <td>{e.role}</td>
-                <td>{LOAI_CA[e.loaiCa] || e.loaiCa}</td>
-                <td>
+                <td data-label="Phòng" style={{ textAlign: 'left' }}>{e.department}</td>
+                <td data-label="Vai">{e.role}</td>
+                <td data-label="Ca">{LOAI_CA[e.loaiCa] || e.loaiCa}</td>
+                <td data-label="Trạng thái">
                   {e.status === 'Đang làm việc' ? (
                     <span className="badge badge-ok">Đang làm</span>
                   ) : (
@@ -278,7 +278,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
         <div className="cc-dlg-overlay" onClick={() => !busy && setForm(null)}>
           <div className="cc-dlg" style={{ textAlign: 'left', maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
             <h3 style={{ marginTop: 0 }}>{form.id == null ? 'Thêm nhân viên' : 'Sửa nhân viên'}</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="emp-form-grid">
               <label>Mã NV
                 <input className="field" value={form.maNv} onChange={(e) => setForm({ ...form, maNv: e.target.value })} placeholder="ST001" />
               </label>

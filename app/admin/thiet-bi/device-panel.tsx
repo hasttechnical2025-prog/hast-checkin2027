@@ -66,7 +66,7 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
           Chưa có thiết bị nào.
         </p>
       ) : (
-        <table className="ls-table dev-table">
+        <table className="ls-table m-cards">
           <thead>
             <tr>
               <th>Nhân viên</th>
@@ -79,7 +79,7 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
           <tbody>
             {items.map((i) => (
               <tr key={i.id} className={i.status === 'Chờ' ? 'r-partial' : ''}>
-                <td className="dev-name" data-label="Nhân viên" style={{ textAlign: 'left' }}>
+                <td className="m-cards-name" data-label="Nhân viên" style={{ textAlign: 'left' }}>
                   {i.name}
                   <div className="muted">{i.dept}</div>
                 </td>

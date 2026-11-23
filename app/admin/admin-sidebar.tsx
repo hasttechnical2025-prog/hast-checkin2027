@@ -18,11 +18,11 @@ const ITEMS: { href: string; label: string; icon: IconName }[] = [
   { href: '/admin/huong-dan', label: 'Hướng dẫn', icon: 'info' },
 ];
 
-// Thanh tab đáy (mobile) — các việc hay làm trên điện thoại + "Thêm" mở menu đầy đủ.
+// Thanh tab đáy (mobile) — admin trên điện thoại chỉ cần Thêm nhân viên + Duyệt thiết bị;
+// còn lại vào qua "Thêm" (menu đầy đủ).
 const BOTTOM: { href: string; label: string; icon: IconName }[] = [
-  { href: '/admin/bang-cong', label: 'Bảng công', icon: 'sheet' },
+  { href: '/admin/nhan-vien', label: 'Nhân viên', icon: 'user' },
   { href: '/admin/thiet-bi', label: 'Thiết bị', icon: 'phone' },
-  { href: '/tbp', label: 'Duyệt/Điểm', icon: 'checks' },
 ];
 
 export default function AdminSidebar() {

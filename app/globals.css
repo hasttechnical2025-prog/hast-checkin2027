@@ -2335,6 +2335,11 @@ table.nscl-grid {
 .botnav {
   display: none;
 }
+.emp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
 
 @media (max-width: 640px) {
   /* --- Thanh tab đáy --- */
@@ -2371,8 +2376,7 @@ table.nscl-grid {
   }
 
   /* chừa chỗ cho thanh đáy */
-  .admin-content,
-  .tbp-page {
+  .admin-content {
     padding-bottom: calc(66px + env(safe-area-inset-bottom));
   }
 
@@ -2402,33 +2406,41 @@ table.nscl-grid {
     flex: none;
   }
 
+  /* Form thêm/sửa nhân viên -> 1 cột cho dễ nhập; ẩn nút chỉ-cho-PC */
+  .emp-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .hide-mobile {
+    display: none !important;
+  }
+
   /* Duyệt thiết bị -> thẻ (mỗi dòng 1 card) */
-  .ls-table-wrap:has(.dev-table) {
+  .ls-table-wrap:has(.m-cards) {
     overflow: visible;
     border: none;
     background: transparent;
   }
-  .dev-table thead {
+  .m-cards thead {
     display: none;
   }
-  .dev-table,
-  .dev-table tbody,
-  .dev-table tr,
-  .dev-table td {
+  .m-cards,
+  .m-cards tbody,
+  .m-cards tr,
+  .m-cards td {
     display: block;
     width: 100%;
   }
-  .dev-table tr {
+  .m-cards tr {
     border: 1px solid var(--border);
     border-radius: 10px;
     background: var(--surface);
     padding: 8px 12px;
     margin-bottom: 10px;
   }
-  .dev-table tr.r-partial {
+  .m-cards tr.r-partial {
     border-left: 3px solid var(--accent);
   }
-  .dev-table td {
+  .m-cards td {
     border: 0;
     padding: 4px 0;
     display: flex;
@@ -2438,14 +2450,14 @@ table.nscl-grid {
     text-align: right;
     white-space: normal;
   }
-  .dev-table td::before {
+  .m-cards td::before {
     content: attr(data-label);
     font-size: var(--fs-t2);
     font-weight: 600;
     color: var(--muted);
     text-align: left;
   }
-  .dev-table td.dev-name {
+  .m-cards td.m-cards-name {
     display: block;
     text-align: left;
     font-weight: 700;
@@ -2453,14 +2465,14 @@ table.nscl-grid {
     padding-bottom: 6px;
     margin-bottom: 4px;
   }
-  .dev-table td.dev-name::before {
+  .m-cards td.m-cards-name::before {
     content: none;
   }
-  .dev-table td.tbp-act {
+  .m-cards td.tbp-act {
     justify-content: flex-end;
     padding-top: 8px;
   }
-  .dev-table td.tbp-act::before {
+  .m-cards td.tbp-act::before {
     content: none;
   }
 }
