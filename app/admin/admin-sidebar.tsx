@@ -83,10 +83,12 @@ export default function AdminSidebar() {
             <span>{it.label}</span>
           </Link>
         ))}
-        <button type="button" className="botnav-item" onClick={() => setOpen(true)}>
-          <Icon name="menu" size={20} />
-          <span>Thêm</span>
-        </button>
+        <form action="/auth/signout" method="post">
+          <button type="submit" className="botnav-item">
+            <Icon name="logout" size={20} />
+            <span>Đăng xuất</span>
+          </button>
+        </form>
       </nav>
     </>
   );

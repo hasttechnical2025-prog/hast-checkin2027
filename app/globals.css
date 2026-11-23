@@ -2378,6 +2378,10 @@ table.nscl-grid {
   .botnav-item.active {
     color: var(--accent);
   }
+  /* Nút Đăng xuất (form) tham gia layout thanh đáy như 1 item */
+  .botnav form {
+    display: contents;
+  }
 
   /* chừa chỗ cho thanh đáy */
   .admin-content {
