@@ -193,16 +193,29 @@ export default function NsclGrid({
       return;
     }
     setBusy(true);
+    // Timeout để KHÔNG kẹt "Đang xử lý…" mãi nếu mạng/hàm chậm (cold-start).
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
     try {
-      await fetch('/api/tbp/nscl-lock', {
+      const res = await fetch('/api/tbp/nscl-lock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, department: lockDept, thang: data.month, nam: data.year }),
+        signal: ctrl.signal,
       });
-      router.refresh();
-    } catch {
-      flash('Lỗi thao tác khóa.');
-      setBusy(false);
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || j?.error) {
+        flash(j?.error || (action === 'unlock' ? 'Mở khóa thất bại — thử lại.' : 'Ký & Khóa thất bại — thử lại.'));
+      } else {
+        flash(action === 'unlock' ? 'Đã mở khóa.' : 'Đã ký & khóa.');
+        router.refresh();
+      }
+    } catch (e) {
+      flash((e as Error)?.name === 'AbortError' ? 'Quá thời gian chờ — thử lại.' : 'Lỗi mạng — thử lại.');
+    } finally {
+      clearTimeout(timer);
+      setBusy(false); // LUÔN tắt busy (trước đây chỉ tắt trong catch -> thành công bị kẹt spinner)
+      setConfirmLock(null); // đóng hộp xác nhận dù xong hay lỗi
     }
   }
 
