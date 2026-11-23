@@ -74,6 +74,7 @@ interface EmpRow {
   department: string;
   role: string | null;
   ngay_vao_lam: string | null;
+  mien_cham_cong: boolean | null;
 }
 interface RecRow {
   employee_id: number;
@@ -98,7 +99,7 @@ export async function buildNsclData(
 
   let empQ = admin
     .from('chamcong_employees')
-    .select('id, name, department, role, ngay_vao_lam')
+    .select('id, name, department, role, ngay_vao_lam, mien_cham_cong')
     .eq('status', 'Đang làm việc');
   if (visibleDepts) empQ = empQ.in('department', visibleDepts);
   const { data: empData } = await empQ;
@@ -210,12 +211,13 @@ export async function buildNsclData(
       }
 
       // Chặn ô: B/D mà giải trình chưa Đồng ý (leave coi như Đồng ý).
+      // NGOẠI LỆ: nhân viên miễn chấm công -> không cần giải trình, TBP chấm NSCL trực tiếp.
       const grades = (rec?.grades || 'D,D,D,D').split(',').map((g) => g.trim());
       const hasBD = grades.some((g) => g === 'B' || g === 'D');
       const approve = leave ? 'Đồng ý' : rec?.approve_status || '';
       let block = false;
       let blockReason = '';
-      if (canEdit && cls === '' && !beforeJoin && hasBD && approve !== 'Đồng ý') {
+      if (canEdit && cls === '' && !beforeJoin && !emp.mien_cham_cong && hasBD && approve !== 'Đồng ý') {
         block = true;
         blockReason = approve === 'Chờ' ? 'giải trình chờ duyệt' : approve === 'Từ chối' ? 'giải trình bị từ chối' : 'chưa giải trình';
       }

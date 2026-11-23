@@ -42,10 +42,11 @@ export async function POST(req: NextRequest) {
   const empIds = [...new Set([...scores, ...adjusts].map((x) => x.employeeId))];
   const { data: emps } = await admin
     .from('chamcong_employees')
-    .select('id, name, department, ngay_vao_lam')
+    .select('id, name, department, ngay_vao_lam, mien_cham_cong')
     .in('id', empIds);
-  const empById = new Map<number, { id: number; name: string; department: string; ngay_vao_lam: string | null }>(
-    (emps ?? []).map((e) => [e.id as number, e as { id: number; name: string; department: string; ngay_vao_lam: string | null }]),
+  type EmpInfo = { id: number; name: string; department: string; ngay_vao_lam: string | null; mien_cham_cong: boolean | null };
+  const empById = new Map<number, EmpInfo>(
+    (emps ?? []).map((e) => [e.id as number, e as EmpInfo]),
   );
 
   // Khóa Ký & Khóa theo phòng (tháng của cell đầu tiên).
@@ -121,7 +122,8 @@ export async function POST(req: NextRequest) {
       skipped++;
       continue;
     }
-    if (!isAdmin) {
+    // Nhân viên miễn chấm công -> không cần giải trình (bỏ qua chặn B/D).
+    if (!isAdmin && !emp.mien_cham_cong) {
       const rec = recMap.get(`${s.employeeId}_${s.date}`);
       const grades = (rec?.grades || 'D,D,D,D').split(',').map((g) => g.trim());
       const hasBD = grades.some((g) => g === 'B' || g === 'D');
