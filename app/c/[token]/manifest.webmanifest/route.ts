@@ -9,16 +9,19 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  // KHÔNG dấu "/" cuối: trang thật phục vụ ở /c/<token> (Next bỏ trailing slash).
-  // Nếu scope có "/" cuối thì URL app luôn nằm NGOÀI scope -> Chrome hiện thanh địa chỉ,
-  // không vào standalone. Để khớp URL thật, scope/start_url phải là /c/<token>.
+  // start_url = /c/<token> (KHÔNG "/" cuối) để khớp ĐÚNG URL thật (Next bỏ trailing slash)
+  // -> mở app vào thẳng trang chấm công, không bị thanh địa chỉ.
+  // scope = /c/ (thư mục cha, CÓ "/" cuối): Android dựng WebAPK cần scope dạng prefix hợp lệ.
+  //   - scope kiểu khớp-chính-xác không "/" cuối (vd /c/<token>) -> WebAPK bị từ chối tạo
+  //     ("This app cannot be installed"); /c/ là prefix chuẩn nên cài được.
+  //   - URL thật /c/<token> NẰM TRONG /c/ -> vẫn standalone, không hiện thanh địa chỉ.
   const base = `/c/${token}`;
   const manifest = {
     name: 'Chấm Công HSTC',
     short_name: 'Chấm Công',
     id: base,
     start_url: base,
-    scope: base,
+    scope: '/c/',
     display: 'standalone',
     orientation: 'portrait',
     background_color: '#ffffff',
