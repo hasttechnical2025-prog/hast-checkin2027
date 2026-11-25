@@ -1782,7 +1782,7 @@ textarea.cc-note {
 .admin-sidebar {
   width: 216px;
   flex: none;
-  background: var(--surface);
+  background: #f8fafc; /* slate-50 — nền phụ/sidebar */
   border-right: 1px solid var(--border);
   padding: 16px 12px;
   position: sticky;
@@ -2349,11 +2349,11 @@ table.nscl-grid {
   gap: 10px;
 }
 
-/* Nền khu TBP/Admin tối hơn một chút (slate-100) để bảng/thẻ TRẮNG nổi rõ, hết "chìm
-   vào nền". KHÔNG đụng body chung -> màn CBNV /c giữ nguyên. */
+/* Chuẩn màu PC cho TBP + Admin: canvas = slate-200 để thẻ/bảng TRẮNG đè lên nổi rõ.
+   KHÔNG đụng body chung -> màn CBNV /c giữ nguyên. */
 .tbp-page,
 .admin-shell {
-  background: #eef2f7;
+  background: #e2e8f0; /* slate-200 — nền app (canvas) */
 }
 
 /* Đổ bóng + viền bề mặt (khớp Sổ Công tác) -> bảng/thẻ nổi trên nền, hết "trùng màu" */
