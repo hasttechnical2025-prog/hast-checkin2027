@@ -2349,12 +2349,19 @@ table.nscl-grid {
   gap: 10px;
 }
 
-/* Đổ bóng bề mặt (khớp Sổ Công tác) -> bảng/thẻ nổi trên nền slate-50, hết "trùng màu" */
+/* Nền khu TBP/Admin tối hơn một chút (slate-100) để bảng/thẻ TRẮNG nổi rõ, hết "chìm
+   vào nền". KHÔNG đụng body chung -> màn CBNV /c giữ nguyên. */
+.tbp-page,
+.admin-shell {
+  background: #eef2f7;
+}
+
+/* Đổ bóng + viền bề mặt (khớp Sổ Công tác) -> bảng/thẻ nổi trên nền, hết "trùng màu" */
 .ls-table-wrap,
 .bc-wrap,
 .card,
 .admin-sidebar {
-  box-shadow: 0 4px 6px -1px rgba(2, 6, 23, 0.07), 0 2px 4px -2px rgba(2, 6, 23, 0.07);
+  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.06), 0 8px 18px -6px rgba(2, 6, 23, 0.12);
 }
 
 /* Bảng /tbp + /admin thoáng hơn (đỡ "thô"): nhiều padding, kẻ hàng nhạt, hover,
