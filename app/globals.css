@@ -1638,7 +1638,7 @@ textarea.cc-note {
 .gt-table { table-layout: fixed; }
 .gt-table td { vertical-align: top; }
 /* Cột Họ tên căn giữa như các cột khác (desktop); mobile vẫn căn trái ở thẻ) */
-.gt-table td.gt-name { text-align: center; font-weight: 400; }
+.gt-table td.gt-name { text-align: left; font-weight: 400; }
 /* Bảng giải trình: layout cố định nên không cần cuộn ngang -> bỏ overflow
    để thead có thể dính viewport (bám dưới thanh tab sticky). */
 .ls-table-wrap:has(.gt-table) {

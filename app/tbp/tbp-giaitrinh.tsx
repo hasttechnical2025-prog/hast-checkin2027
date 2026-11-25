@@ -107,7 +107,7 @@ export default function TbpGiaiTrinh({
             </colgroup>
             <thead>
               <tr>
-                <th>Họ tên</th>
+                <th style={{ textAlign: 'left' }}>Họ tên</th>
                 <th>Ngày</th>
                 <th>Thứ</th>
                 <th>Đánh giá</th>
