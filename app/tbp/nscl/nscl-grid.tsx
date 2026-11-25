@@ -92,7 +92,10 @@ export default function NsclGrid({
   }, [shown]);
 
   // Phòng cần khóa: TBP = phòng mình; admin/view_all = phòng đang lọc.
-  const lockDept = seeAll ? dept : ownDept;
+  // Phòng mục tiêu Ký & Khóa: admin = phòng đang lọc; TBP (gồm view_all) = phòng mình.
+  const lockDept = isAdmin ? dept : ownDept;
+  // view_all chỉ được Ký & Khóa khi đang xem đúng phòng mình (không lọc sang phòng khác).
+  const canLock = isAdmin || !seeAll || dept === ownDept;
   const shownDepts = [...new Set(shown.map((r) => r.dept))];
   const allLocked = shownDepts.length > 0 && shownDepts.every((d) => data.locks[d]);
 
@@ -368,29 +371,30 @@ export default function NsclGrid({
         <button className="btn-undo" disabled={busy} onClick={fill10}>
           <Icon name="bolt" size={15} /> Điền nhanh 10
         </button>
-        {lockDept && lockInfo ? (
-          isAdmin ? (
-            <button className="btn-reject" disabled={busy} onClick={() => setConfirmLock('unlock')}>
-              <Icon name="lockOpen" size={15} /> Mở khóa
-            </button>
+        {canLock &&
+          (lockDept && lockInfo ? (
+            isAdmin ? (
+              <button className="btn-reject" disabled={busy} onClick={() => setConfirmLock('unlock')}>
+                <Icon name="lockOpen" size={15} /> Mở khóa
+              </button>
+            ) : (
+              <span className="badge badge-ok"><Icon name="lock" size={13} /> Đã khóa</span>
+            )
           ) : (
-            <span className="badge badge-ok"><Icon name="lock" size={13} /> Đã khóa</span>
-          )
-        ) : (
-          <button
-            className="btn-approve"
-            disabled={busy}
-            onClick={() => {
-              if (!lockDept) {
-                flash('Chọn một phòng để Ký & Khóa.');
-                return;
-              }
-              setConfirmLock('lock');
-            }}
-          >
-            <Icon name="lock" size={15} /> Ký &amp; Khóa
-          </button>
-        )}
+            <button
+              className="btn-approve"
+              disabled={busy}
+              onClick={() => {
+                if (!lockDept) {
+                  flash('Chọn một phòng để Ký & Khóa.');
+                  return;
+                }
+                setConfirmLock('lock');
+              }}
+            >
+              <Icon name="lock" size={15} /> Ký &amp; Khóa
+            </button>
+          ))}
         <button className="btn-undo nscl-pc-only" onClick={printReport}>
           <Icon name="printer" size={15} /> In
         </button>
