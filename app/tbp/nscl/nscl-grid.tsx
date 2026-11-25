@@ -446,7 +446,7 @@ export default function NsclGrid({
                 <th>Điểm</th>
                 <th>Trực</th>
                 <th>Phép</th>
-                <th>Ô</th>
+                <th>CĐ</th>
                 <th>Ốm</th>
                 <th>B</th>
                 <th>C</th>
