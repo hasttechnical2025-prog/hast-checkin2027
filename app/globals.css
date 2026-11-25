@@ -1986,6 +1986,7 @@ table.nscl-grid {
   border: 1px solid var(--border);
   padding: 0;
   text-align: center;
+  width: 1px; /* pin mọi cột về đúng nội dung -> chỉ .nscl-pad được giãn */
   min-width: 30px;
   height: 30px;
 }
