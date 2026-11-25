@@ -43,7 +43,7 @@ export default function TbpHeader() {
   const nextHref = idx + 1 <= curIdx ? `${base}?m=${toM(idx + 1)}` : null;
 
   return (
-    <>
+    <div className="tbp-headrow">
       <div className="tbp-tabs">
         <Link href={`/tbp${mSuffix}`} className={`tbp-tablink${isNscl ? '' : ' active'}`}>
           Duyệt giải trình
@@ -70,6 +70,6 @@ export default function TbpHeader() {
           </span>
         )}
       </div>
-    </>
+    </div>
   );
 }

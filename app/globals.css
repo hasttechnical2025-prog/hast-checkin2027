@@ -1361,6 +1361,31 @@ textarea.cc-note {
   margin: 18px 0 16px;
   border-bottom: 1px solid var(--border);
 }
+/* Phương án A: tab (trái) + thanh chọn tháng (phải) trên cùng 1 hàng.
+   Đường kẻ dưới chuyển lên hàng này; tab/tháng bỏ margin riêng. */
+.tbp-headrow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 18px 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+.tbp-headrow .tbp-tabs {
+  margin: 0;
+  border-bottom: none;
+}
+.tbp-headrow .ls-nav {
+  margin: 0 0 5px;
+}
+.tbp-headrow .ls-navbtn {
+  width: 32px;
+  height: 32px;
+}
+.tbp-headrow .ls-month {
+  min-width: 118px;
+}
 /* Spinner nhỏ hiện trên nút chuyển tháng khi đang tải (useLinkStatus) */
 .nav-spinner {
   display: inline-block;
@@ -2481,9 +2506,17 @@ table.nscl-grid {
   .admin-topbar {
     display: none;
   }
-  /* TBP: ẩn tab trên (dùng bottom nav) */
+  /* TBP: ẩn tab trên (dùng bottom nav); hàng header chỉ còn thanh tháng -> căn giữa, bỏ kẻ */
   .tbp-tabs {
     display: none;
+  }
+  .tbp-headrow {
+    justify-content: center;
+    border-bottom: none;
+    margin: 10px 0 12px;
+  }
+  .tbp-headrow .ls-nav {
+    margin: 0;
   }
 
   /* Dòng nhắc PC (mobile) */

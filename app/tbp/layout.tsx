@@ -43,7 +43,7 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
           </div>
         )}
 
-        <Suspense fallback={<div className="tbp-tabs" />}>
+        <Suspense fallback={<div className="tbp-headrow" />}>
           <TbpHeader />
         </Suspense>
       </StickyTop>
