@@ -36,7 +36,17 @@ export default async function NsclPage({ searchParams }: { searchParams: Promise
   const editorDept = isAdmin ? null : (staff.department as string | null);
 
   const data = await buildNsclData(visibleDepts, editorDept, isAdmin, year, month);
-  const dep = seeAll && dept ? dept : '';
+  // Phòng áp dụng: chưa chọn -> mặc định theo vai (Admin=tất cả, view_all=phòng mình);
+  // 'all' -> tất cả; còn lại -> tên phòng.
+  const dep = !seeAll
+    ? ''
+    : dept === undefined
+      ? isAdmin
+        ? ''
+        : staff.department || ''
+      : dept === 'all'
+        ? ''
+        : dept;
 
   return <NsclGrid data={data} isAdmin={isAdmin} seeAll={seeAll} ownDept={staff.department} dept={dep} />;
 }

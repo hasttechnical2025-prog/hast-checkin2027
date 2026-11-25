@@ -36,8 +36,17 @@ export default async function TbpPage({ searchParams }: { searchParams: Promise<
   const approverDept = isAdmin ? null : staff.department;
 
   const data = await buildGiaiTrinhItems(visibleDepts, approverDept, isAdmin, year, month);
-  // Lọc phòng (?dept) chỉ áp dụng cho vai xem nhiều phòng (seeAll); TBP thường bỏ qua.
-  const dep = seeAll && dept ? dept : '';
+  // Phòng áp dụng: TBP thường bỏ qua; chưa chọn (?dept trống) -> mặc định theo vai
+  // (Admin = tất cả, view_all = phòng mình); 'all' -> tất cả; còn lại -> tên phòng.
+  const dep = !seeAll
+    ? ''
+    : dept === undefined
+      ? isAdmin
+        ? ''
+        : staff.department || ''
+      : dept === 'all'
+        ? ''
+        : dept;
 
   return <TbpGiaiTrinh items={data.items} dept={dep} />;
 }

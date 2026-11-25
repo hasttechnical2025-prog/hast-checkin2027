@@ -16,6 +16,8 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
   const staff = await getStaffSession();
   const seeAll = !!staff && (staff.role === 'admin' || staff.viewAll);
   const departments = seeAll ? await getDepartments() : [];
+  // Mặc định khi chưa chọn phòng: Admin = tất cả (''); view_all = phòng của chính mình.
+  const defaultDept = staff && staff.role !== 'admin' ? staff.department || '' : '';
 
   return (
     <main className="tbp-page">
@@ -47,7 +49,7 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
         )}
 
         <Suspense fallback={<div className="tbp-headrow" />}>
-          <TbpHeader departments={departments} seeAll={seeAll} />
+          <TbpHeader departments={departments} seeAll={seeAll} defaultDept={defaultDept} />
         </Suspense>
       </StickyTop>
 

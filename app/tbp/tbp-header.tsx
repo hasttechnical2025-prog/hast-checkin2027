@@ -7,11 +7,14 @@ import { Icon, type IconName } from '@/app/_components/icons';
 const pad = (n: number) => String(n).padStart(2, '0');
 const toM = (i: number) => `${Math.floor((i - 1) / 12)}-${pad(((i - 1) % 12) + 1)}`;
 
-/** URL giữ đồng thời tháng (?m) và phòng (?dept) -> đổi cái này không mất cái kia. */
-function mkHref(base: string, mIdx: number, deptVal: string): string {
+/**
+ * URL giữ đồng thời tháng (?m) và phòng (?dept) -> đổi cái này không mất cái kia.
+ * deptParam: null/'' = bỏ qua (dùng mặc định theo vai), 'all' = tất cả phòng, còn lại = tên phòng.
+ */
+function mkHref(base: string, mIdx: number, deptParam: string | null): string {
   const params = new URLSearchParams();
   params.set('m', toM(mIdx));
-  if (deptVal) params.set('dept', deptVal);
+  if (deptParam) params.set('dept', deptParam);
   return `${base}?${params.toString()}`;
 }
 
@@ -30,9 +33,11 @@ function NavIcon({ name }: { name: IconName }) {
 export default function TbpHeader({
   departments,
   seeAll,
+  defaultDept,
 }: {
   departments: string[];
   seeAll: boolean;
+  defaultDept: string;
 }) {
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -52,22 +57,26 @@ export default function TbpHeader({
   const year = Math.floor((idx - 1) / 12);
   const month = ((idx - 1) % 12) + 1;
 
-  const dept = sp.get('dept') || '';
+  // Param phòng trên URL: null = chưa chọn (dùng mặc định theo vai); 'all' = tất cả; còn lại = tên phòng.
+  const deptParam = sp.get('dept');
+  // Phòng đang áp dụng: chưa chọn -> defaultDept (Admin='', view_all=phòng mình); 'all' -> tất cả.
+  const effDept = deptParam === null ? defaultDept : deptParam === 'all' ? '' : deptParam;
+  const selectValue = effDept === '' ? 'all' : effDept;
 
   const isNscl = pathname.startsWith('/tbp/nscl');
   const base = isNscl ? '/tbp/nscl' : '/tbp';
-  const prevHref = mkHref(base, idx - 1, dept);
-  const nextHref = idx + 1 <= curIdx ? mkHref(base, idx + 1, dept) : null;
+  const prevHref = mkHref(base, idx - 1, deptParam);
+  const nextHref = idx + 1 <= curIdx ? mkHref(base, idx + 1, deptParam) : null;
 
   const showDept = seeAll && departments.length > 1;
 
   return (
     <div className="tbp-headrow">
       <div className="tbp-tabs">
-        <Link href={mkHref('/tbp', idx, dept)} className={`tbp-tablink${isNscl ? '' : ' active'}`}>
+        <Link href={mkHref('/tbp', idx, deptParam)} className={`tbp-tablink${isNscl ? '' : ' active'}`}>
           Duyệt giải trình
         </Link>
-        <Link href={mkHref('/tbp/nscl', idx, dept)} className={`tbp-tablink${isNscl ? ' active' : ''}`}>
+        <Link href={mkHref('/tbp/nscl', idx, deptParam)} className={`tbp-tablink${isNscl ? ' active' : ''}`}>
           Bảng điểm NSCL
         </Link>
       </div>
@@ -76,11 +85,11 @@ export default function TbpHeader({
         {showDept && (
           <select
             className="tbp-select tbp-scope-dept"
-            value={dept}
+            value={selectValue}
             onChange={(e) => router.push(mkHref(base, idx, e.target.value))}
             aria-label="Chọn phòng"
           >
-            <option value="">Tất cả phòng</option>
+            <option value="all">Tất cả phòng</option>
             {departments.map((d) => (
               <option key={d} value={d}>
                 {d}
