@@ -260,10 +260,13 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
                 </td>
                 <td className="tbp-act" style={{ flexWrap: 'wrap' }}>
                   <button className="btn-undo" onClick={() => openEdit(e)}>Sửa</button>
-                  <button className="btn-undo" onClick={() => setQrEmp(e)}>QR</button>
-                  <button className="btn-undo" onClick={() => resetPin(e)}>PIN</button>
-                  <button className="btn-undo" onClick={() => revokeToken(e)}>Token</button>
-                  <button className="btn-undo" onClick={() => toggleStatus(e)}>
+                  <button className="btn-ghost" onClick={() => setQrEmp(e)}>QR</button>
+                  <button className="btn-ghost" onClick={() => resetPin(e)}>PIN</button>
+                  <button className="btn-ghost" onClick={() => revokeToken(e)}>Token</button>
+                  <button
+                    className={e.status === 'Đang làm việc' ? 'btn-danger' : 'btn-ghost'}
+                    onClick={() => toggleStatus(e)}
+                  >
                     {e.status === 'Đang làm việc' ? 'Nghỉ việc' : 'Kích hoạt'}
                   </button>
                 </td>

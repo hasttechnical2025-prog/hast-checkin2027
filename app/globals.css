@@ -1488,7 +1488,7 @@ textarea.cc-note {
   height: 30px;
   padding: 0 11px;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500; /* không đậm */
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -1533,6 +1533,46 @@ textarea.cc-note {
   cursor: default;
   pointer-events: none;
 }
+/* Hàng thao tác (Nhân viên) — phân cấp nhẹ: nút phụ = ghost (không viền),
+   nút nguy hiểm "Nghỉ việc" = chữ đỏ. "Sửa" vẫn là .btn-undo (viền mảnh). */
+.btn-ghost,
+.btn-danger {
+  appearance: none;
+  height: 30px;
+  min-width: 46px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.btn-ghost {
+  color: var(--muted);
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+  color: var(--fg-2);
+}
+.btn-danger {
+  color: var(--err);
+}
+.btn-danger:hover {
+  background: #fdecea;
+}
+.btn-ghost:disabled,
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
 .tbp-act {
   white-space: nowrap;
   display: flex;
@@ -1573,7 +1613,7 @@ textarea.cc-note {
 .gt-table { table-layout: fixed; }
 .gt-table td { vertical-align: top; }
 /* Cột Họ tên căn giữa như các cột khác (desktop); mobile vẫn căn trái ở thẻ) */
-.gt-table td.gt-name { text-align: center; font-weight: 600; }
+.gt-table td.gt-name { text-align: center; font-weight: 400; }
 /* Bảng giải trình: layout cố định nên không cần cuộn ngang -> bỏ overflow
    để thead có thể dính viewport (bám dưới thanh tab sticky). */
 .ls-table-wrap:has(.gt-table) {
@@ -1792,7 +1832,7 @@ textarea.cc-note {
   flex-direction: column;
 }
 .admin-brand {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 15px;
   color: var(--fg);
   padding: 4px 8px 14px;
@@ -2030,7 +2070,7 @@ table.nscl-grid {
   gap: 8px;
 }
 .bc-month {
-  font-weight: 700;
+  font-weight: 600;
   min-width: 108px;
   text-align: center;
 }
@@ -2127,7 +2167,7 @@ table.nscl-grid {
   position: sticky;
   left: 0;
   text-align: left;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 12px;
   background: var(--accent-weak);
   color: var(--accent);
@@ -2140,7 +2180,7 @@ table.nscl-grid {
   height: 26px;
   padding: 0;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 400;
 }
 .bc-cellbtn {
   width: 100%;
@@ -2315,11 +2355,18 @@ table.nscl-grid {
 .admin-content .bc-logchip {
   font-size: var(--fs-time);
 }
-/* tên/số nổi bật 700 */
+/* Dữ liệu (tên, mã) về font thường; đầu cột/tiêu đề mới giữ đậm nhẹ. */
 .tbp-page .gt-name,
 .admin-content .bc-name,
 .admin-content .mono {
-  font-weight: 700;
+  font-weight: 400;
+}
+/* Chỉ tiêu đề trang + nhãn tháng giữ ~600 cho dễ phân cấp (scope -> CBNV /c giữ nguyên). */
+.tbp-page h1,
+.admin-content h1,
+.tbp-page .ls-month,
+.admin-content .ls-month {
+  font-weight: 600;
 }
 
 /* ===================================================================== */
