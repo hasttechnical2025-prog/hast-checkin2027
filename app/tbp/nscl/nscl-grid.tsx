@@ -468,6 +468,7 @@ export default function NsclGrid({
                       {c.editable ? (
                         <input
                           className="nscl-cell"
+                          size={1}
                           value={c.val}
                           onChange={(e) => updateCell(row.employeeId, ci, e.target.value)}
                           onBlur={(e) => saveScore(row.employeeId, ci, c.ymd, e.target.value)}
@@ -482,6 +483,7 @@ export default function NsclGrid({
                     {row.canEdit ? (
                       <input
                         className="nscl-cell"
+                        size={1}
                         value={row.adjust}
                         onChange={(e) => updateAdjust(row.employeeId, e.target.value)}
                         onBlur={(e) => saveAdjust(row.employeeId, e.target.value)}

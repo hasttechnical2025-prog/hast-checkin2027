@@ -2027,6 +2027,7 @@ table.nscl-grid {
 }
 .nscl-cell {
   width: 100%;
+  min-width: 0; /* cùng size={1} -> input không phình max-content của bảng */
   height: 28px;
   border: none;
   background: transparent;
@@ -2034,6 +2035,7 @@ table.nscl-grid {
   font-size: 12px;
   color: inherit;
   padding: 0;
+  box-sizing: border-box;
 }
 .nscl-cell:focus {
   outline: 2px solid var(--accent);
