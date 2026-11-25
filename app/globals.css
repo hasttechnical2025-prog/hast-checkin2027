@@ -1352,7 +1352,7 @@ textarea.cc-note {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--bg);
+  background: #e2e8f0; /* bằng canvas -> header hòa vào nền (đục để che hàng cuộn dưới) */
   display: flow-root; /* chứa margin con -> đo chiều cao chính xác */
 }
 .tbp-tabs {
@@ -1843,7 +1843,7 @@ textarea.cc-note {
   flex: 1;
   min-width: 0;
   padding: 22px 26px;
-  max-width: 1180px;
+  max-width: none; /* tràn hết bề ngang (như /tbp), hết thừa bên phải trên màn 16:9 */
 }
 .admin-topbar {
   display: none;
