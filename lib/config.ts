@@ -45,6 +45,28 @@ export async function getSystemConfig(): Promise<SystemConfig> {
   };
 }
 
+/**
+ * Danh sách phòng (department) của NV đang làm việc — cho bộ chọn phòng ở header TBP
+ * (vai Xem toàn công ty / Admin). Ít đổi nên CACHE; thêm/sửa NV -> trễ tối đa ~5 phút.
+ */
+export const getDepartments = unstable_cache(
+  async (): Promise<string[]> => {
+    const admin = createAdminClient();
+    const { data } = await admin
+      .from('chamcong_employees')
+      .select('department')
+      .eq('status', 'Đang làm việc');
+    const set = new Set<string>();
+    (data ?? []).forEach((r) => {
+      const d = (r.department as string | null) || '';
+      if (d) set.add(d);
+    });
+    return [...set].sort((a, b) => a.localeCompare(b, 'vi'));
+  },
+  ['cc-departments'],
+  { revalidate: 300, tags: ['cc-config'] },
+);
+
 export interface GuideItem {
   id: string;
   title: string;

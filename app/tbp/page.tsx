@@ -5,7 +5,7 @@ import TbpGiaiTrinh from './tbp-giaitrinh';
 
 export const dynamic = 'force-dynamic';
 
-export default async function TbpPage({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
+export default async function TbpPage({ searchParams }: { searchParams: Promise<{ m?: string; dept?: string }> }) {
   const staff = await getStaffSession();
   if (!staff) {
     return (
@@ -15,7 +15,7 @@ export default async function TbpPage({ searchParams }: { searchParams: Promise<
     );
   }
 
-  const { m } = await searchParams;
+  const { m, dept } = await searchParams;
   const now = vnNow();
   const curY = Number(now.dateStr.slice(0, 4));
   const curM = Number(now.dateStr.slice(5, 7));
@@ -36,6 +36,8 @@ export default async function TbpPage({ searchParams }: { searchParams: Promise<
   const approverDept = isAdmin ? null : staff.department;
 
   const data = await buildGiaiTrinhItems(visibleDepts, approverDept, isAdmin, year, month);
+  // Lọc phòng (?dept) chỉ áp dụng cho vai xem nhiều phòng (seeAll); TBP thường bỏ qua.
+  const dep = seeAll && dept ? dept : '';
 
-  return <TbpGiaiTrinh items={data.items} departments={data.departments} />;
+  return <TbpGiaiTrinh items={data.items} dept={dep} />;
 }

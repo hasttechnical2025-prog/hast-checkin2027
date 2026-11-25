@@ -12,13 +12,12 @@ function Grade({ g }: { g: string }) {
 
 export default function TbpGiaiTrinh({
   items,
-  departments,
+  dept,
 }: {
   items: GtItem[];
-  departments: string[];
+  dept: string;
 }) {
   const router = useRouter();
-  const [dept, setDept] = useState('');
   const [busy, setBusy] = useState(false);
   const [reject, setReject] = useState<{ employeeId: number; date: string; name: string; d: string } | null>(null);
   const [rejectNote, setRejectNote] = useState('');
@@ -63,16 +62,6 @@ export default function TbpGiaiTrinh({
   return (
     <>
       <div className="tbp-bar">
-        {departments.length > 1 && (
-          <select className="tbp-select" value={dept} onChange={(e) => setDept(e.target.value)}>
-            <option value="">Tất cả phòng</option>
-            {departments.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        )}
         <div className="tbp-stats">
           <span className="badge badge-wait"><Icon name="clock" size={13} /> Chờ {pending}</span>
           <span className="badge badge-ok"><Icon name="check" size={13} /> Đồng ý {approved}</span>

@@ -61,15 +61,16 @@ export default function NsclGrid({
   isAdmin,
   seeAll,
   ownDept,
+  dept,
 }: {
   data: NsclData;
   isAdmin: boolean;
   seeAll: boolean;
   ownDept: string | null;
+  dept: string;
 }) {
   const router = useRouter();
   const [rows, setRows] = useState<NsclRow[]>(() => data.rows.map((r) => ({ ...r, cells: r.cells.map((c) => ({ ...c })) })));
-  const [dept, setDept] = useState('');
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [confirmLock, setConfirmLock] = useState<null | 'lock' | 'unlock'>(null);
@@ -358,16 +359,6 @@ export default function NsclGrid({
   return (
     <>
       <div className="tbp-bar">
-        {seeAll && data.departments.length > 1 && (
-          <select className="tbp-select" value={dept} onChange={(e) => setDept(e.target.value)}>
-            <option value="">Chọn phòng…</option>
-            {data.departments.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        )}
         <button className="btn-undo" disabled={busy} onClick={fill10}>
           <Icon name="bolt" size={15} /> Điền nhanh 10
         </button>
@@ -423,7 +414,7 @@ export default function NsclGrid({
       <div className="nscl-scroll">
         {shown.length === 0 ? (
           <p className="muted" style={{ textAlign: 'center', padding: 20 }}>
-            {seeAll && !dept ? 'Chọn phòng để xem bảng điểm.' : 'Không có CBNV.'}
+            Không có CBNV.
           </p>
         ) : (
           <table className="nscl-grid">

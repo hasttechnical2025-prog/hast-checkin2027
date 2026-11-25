@@ -4,6 +4,7 @@ import { getStaffSession } from '@/lib/auth';
 import SignOutButton from '@/app/_components/SignOutButton';
 import RememberGuard from '@/app/_components/RememberGuard';
 import { Icon } from '@/app/_components/icons';
+import { getDepartments } from '@/lib/config';
 import StickyTop from './StickyTop';
 import TbpHeader from './tbp-header';
 
@@ -13,6 +14,8 @@ import TbpHeader from './tbp-header';
  */
 export default async function TbpLayout({ children }: { children: React.ReactNode }) {
   const staff = await getStaffSession();
+  const seeAll = !!staff && (staff.role === 'admin' || staff.viewAll);
+  const departments = seeAll ? await getDepartments() : [];
 
   return (
     <main className="tbp-page">
@@ -44,7 +47,7 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
         )}
 
         <Suspense fallback={<div className="tbp-headrow" />}>
-          <TbpHeader />
+          <TbpHeader departments={departments} seeAll={seeAll} />
         </Suspense>
       </StickyTop>
 

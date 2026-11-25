@@ -1386,6 +1386,22 @@ textarea.cc-note {
 .tbp-headrow .ls-month {
   min-width: 118px;
 }
+/* Nhóm phạm vi (phòng + tháng) bên phải header -> chọn chung 1 chỗ. */
+.tbp-scope {
+  display: flex;
+  align-items: center;
+  gap: 10px 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.tbp-scope .ls-nav {
+  margin: 0;
+}
+.tbp-scope-dept {
+  padding: 6px 9px;
+  font-size: 13px;
+  max-width: 200px;
+}
 /* Spinner nhỏ hiện trên nút chuyển tháng khi đang tải (useLinkStatus) */
 .nav-spinner {
   display: inline-block;

@@ -5,7 +5,7 @@ import NsclGrid from './nscl-grid';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NsclPage({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
+export default async function NsclPage({ searchParams }: { searchParams: Promise<{ m?: string; dept?: string }> }) {
   const staff = await getStaffSession();
   if (!staff) {
     return (
@@ -15,7 +15,7 @@ export default async function NsclPage({ searchParams }: { searchParams: Promise
     );
   }
 
-  const { m } = await searchParams;
+  const { m, dept } = await searchParams;
   const now = vnNow();
   const curY = Number(now.dateStr.slice(0, 4));
   const curM = Number(now.dateStr.slice(5, 7));
@@ -36,6 +36,7 @@ export default async function NsclPage({ searchParams }: { searchParams: Promise
   const editorDept = isAdmin ? null : (staff.department as string | null);
 
   const data = await buildNsclData(visibleDepts, editorDept, isAdmin, year, month);
+  const dep = seeAll && dept ? dept : '';
 
-  return <NsclGrid data={data} isAdmin={isAdmin} seeAll={seeAll} ownDept={staff.department} />;
+  return <NsclGrid data={data} isAdmin={isAdmin} seeAll={seeAll} ownDept={staff.department} dept={dep} />;
 }
