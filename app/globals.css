@@ -1972,6 +1972,14 @@ table.nscl-grid {
   border-collapse: collapse;
   font-size: 12px;
   white-space: nowrap;
+  width: 100%;
+}
+/* Cột đệm cuối: hút hết phần dư khi bảng rộng hơn nội dung -> các cột dữ liệu
+   (Điểm, Phép...) không bị kéo giãn bất thường. Co về 0 khi hẹp/mobile. */
+.nscl-grid .nscl-pad {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
 }
 .nscl-grid th,
 .nscl-grid td {
