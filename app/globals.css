@@ -1967,26 +1967,22 @@ textarea.cc-note {
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
+  /* Khung ôm sát bảng: KHÔNG ép full-width -> không cột nào bị kéo giãn bất
+     thường (bất kể 28-31 ngày). Rộng hơn màn -> cuộn ngang; hẹp hơn -> phần
+     dư là nền trang bên phải. */
+  width: max-content;
+  max-width: 100%;
 }
 table.nscl-grid {
   border-collapse: collapse;
   font-size: 12px;
   white-space: nowrap;
-  width: 100%;
-}
-/* Cột đệm cuối: hút hết phần dư khi bảng rộng hơn nội dung -> các cột dữ liệu
-   (Điểm, Phép...) không bị kéo giãn bất thường. Co về 0 khi hẹp/mobile. */
-.nscl-grid .nscl-pad {
-  width: 100%;
-  min-width: 0;
-  padding: 0;
 }
 .nscl-grid th,
 .nscl-grid td {
   border: 1px solid var(--border);
   padding: 0;
   text-align: center;
-  width: 1px; /* pin mọi cột về đúng nội dung -> chỉ .nscl-pad được giãn */
   min-width: 30px;
   height: 30px;
 }

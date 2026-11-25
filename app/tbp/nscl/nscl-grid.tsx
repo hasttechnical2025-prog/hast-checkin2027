@@ -436,7 +436,6 @@ export default function NsclGrid({
                   Điểm +/-
                 </th>
                 <th colSpan={6}>Tổng hợp</th>
-                <th rowSpan={2} className="nscl-pad" aria-hidden="true" />
               </tr>
               <tr>
                 {data.days.map((dy) => (
@@ -494,7 +493,6 @@ export default function NsclGrid({
                   <td>-</td>
                   <td>-</td>
                   <td>-</td>
-                  <td className="nscl-pad" />
                 </tr>
               ))}
               <tr className="nscl-cong">
@@ -508,7 +506,6 @@ export default function NsclGrid({
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
-                <td className="nscl-pad" />
               </tr>
             </tbody>
           </table>
