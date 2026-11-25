@@ -435,7 +435,7 @@ export default function NsclGrid({
                 <th rowSpan={2} className="vth">
                   Điểm +/-
                 </th>
-                <th colSpan={6}>Tổng hợp</th>
+                <th colSpan={10}>Tổng hợp</th>
               </tr>
               <tr>
                 {data.days.map((dy) => (
@@ -444,11 +444,15 @@ export default function NsclGrid({
                   </th>
                 ))}
                 <th>Điểm</th>
+                <th>Trực</th>
                 <th>Phép</th>
+                <th>Ô</th>
                 <th>Ốm</th>
                 <th>B</th>
                 <th>C</th>
                 <th>D</th>
+                <th>E</th>
+                <th>Y</th>
               </tr>
             </thead>
             <tbody>
@@ -487,9 +491,15 @@ export default function NsclGrid({
                       <span className="nscl-ro">{row.adjust}</span>
                     )}
                   </td>
+                  {/* Tổng hợp: Điểm | Trực | Phép | Ô | Ốm | B | C | D | E | Y.
+                      TODO: confirm with DK — Trực/Ô/B/C/D/E/Y chưa có công thức (hiển thị "-"). */}
                   <td className="nscl-sum">{row.rowDiem || '-'}</td>
+                  <td>-</td>
                   <td>{row.sumPhep || '-'}</td>
+                  <td>-</td>
                   <td>{row.sumOm || '-'}</td>
+                  <td>-</td>
+                  <td>-</td>
                   <td>-</td>
                   <td>-</td>
                   <td>-</td>
@@ -501,8 +511,12 @@ export default function NsclGrid({
                 </td>
                 <td colSpan={data.days.length + 1}></td>
                 <td className="nscl-sum">{totals.d || '-'}</td>
+                <td>-</td>
                 <td>{totals.p || '-'}</td>
+                <td>-</td>
                 <td>{totals.o || '-'}</td>
+                <td>-</td>
+                <td>-</td>
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
