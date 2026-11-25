@@ -1842,7 +1842,7 @@ textarea.cc-note {
 .admin-content {
   flex: 1;
   min-width: 0;
-  padding: 22px 26px;
+  padding: 22px 13px; /* gutter 2 bên hẹp lại 1 nửa -> bảng rộng hơn */
   max-width: none; /* tràn hết bề ngang (như /tbp), hết thừa bên phải trên màn 16:9 */
 }
 .admin-topbar {
@@ -2085,8 +2085,9 @@ table.nscl-grid {
 }
 
 /* Cột tên nhân viên — dính trái */
-.bc-name-h,
-.bc-name {
+/* .bc-grid prefix: thắng specificity rule canh giữa (.bc-grid th,td) -> tên căn TRÁI */
+.bc-grid .bc-name-h,
+.bc-grid .bc-name {
   position: sticky;
   left: 0;
   z-index: 2;
