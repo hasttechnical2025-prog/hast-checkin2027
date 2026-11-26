@@ -471,10 +471,14 @@ a {
   justify-content: center;
   align-items: center;
   padding: 0;
+  flex: 1 1 auto; /* hút hết khoảng trống còn lại -> layout luôn vừa, không tràn/dãn theo nội dung */
+  min-height: 0;
 }
 .cc-ring {
   position: relative;
   width: min(66vw, 280px, 26vh); /* cap theo 26vh để phone nhỏ (SE) không tràn */
+  max-width: 100%;
+  max-height: 100%; /* không vượt quá khoảng trống -> nội dung dưới (Dữ liệu tháng) không bị cắt */
   aspect-ratio: 1;
   border: none;
   background: #fff;             /* lõi trắng nổi -> đọc ra "nút bấm" */

@@ -1,6 +1,6 @@
 // Service Worker — app Chấm Công HSTC 2027.
 // VERSION là NGUỒN DUY NHẤT: đổi version khi deploy -> SW mới dọn cache cũ + reload.
-const VERSION = 'v2027.11.26.01';
+const VERSION = 'v2027.11.26.02';
 const CACHE = 'chamcong-' + VERSION;
 
 // install: KHÔNG tải tài nguyên nào (tránh trễ) -> active NGAY để sớm nắm quyền trang.
