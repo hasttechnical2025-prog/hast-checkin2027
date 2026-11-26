@@ -658,7 +658,7 @@ export default function ChamCong(props: ChamCongProps) {
         <div className="cc-sheet-overlay" onClick={() => setSheetOpen(false)}>
           <div className="cc-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="cc-sheet-handle" />
-            <h3 style={{ marginTop: 0 }}>Cài đặt</h3>
+            <h3 style={{ marginTop: 0 }}>About</h3>
 
             <div className="cc-sheet-sec">
               <div className="cc-sheet-k">Nhân viên</div>
