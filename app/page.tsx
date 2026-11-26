@@ -3,6 +3,8 @@ import NvLogin from './_components/NvLogin';
 export default function HomePage() {
   return (
     <main className="wrap" style={{ maxWidth: 400 }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo.png" alt="HSTC" className="home-logo" />
       <h1 style={{ marginBottom: 2 }}>Chấm Công HSTC</h1>
       <p className="muted">Công ty CP Siêu Thanh Hà Nội</p>
 
@@ -12,7 +14,7 @@ export default function HomePage() {
       </div>
 
       <p className="muted" style={{ textAlign: 'center', marginTop: 16, fontSize: 13 }}>
-        <a href="/login">Đăng nhập Quản trị / TBP</a>
+        <a href="/login">Đăng nhập Trưởng Bộ phận</a>
       </p>
     </main>
   );
