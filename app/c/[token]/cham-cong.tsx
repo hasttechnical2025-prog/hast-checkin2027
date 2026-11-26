@@ -548,9 +548,11 @@ export default function ChamCong(props: ChamCongProps) {
         <div className="cc-banner" ref={bannerRef} role="status">
           <Icon name="alert" size={16} className="cc-banner-ic" />
           <span>Hôm nay có ca xếp loại B/D — bạn có thể giải trình.</span>
-          <Link className="cc-banner-btn" href={`/c/${token}/lich-su`} prefetch>
-            Giải trình
-          </Link>
+          {online && (
+            <Link className="cc-banner-btn" href={`/c/${token}/lich-su`} prefetch>
+              Giải trình
+            </Link>
+          )}
         </div>
       )}
 
@@ -630,12 +632,18 @@ export default function ChamCong(props: ChamCongProps) {
               <div className="cc-pop-title">{popover.title}</div>
               {popover.body && <div className="cc-pop-text">{popover.body}</div>}
             </div>
-            {popover.giaiTrinh && (
-              <Link className="cc-pop-btn" href={`/c/${token}/lich-su`} prefetch onClick={() => setPopover(null)}>
-                <Icon name="doc" size={15} />
-                Giải trình
-              </Link>
-            )}
+            {popover.giaiTrinh &&
+              (online ? (
+                <Link className="cc-pop-btn" href={`/c/${token}/lich-su`} prefetch onClick={() => setPopover(null)}>
+                  <Icon name="doc" size={15} />
+                  Giải trình
+                </Link>
+              ) : (
+                <div className="cc-pop-off">
+                  <Icon name="wifiOff" size={14} />
+                  Cần Internet để giải trình
+                </div>
+              ))}
           </div>
         )}
       </div>
@@ -719,11 +727,28 @@ export default function ChamCong(props: ChamCongProps) {
         </button>
       </div>
 
-      {/* 8) Dữ liệu tháng */}
-      <Link className="cc-monthlink" href={`/c/${token}/lich-su`} prefetch>
-        <Icon name="chart" size={16} />
-        Dữ liệu tháng &amp; giải trình
-      </Link>
+      {/* 8) Dữ liệu tháng — cần Internet (trang này fetch dữ liệu). Offline -> disable + báo lý do. */}
+      {online ? (
+        <Link className="cc-monthlink" href={`/c/${token}/lich-su`} prefetch>
+          <Icon name="chart" size={16} />
+          Dữ liệu tháng &amp; giải trình
+        </Link>
+      ) : (
+        <button
+          type="button"
+          className="cc-monthlink cc-monthlink-off"
+          onClick={() =>
+            setResult({
+              ok: false,
+              title: 'Cần kết nối Internet',
+              lines: ['Bật Wi-Fi hoặc 4G để xem dữ liệu tháng & giải trình.'],
+            })
+          }
+        >
+          <Icon name="chart" size={16} />
+          Dữ liệu tháng &amp; giải trình
+        </button>
+      )}
 
       {confirmDlg && (
         <div className="cc-dlg-overlay" onClick={() => setConfirmDlg(null)}>
@@ -755,7 +780,7 @@ export default function ChamCong(props: ChamCongProps) {
               </p>
             ))}
             <div className="cc-dlg-btns">
-              {result.giaiTrinh && (
+              {result.giaiTrinh && online && (
                 <Link className="btn" href={`/c/${token}/lich-su`} prefetch onClick={() => setResult(null)}>
                   Giải trình
                 </Link>

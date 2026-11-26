@@ -789,6 +789,29 @@ textarea.cc-note {
   font-size: 13px;
   text-decoration: none;
 }
+/* Offline: liên kết dữ liệu tháng bị khóa (bấm -> báo cần Internet) */
+.cc-monthlink-off {
+  color: var(--muted);
+  background: #f3f4f6;
+  cursor: not-allowed;
+  width: 100%;
+  appearance: none;
+  font-family: inherit;
+}
+.cc-monthlink-off .cc-ic,
+.cc-monthlink-off svg {
+  opacity: 0.7;
+}
+/* Offline: trong popover ca B/D, thay nút Giải trình bằng ghi chú mờ */
+.cc-pop-off {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--err);
+}
 
 /* ===== Đồng hồ sống + ngữ cảnh ca ===== */
 .cc-clock {
