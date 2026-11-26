@@ -10,8 +10,8 @@ export default function LoginPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="HSTC" />
           </div>
-          <h1 className="auth-title">Hệ thống chấm công</h1>
-          <p className="auth-sub">Đăng nhập · TBP &amp; Admin</p>
+          <h1 className="auth-title">CHẤM CÔNG CBNV</h1>
+          <p className="auth-sub">Trang dành cho Trưởng Bộ phận</p>
         </div>
         <Suspense fallback={<p className="muted" style={{ textAlign: 'center' }}>Đang tải…</p>}>
           <LoginForm />
