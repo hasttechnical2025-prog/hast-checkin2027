@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Icon } from '@/app/_components/icons';
 import type { DayCell, EmpMonthRow, MonthMatrix } from '@/lib/bangcong';
 import PcHint from '@/app/admin/_components/pc-hint';
+import AdminTabs, { DATA_TABS } from '@/app/admin/_components/AdminTabs';
 
 const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 const SESS = ['Vào sáng', 'Ra sáng', 'Vào chiều', 'Ra chiều'];
@@ -78,6 +79,7 @@ export default function BangCongAdmin({
   return (
     <>
       <PcHint />
+      <AdminTabs tabs={DATA_TABS} />
       <div className="ls-top" style={{ marginBottom: 10 }}>
         <div>
           <h1 style={{ margin: 0, fontSize: 22, display: 'flex', alignItems: 'center', gap: 8 }}>

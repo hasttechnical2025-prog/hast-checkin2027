@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DateField from '@/app/_components/DateField';
 import { useConfirm } from '@/lib/confirm';
+import AdminTabs, { CONFIG_TABS } from '@/app/admin/_components/AdminTabs';
 
 export interface Holiday {
   date: string;
@@ -61,6 +62,7 @@ export default function HolidaysAdmin({ initial }: { initial: Holiday[] }) {
 
   return (
     <>
+      <AdminTabs tabs={CONFIG_TABS} />
       <div className="card" style={{ marginBottom: 16 }}>
         <h3 style={{ marginTop: 0 }}>Thêm ngày nghỉ lễ</h3>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>

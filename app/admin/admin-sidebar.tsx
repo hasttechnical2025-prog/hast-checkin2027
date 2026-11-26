@@ -5,25 +5,47 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Icon, type IconName } from '@/app/_components/icons';
 
-const ITEMS: { href: string; label: string; icon: IconName }[] = [
-  { href: '/admin/nhan-vien', label: 'Nhân viên', icon: 'user' },
-  { href: '/admin/bang-cong', label: 'Bảng công tháng', icon: 'sheet' },
-  { href: '/tbp', label: 'Duyệt & Bảng điểm', icon: 'checks' },
-  { href: '/admin/log', label: 'Log chấm công', icon: 'doc' },
-  { href: '/admin/thiet-bi', label: 'Duyệt thiết bị', icon: 'phone' },
-  { href: '/admin/ngay-le', label: 'Ngày lễ', icon: 'calendar' },
-  { href: '/admin/ca', label: 'Cấu hình ca', icon: 'clock' },
-  { href: '/admin/cau-hinh', label: 'Cấu hình', icon: 'settings' },
-  { href: '/admin/tai-khoan', label: 'Tài khoản', icon: 'lock' },
-  { href: '/admin/huong-dan', label: 'Hướng dẫn', icon: 'info' },
+type NavItem = { href: string; label: string; icon: IconName; match?: string[] };
+
+// Gom 10 trang phẳng thành NHÓM có nhãn -> dễ quét, gọn mắt. Một số trang gộp dưới 1 mục:
+// "Bảng công & Log" (/admin/bang-cong + /admin/log) và "Cấu hình" (chung + ca + ngày lễ).
+const GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: 'Vận hành',
+    items: [
+      { href: '/admin/nhan-vien', label: 'Nhân viên', icon: 'user' },
+      { href: '/admin/thiet-bi', label: 'Duyệt thiết bị', icon: 'phone' },
+    ],
+  },
+  {
+    label: 'Dữ liệu chấm công',
+    items: [
+      { href: '/admin/bang-cong', label: 'Bảng công & Log', icon: 'sheet', match: ['/admin/bang-cong', '/admin/log'] },
+    ],
+  },
+  {
+    label: 'Thiết lập',
+    items: [
+      { href: '/admin/cau-hinh', label: 'Cấu hình', icon: 'settings', match: ['/admin/cau-hinh', '/admin/ca', '/admin/ngay-le'] },
+      { href: '/admin/huong-dan', label: 'Hướng dẫn CBNV', icon: 'info' },
+    ],
+  },
+  {
+    label: 'Hệ thống',
+    items: [{ href: '/admin/tai-khoan', label: 'Tài khoản & quyền', icon: 'lock' }],
+  },
 ];
 
-// Thanh tab đáy (mobile) — admin trên điện thoại chỉ cần Thêm nhân viên + Duyệt thiết bị;
-// còn lại vào qua "Thêm" (menu đầy đủ).
+// Thanh tab đáy (mobile): chỉ 2 mục hay dùng; còn lại vào qua menu (hamburger).
 const BOTTOM: { href: string; label: string; icon: IconName }[] = [
   { href: '/admin/nhan-vien', label: 'Nhân viên', icon: 'user' },
   { href: '/admin/thiet-bi', label: 'Thiết bị', icon: 'phone' },
 ];
+
+function isActive(path: string, it: NavItem): boolean {
+  const ms = it.match ?? [it.href];
+  return ms.some((m) => path === m || path.startsWith(m + '/'));
+}
 
 export default function AdminSidebar() {
   const path = usePathname();
@@ -45,21 +67,47 @@ export default function AdminSidebar() {
           Chấm Công HSTC
           <span>Quản trị</span>
         </div>
+
         <nav className="admin-side-nav">
-          {ITEMS.map((it) => (
-            <Link
-              key={it.href}
-              href={it.href}
-              className={`admin-side-item${path.startsWith(it.href) ? ' active' : ''}`}
+          {GROUPS.map((g) => (
+            <div key={g.label} className="admin-side-group">
+              <div className="admin-side-grouplabel">{g.label}</div>
+              {g.items.map((it) => (
+                <Link
+                  key={it.href}
+                  href={it.href}
+                  className={`admin-side-item${isActive(path, it) ? ' active' : ''}`}
+                  onClick={() => setOpen(false)}
+                >
+                  <span className="ic">
+                    <Icon name={it.icon} size={17} />
+                  </span>
+                  {it.label}
+                </Link>
+              ))}
+            </div>
+          ))}
+
+          {/* Khu khác: Duyệt/NSCL là KHU giao diện riêng (không phải trang admin) -> tách hẳn,
+              mở tab mới để admin giữ nguyên ngữ cảnh đang làm. */}
+          <div className="admin-side-group admin-side-other">
+            <div className="admin-side-grouplabel">Khu khác</div>
+            <a
+              href="/tbp"
+              target="_blank"
+              rel="noopener"
+              className="admin-side-item"
               onClick={() => setOpen(false)}
             >
               <span className="ic">
-                <Icon name={it.icon} size={17} />
+                <Icon name="checks" size={17} />
               </span>
-              {it.label}
-            </Link>
-          ))}
+              Duyệt giải trình & NSCL
+              <Icon name="external" size={14} className="admin-side-ext" />
+            </a>
+          </div>
         </nav>
+
         <form action="/auth/signout" method="post" className="admin-side-signout">
           <button
             className="btn-undo"

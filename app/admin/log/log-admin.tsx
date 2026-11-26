@@ -1,6 +1,7 @@
 'use client';
 
 import PcHint from '@/app/admin/_components/pc-hint';
+import AdminTabs, { DATA_TABS } from '@/app/admin/_components/AdminTabs';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -93,6 +94,7 @@ export default function LogAdmin({
   return (
     <>
       <PcHint />
+      <AdminTabs tabs={DATA_TABS} />
       <div className="ls-nav">
         <Link href={prevHref} className="ls-navbtn">
           ‹

@@ -218,6 +218,12 @@ const PATHS: Record<string, ReactNode> = {
       <path d="M12 18.5h.01" />
     </>
   ),
+  external: (
+    <>
+      <path d="M7 17 17 7" />
+      <path d="M8 7h9v9" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof PATHS;
