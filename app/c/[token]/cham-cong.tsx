@@ -240,14 +240,15 @@ export default function ChamCong(props: ChamCongProps) {
         setGps(null);
         pendingSubmitRef.current = false; // định vị lỗi -> hủy ý định tự chấm
         const m: Record<number, string> = {
-          1: 'Cần BẬT Định vị cho trình duyệt rồi thử lại.',
-          2: 'Không bắt được tín hiệu định vị. Ra chỗ thoáng rồi thử lại.',
-          3: 'Hết thời gian chờ định vị. Thử lại.',
+          1: 'Cần bật định vị rồi thử lại.',
+          2: 'Không bắt được tín hiệu, ra chỗ thoáng rồi thử lại.',
+          3: 'Hết thời gian chờ định vị, thử lại.',
         };
+        // Chỉ 1 dòng -> thẻ gọn, không ép méo vòng chấm.
         setLocState({
           type: 'err',
           title: 'Chưa lấy được vị trí',
-          lines: [m[err.code] || 'Lỗi định vị.', 'Bắt buộc có GPS để chấm công.'],
+          lines: [m[err.code] || 'Lỗi định vị, thử lại.'],
         });
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
