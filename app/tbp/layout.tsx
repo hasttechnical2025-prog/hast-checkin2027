@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { getStaffSession } from '@/lib/auth';
+import { createClient } from '@/lib/supabase/server';
 import SignOutButton from '@/app/_components/SignOutButton';
 import RememberGuard from '@/app/_components/RememberGuard';
 import { Icon } from '@/app/_components/icons';
@@ -19,6 +20,25 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
   // Mặc định khi chưa chọn phòng: Admin = tất cả (''); view_all = phòng của chính mình.
   const defaultDept = staff && staff.role !== 'admin' ? staff.department || '' : '';
 
+  // Họ tên TBP của phòng (role=TBP) để hiển thị thay cho email; Admin/không có -> dùng email.
+  // RLS cho phép TBP đọc nhân viên phòng mình nên dùng client phía server (không service role).
+  let displayName: string | null = null;
+  if (staff?.department) {
+    try {
+      const supabase = await createClient();
+      const { data: tbpEmp } = await supabase
+        .from('chamcong_employees')
+        .select('name')
+        .eq('department', staff.department)
+        .eq('role', 'TBP')
+        .limit(1)
+        .maybeSingle();
+      displayName = tbpEmp?.name ?? null;
+    } catch {
+      /* lỗi đọc -> giữ null, fallback email */
+    }
+  }
+
   return (
     <main className="tbp-page">
       <RememberGuard />
@@ -27,9 +47,9 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
         {staff && (
           <div className="ls-top">
             <div>
-              <h1 style={{ margin: 0, fontSize: 22 }}>Duyệt giải trình công &amp; Chấm điểm NSCL - Trưởng Bộ phận</h1>
+              <h1 style={{ margin: 0, fontSize: 18 }}>Duyệt giải trình công &amp; Chấm điểm NSCL</h1>
               <div className="muted">
-                {staff.email} · {staff.role === 'admin' ? 'Admin (toàn công ty)' : staff.department}
+                {displayName || staff.email} · {staff.role === 'admin' ? 'Admin (toàn công ty)' : staff.department}
                 {staff.viewAll && staff.role !== 'admin' ? ' · xem toàn công ty' : ''}
               </div>
             </div>
