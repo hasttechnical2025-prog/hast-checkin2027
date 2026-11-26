@@ -215,10 +215,7 @@ export default function ChamCong(props: ChamCongProps) {
           setLocState({
             type: 'err',
             title: 'Không thể chấm công',
-            lines: [
-              `Bạn đang cách công ty ${(dist / 1000).toFixed(1)} km`,
-              `Giới hạn: ${(maxDistance / 1000).toFixed(1)} km`,
-            ],
+            lines: [`Bạn đang cách công ty ${(dist / 1000).toFixed(1)} km. Ngoài phạm vi.`],
           });
         } else if (dist <= office.radius) {
           setLocState({
@@ -230,7 +227,7 @@ export default function ChamCong(props: ChamCongProps) {
           setLocState({
             type: 'warn',
             title: 'Ngoài phạm vi công ty',
-            lines: [`Cách ${dist} m · vẫn ghi nhận kèm cảnh báo`],
+            lines: [`Cách ${dist} m · vẫn ghi nhận. Lưu ý`],
           });
         }
       },
@@ -449,7 +446,7 @@ export default function ChamCong(props: ChamCongProps) {
       const s = SESSIONS[i];
       const label = s.label;
       if (holiday.isHoliday) {
-        setPopover({ title: 'Hôm nay là ngày nghỉ', body: 'Không chấm công hôm nay.' });
+        setPopover({ title: 'Hôm nay là ngày nghỉ', body: 'Không chấm công.' });
         return;
       }
       if (today[s.key]) {
