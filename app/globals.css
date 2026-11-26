@@ -2547,6 +2547,13 @@ table.nscl-grid {
     padding: 0 0 5px;
     margin-bottom: 5px;
   }
+  /* Lý do: đưa về inline như các dòng khác (nhãn trái + giá trị cùng hàng) cho hài hòa */
+  .tbp-page .ls-table.gt-table td.ls-reason {
+    display: flex;
+  }
+  .tbp-page .ls-table.gt-table td.ls-reason::before {
+    margin-bottom: 0;
+  }
   .admin-content .ls-table.m-cards td.tbp-act {
     justify-content: flex-start; /* cụm nút canh trái (generic flex-start không phá) */
     padding-top: 8px;
