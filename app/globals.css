@@ -2522,6 +2522,34 @@ table.nscl-grid {
   background: var(--accent-weak);
 }
 
+/* Thẻ mobile (TBP .gt-table + Admin .m-cards): các dòng trong thẻ khít như "single".
+   Đặt SAU + đủ cụ thể (0,3,1) để THẮNG rule .ls-table td {padding:9px} ở trên (vốn làm dãn). */
+@media (max-width: 640px) {
+  .admin-content .ls-table.m-cards td,
+  .tbp-page .ls-table.gt-table td {
+    padding: 1px 0; /* gần như không khoảng cách giữa các dòng */
+    font-size: 14px; /* chữ to lại cho dễ đọc */
+    line-height: 1.1; /* khít như single */
+  }
+  .admin-content .ls-table.m-cards td::before,
+  .tbp-page .ls-table.gt-table td::before {
+    font-size: 13px; /* nhãn cũng to lên tương ứng */
+  }
+  /* Tên thẻ (tiêu đề) + hàng nút cần khoảng thở riêng -> đặt lại, cụ thể hơn (0,4,1) */
+  .admin-content .ls-table.m-cards td.m-cards-name,
+  .tbp-page .ls-table.gt-table td.gt-name {
+    font-size: 15.5px;
+    padding: 0 0 5px;
+    margin-bottom: 4px;
+  }
+  .admin-content .ls-table.m-cards td.tbp-act {
+    padding-top: 7px;
+  }
+  .tbp-page .ls-table.gt-table td.tbp-act {
+    padding-top: 7px;
+  }
+}
+
 @media (max-width: 640px) {
   /* --- Thanh tab đáy --- */
   .botnav {
