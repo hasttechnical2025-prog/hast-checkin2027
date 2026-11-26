@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { APP_VERSION } from '@/lib/version';
-import { Icon } from '@/app/_components/icons';
+import { Icon, type IconName } from '@/app/_components/icons';
 
 export interface OfficeProp {
   name: string;
@@ -483,14 +483,13 @@ export default function ChamCong(props: ChamCongProps) {
   // Màu vòng theo lý do chặn ƯU TIÊN: ngày nghỉ > mất mạng > chưa định vị > trạng thái GPS.
   const ringState = holiday.isHoliday ? 'idle' : !online ? 'err' : !gps ? 'idle' : loc.type;
 
-  // Trạng thái 2 điều kiện cho dải "điều kiện chấm công" (liếc là biết thiếu cái nào).
-  let gpsReq: { cls: string; text: string };
-  if (holiday.isHoliday) gpsReq = { cls: 'idle', text: 'Ngày nghỉ' };
-  else if (locating) gpsReq = { cls: 'idle', text: 'Đang định vị…' };
-  else if (!gps) gpsReq = { cls: 'err', text: 'Chưa có vị trí' };
-  else if (loc.type === 'ok') gpsReq = { cls: 'ok', text: 'Trong phạm vi' };
-  else if (loc.type === 'warn') gpsReq = { cls: 'warn', text: 'Ngoài phạm vi' };
-  else gpsReq = { cls: 'err', text: 'Ngoài giới hạn' };
+  // Thẻ điều kiện DUY NHẤT (gộp Internet + Vị trí vào 1 chỗ cho gọn, không tràn khung).
+  // Ưu tiên: mất mạng > trạng thái GPS. Mất mạng -> thẻ đỏ + nút "Thử lại"; còn lại -> GPS.
+  const offline = !holiday.isHoliday && !online;
+  const condType = offline ? 'err' : loc.type;
+  const condIcon: IconName = offline ? 'wifiOff' : loc.type === 'err' ? 'alert' : 'pin';
+  const condTitle = offline ? 'Mất kết nối Internet' : loc.title;
+  const condLines = offline ? ['Bật Wi-Fi hoặc 4G để gửi chấm công.'] : loc.lines;
 
   // Dải ngữ cảnh dưới đồng hồ.
   let ctx: { cls: string; text: string } | null = null;
@@ -518,7 +517,7 @@ export default function ChamCong(props: ChamCongProps) {
   else if (!online)
     ringCenter = (
       <>
-        <span className="cc-ring-cta small">KHÔNG CÓ MẠNG</span>
+        <span className="cc-ring-cta small">MẤT INTERNET</span>
         <span className="cc-ring-sub">bật Wi-Fi/4G để chấm</span>
       </>
     );
@@ -545,15 +544,7 @@ export default function ChamCong(props: ChamCongProps) {
 
   return (
     <main className="cc-wrap">
-      {/* Mất mạng: cảnh báo cố định, ưu tiên hơn banner B/D (ẩn B/D khi offline). */}
-      {!online && (
-        <div className="cc-banner cc-banner-err" role="alert">
-          <Icon name="wifiOff" size={16} className="cc-banner-ic" />
-          <span>Mất kết nối Internet — chưa thể gửi chấm công. Bật Wi-Fi hoặc 4G.</span>
-        </div>
-      )}
-
-      {bannerOpen && online && (
+      {bannerOpen && (
         <div className="cc-banner" ref={bannerRef} role="status">
           <Icon name="alert" size={16} className="cc-banner-ic" />
           <span>Hôm nay có ca xếp loại B/D — bạn có thể giải trình.</span>
@@ -660,41 +651,31 @@ export default function ChamCong(props: ChamCongProps) {
         />
       )}
 
-      {/* 6a) Dải điều kiện chấm công: Internet + Vị trí (liếc là biết thiếu cái nào).
-          Layout CBNV cao cố định (overflow:hidden) -> chỉ hiện khi CHƯA đủ điều kiện
-          (mất mạng / chưa có GPS / ngoài phạm vi / đang định vị); đủ điều kiện thì ẩn. */}
-      {!holiday.isHoliday && !(online && !!gps && loc.type === 'ok') && (
-        <div className="cc-req">
-          <div className={`cc-req-item cc-req-${online ? 'ok' : 'err'}`}>
-            <Icon name={online ? 'wifi' : 'wifiOff'} size={14} />
-            {online ? 'Internet' : 'Mất mạng'}
-          </div>
-          <div className={`cc-req-item cc-req-${gpsReq.cls}`}>
-            <Icon name="pin" size={14} />
-            {gpsReq.text}
-          </div>
-        </div>
-      )}
-
-      {/* 6) Vị trí */}
-      <div className={`cc-loc cc-loc-${loc.type}`}>
+      {/* 6) Thẻ điều kiện (gộp Internet + Vị trí): mất mạng -> đỏ + "Thử lại"; còn lại -> GPS */}
+      <div className={`cc-loc cc-loc-${condType}`}>
         <div className="cc-loc-main">
           <div className="cc-loc-title">
-            <Icon name={loc.type === 'err' ? 'alert' : 'pin'} size={16} className="cc-loc-ic" />
-            {loc.title}
+            <Icon name={condIcon} size={16} className="cc-loc-ic" />
+            {condTitle}
           </div>
-          {loc.lines.map((l, i) => (
+          {condLines.map((l, i) => (
             <div key={i} className="cc-loc-line">
               {l}
             </div>
           ))}
         </div>
-        {!holiday.isHoliday && (
-          <button type="button" className="cc-reloc" onClick={requestGps} disabled={busy || locating}>
-            <Icon name="refresh" size={14} className={locating ? 'cc-spin-ic' : undefined} />
-            {locating ? 'Đang định vị…' : 'Định vị lại'}
-          </button>
-        )}
+        {!holiday.isHoliday &&
+          (offline ? (
+            <button type="button" className="cc-reloc" onClick={checkOnline}>
+              <Icon name="refresh" size={14} />
+              Thử lại
+            </button>
+          ) : (
+            <button type="button" className="cc-reloc" onClick={requestGps} disabled={busy || locating}>
+              <Icon name="refresh" size={14} className={locating ? 'cc-spin-ic' : undefined} />
+              {locating ? 'Đang định vị…' : 'Định vị lại'}
+            </button>
+          ))}
       </div>
 
       {/* 7) Nút chấm công */}
