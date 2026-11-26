@@ -236,7 +236,9 @@ export default function NsclGrid({
 
     const tbp = shown.find((r) => (r.role || '').toUpperCase() === 'TBP');
     const lock = lockDept ? data.locks[lockDept] : undefined;
-    const signerName = lock?.nguoiKy || (tbp ? tbp.name : '');
+    // Ưu tiên họ tên TBP của phòng (đẹp + khớp ảnh chữ ký chuky/<ten>.png);
+    // nếu không tìm thấy nhân viên TBP thì mới dùng người ký đã lưu (thường là email).
+    const signerName = (tbp ? tbp.name : '') || lock?.nguoiKy || '';
     const eSignLabel = lock ? '(Đã ký & khóa)' : '(Đã ký điện tử)';
     const slug = signerName
       .normalize('NFD')
