@@ -297,7 +297,7 @@ export default function NsclGrid({
     const html = `<html><head><meta charset="UTF-8"><title>Bảng điểm NSCL ${pad(data.month)}/${data.year}</title><style>
       * { box-sizing:border-box; }
       body { font-family:'Times New Roman',Times,serif; color:#000; margin:0; padding:6mm 8mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-      .lh { width:100%; margin-bottom:4px; text-align:center; } .lh-img { display:inline-block; width:58%; max-height:15mm; height:auto; object-fit:contain; }
+      .lh { width:100%; margin-bottom:4px; } .lh-img { display:block; width:100%; height:auto; object-fit:contain; }
       .lh-fallback { display:none; font-weight:bold; font-size:15px; color:#c0392b; border-bottom:2px solid #c0392b; padding-bottom:6px; }
       .sub { display:flex; justify-content:space-between; align-items:center; margin-top:7px; }
       .phong { font-weight:bold; font-size:12px; text-transform:uppercase; }
