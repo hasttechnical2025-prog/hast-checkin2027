@@ -254,6 +254,24 @@ export default function ChamCong(props: ChamCongProps) {
     );
   }, [holiday.isHoliday, office, maxDistance]);
 
+  // Xác minh kết nối bằng cách PING máy chủ thật (navigator.onLine không đáng tin — nhiều máy
+  // vẫn báo online dù đã tắt Wi-Fi/4G, nhất là PWA mở lại từ cache). SW bỏ qua /api/ping.
+  const checkOnline = useCallback(async () => {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setOnline(false); // navigator chắc chắn offline -> khỏi ping
+      return;
+    }
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 4000);
+      const res = await fetch(`/api/ping?t=${Date.now()}`, { method: 'GET', cache: 'no-store', signal: ctrl.signal });
+      clearTimeout(t);
+      setOnline(res.ok);
+    } catch {
+      setOnline(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!holiday.isHoliday) requestGps();
   }, [holiday.isHoliday, requestGps]);
@@ -264,25 +282,30 @@ export default function ChamCong(props: ChamCongProps) {
   useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState !== 'visible') return;
+      checkOnline(); // app quay lại foreground -> kiểm tra lại mạng
       if (holiday.isHoliday || busy || locating || gettingRef.current) return;
       requestGps();
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [holiday.isHoliday, busy, locating, requestGps]);
+  }, [holiday.isHoliday, busy, locating, requestGps, checkOnline]);
 
-  // Theo dõi kết nối Internet (bắt buộc để GỬI chấm công). navigator.onLine chỉ biết "có
-  // card mạng", nhưng đủ để bắt mất Wi-Fi/4G -> cảnh báo chủ động + chặn gửi khi offline.
+  // Theo dõi kết nối Internet (bắt buộc để GỬI chấm công): ping lúc mở, khi có sự kiện
+  // online/offline, và định kỳ 20s lúc đang xem màn hình -> bắt cả trường hợp mạng rớt im lặng.
   useEffect(() => {
-    const sync = () => setOnline(navigator.onLine);
-    sync();
-    window.addEventListener('online', sync);
-    window.addEventListener('offline', sync);
+    checkOnline();
+    const onEvt = () => checkOnline();
+    window.addEventListener('online', onEvt);
+    window.addEventListener('offline', onEvt);
+    const id = setInterval(() => {
+      if (document.visibilityState === 'visible') checkOnline();
+    }, 20000);
     return () => {
-      window.removeEventListener('online', sync);
-      window.removeEventListener('offline', sync);
+      window.removeEventListener('online', onEvt);
+      window.removeEventListener('offline', onEvt);
+      clearInterval(id);
     };
-  }, []);
+  }, [checkOnline]);
 
   const submit = useCallback(
     async (confirm: boolean) => {
