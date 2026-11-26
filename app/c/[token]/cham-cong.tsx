@@ -257,6 +257,19 @@ export default function ChamCong(props: ChamCongProps) {
     if (!holiday.isHoliday) requestGps();
   }, [holiday.isHoliday, requestGps]);
 
+  // App quay lại foreground (vd định vị ở A rồi đi xa, mở lại app mà KHÔNG tải lại trang):
+  // tự định vị lại -> dải hiển thị + fix GPS luôn là vị trí hiện tại, không hiểu nhầm theo A cũ.
+  // Bỏ qua khi đang chấm (busy) hoặc đang định vị dở để không chen ngang.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (holiday.isHoliday || busy || locating || gettingRef.current) return;
+      requestGps();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [holiday.isHoliday, busy, locating, requestGps]);
+
   const submit = useCallback(
     async (confirm: boolean) => {
       if (!gps) return;
