@@ -1390,6 +1390,7 @@ textarea.cc-note {
 }
 .tbp-headrow .ls-month {
   min-width: 118px;
+  font-size: 14px; /* khớp cỡ chữ tab .tbp-tablink */
 }
 /* Nhóm phạm vi (phòng + tháng) bên phải header -> chọn chung 1 chỗ. */
 .tbp-scope {
