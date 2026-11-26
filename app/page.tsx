@@ -5,8 +5,7 @@ export default function HomePage() {
     <main className="wrap" style={{ maxWidth: 400 }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo.png" alt="HSTC" className="home-logo" />
-      <h1 style={{ marginBottom: 2 }}>Chấm Công HSTC</h1>
-      <p className="muted">Công ty CP Siêu Thanh Hà Nội</p>
+      <h1 style={{ margin: 0, textAlign: 'center' }}>CHẤM CÔNG CBNV</h1>
 
       <div className="card" style={{ marginTop: 16 }}>
         <h3 style={{ marginTop: 0, textAlign: 'center' }}>Đăng nhập CBNV</h3>
