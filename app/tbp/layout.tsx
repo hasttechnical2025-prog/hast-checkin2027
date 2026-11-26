@@ -47,7 +47,9 @@ export default async function TbpLayout({ children }: { children: React.ReactNod
         {staff && (
           <div className="ls-top">
             <div>
-              <h1 style={{ margin: 0, fontSize: 18 }}>Duyệt giải trình công &amp; Chấm điểm NSCL</h1>
+              <h1 style={{ margin: 0, fontSize: 18 }}>
+                Duyệt giải trình công<span className="hide-mobile"> &amp; Chấm điểm NSCL</span>
+              </h1>
               <div className="muted">
                 {displayName || staff.email} · {staff.role === 'admin' ? 'Admin (toàn công ty)' : staff.department}
                 {staff.viewAll && staff.role !== 'admin' ? ' · xem toàn công ty' : ''}
