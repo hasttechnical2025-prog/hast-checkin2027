@@ -107,6 +107,7 @@ function predictGrade(session: SessionKey, nowSec: number, cfg?: ShiftRow): 'A' 
 }
 
 interface Popover {
+  idx: number; // ô ca được chạm (0..3) -> mũi tên trỏ đúng ô
   title: string;
   body?: string;
   giaiTrinh?: boolean;
@@ -446,12 +447,13 @@ export default function ChamCong(props: ChamCongProps) {
       const s = SESSIONS[i];
       const label = s.label;
       if (holiday.isHoliday) {
-        setPopover({ title: 'Hôm nay là ngày nghỉ', body: 'Không chấm công.' });
+        setPopover({ idx: i, title: 'Hôm nay là ngày nghỉ', body: 'Không chấm công.' });
         return;
       }
       if (today[s.key]) {
         const g = gradeArr[i] || '';
         setPopover({
+          idx: i,
           title: `${label}: ${hm(today[s.key])}`,
           body: g ? `Xếp loại ${g}${GRADE_MEAN[g] ? ` (${GRADE_MEAN[g]})` : ''}.` : undefined,
           giaiTrinh: g === 'B' || g === 'D',
@@ -460,14 +462,14 @@ export default function ChamCong(props: ChamCongProps) {
       }
       const curIdx = curSession ? SESSIONS.findIndex((x) => x.key === curSession) : -1;
       if (curIdx >= 0 && i < curIdx) {
-        setPopover({ title: `Đã qua giờ ${label}`, giaiTrinh: true });
+        setPopover({ idx: i, title: `Đã qua giờ ${label}`, giaiTrinh: true });
         return;
       }
       if (i === curIdx) {
-        setPopover({ title: `Giờ ${label}`, body: 'Chạm nút tròn bên dưới để chấm.' });
+        setPopover({ idx: i, title: `Giờ ${label}`, body: 'Chạm nút tròn bên dưới để chấm.' });
         return;
       }
-      setPopover({ title: `Chưa tới giờ ${label}`, body: 'Ca này chưa tới giờ chấm.' });
+      setPopover({ idx: i, title: `Chưa tới giờ ${label}`, body: 'Ca này chưa tới giờ chấm.' });
     },
     [holiday.isHoliday, today, gradeArr, curSession],
   );
@@ -625,7 +627,10 @@ export default function ChamCong(props: ChamCongProps) {
 
         {popover && (
           <div className="cc-pop" ref={popRef}>
-            <div className="cc-pop-arrow" />
+            <div
+              className="cc-pop-arrow"
+              style={{ left: `${(popover.idx * 2 + 1) * 12.5}%`, transform: 'translateX(-50%) rotate(45deg)' }}
+            />
             <div className="cc-pop-body">
               <div className="cc-pop-title">{popover.title}</div>
               {popover.body && <div className="cc-pop-text">{popover.body}</div>}
