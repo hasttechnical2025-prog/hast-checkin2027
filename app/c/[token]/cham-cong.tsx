@@ -126,6 +126,7 @@ export default function ChamCong(props: ChamCongProps) {
   });
   const [busy, setBusy] = useState(false);
   const [locating, setLocating] = useState(false);
+  const [online, setOnline] = useState(true); // mạng Internet; set thật sau mount (SSR = true)
   const [justDone, setJustDone] = useState(false);
   const [note, setNote] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -270,10 +271,31 @@ export default function ChamCong(props: ChamCongProps) {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [holiday.isHoliday, busy, locating, requestGps]);
 
+  // Theo dõi kết nối Internet (bắt buộc để GỬI chấm công). navigator.onLine chỉ biết "có
+  // card mạng", nhưng đủ để bắt mất Wi-Fi/4G -> cảnh báo chủ động + chặn gửi khi offline.
+  useEffect(() => {
+    const sync = () => setOnline(navigator.onLine);
+    sync();
+    window.addEventListener('online', sync);
+    window.addEventListener('offline', sync);
+    return () => {
+      window.removeEventListener('online', sync);
+      window.removeEventListener('offline', sync);
+    };
+  }, []);
+
   const submit = useCallback(
     async (confirm: boolean) => {
       if (!gps) return;
+      // Chặn sớm khi mất mạng -> báo đúng lý do thay vì để fetch lỗi chung chung.
+      if (!navigator.onLine) {
+        setResult({ ok: false, title: 'Không có kết nối Internet', lines: ['Bật Wi-Fi hoặc 4G rồi thử lại.'] });
+        return;
+      }
       setBusy(true);
+      // Timeout 15s: mạng chập chờn không treo im lặng -> báo "kết nối quá chậm".
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
       try {
         const res = await fetch('/api/checkin', {
           method: 'POST',
@@ -286,7 +308,9 @@ export default function ChamCong(props: ChamCongProps) {
             note,
             confirm,
           }),
+          signal: ctrl.signal,
         });
+        clearTimeout(timer);
         const data = await res.json();
 
         if (data.needsConfirm) {
@@ -295,7 +319,12 @@ export default function ChamCong(props: ChamCongProps) {
           return;
         }
         if (!res.ok || data.error) {
-          setResult({ ok: false, title: 'Không thể chấm công', lines: [data.error || 'Có lỗi xảy ra.'] });
+          const serverBusy = res.status >= 500;
+          setResult({
+            ok: false,
+            title: serverBusy ? 'Máy chủ đang bận' : 'Không thể chấm công',
+            lines: [data.error || (serverBusy ? 'Thử lại sau giây lát.' : 'Có lỗi xảy ra.')],
+          });
           setBusy(false);
           return;
         }
@@ -330,8 +359,21 @@ export default function ChamCong(props: ChamCongProps) {
         setBusy(false);
         setJustDone(true);
         setTimeout(() => setJustDone(false), 800);
-      } catch {
-        setResult({ ok: false, title: 'Lỗi kết nối', lines: ['Kiểm tra mạng rồi thử lại.'] });
+      } catch (e) {
+        clearTimeout(timer);
+        const aborted = e instanceof DOMException && e.name === 'AbortError';
+        const offline = !navigator.onLine;
+        setResult({
+          ok: false,
+          title: offline ? 'Mất kết nối Internet' : aborted ? 'Kết nối quá chậm' : 'Lỗi kết nối',
+          lines: [
+            offline
+              ? 'Bật lại Wi-Fi/4G rồi thử lại.'
+              : aborted
+                ? 'Hết thời gian chờ. Kiểm tra mạng rồi thử lại.'
+                : 'Kiểm tra mạng rồi thử lại.',
+          ],
+        });
         setBusy(false);
       }
     },
@@ -340,6 +382,11 @@ export default function ChamCong(props: ChamCongProps) {
 
   const onTapRing = useCallback(() => {
     if (holiday.isHoliday || busy || locating) return;
+    // Mất mạng -> không gửi được: báo rõ lý do ngay, không để "định vị lại rồi mới lỗi".
+    if (!online) {
+      setResult({ ok: false, title: 'Không có kết nối Internet', lines: ['Bật Wi-Fi hoặc 4G rồi thử lại.'] });
+      return;
+    }
     const expired = !gps || Date.now() - gps.ts > gpsExpireMs;
     if (expired) {
       // Cách B: chạm vòng = chấm. GPS hết hạn -> định vị lại RỒI tự chấm luôn
@@ -351,20 +398,26 @@ export default function ChamCong(props: ChamCongProps) {
     }
     if (loc.type === 'err') return;
     submit(false);
-  }, [holiday.isHoliday, busy, locating, gps, gpsExpireMs, loc.type, requestGps, submit]);
+  }, [holiday.isHoliday, busy, locating, online, gps, gpsExpireMs, loc.type, requestGps, submit]);
 
   // Cách B: định vị lại xong (do chạm vòng lúc GPS hết hạn) -> tự chấm.
   // Lỗi định vị đã xóa cờ ở requestGps; ngoài giới hạn (loc.type='err') -> hủy, hiện lỗi.
   useEffect(() => {
     if (!pendingSubmitRef.current) return;
     if (!gps) return; // chưa có fix mới -> chờ
+    if (!online) {
+      // Mất mạng giữa chừng -> hủy ý định tự chấm, báo lý do thay vì submit chắc chắn lỗi.
+      pendingSubmitRef.current = false;
+      setResult({ ok: false, title: 'Không có kết nối Internet', lines: ['Bật Wi-Fi hoặc 4G rồi thử lại.'] });
+      return;
+    }
     if (loc.type === 'err') {
       pendingSubmitRef.current = false;
       return;
     }
     pendingSubmitRef.current = false;
     submit(false);
-  }, [gps, loc.type, submit]);
+  }, [gps, online, loc.type, submit]);
 
   // Chạm 1 ô ca -> popover giải thích/định tuyến (không tự chấm ca cũ: server quyết theo giờ).
   const openChip = useCallback(
@@ -399,9 +452,22 @@ export default function ChamCong(props: ChamCongProps) {
   );
 
   const processing = busy || locating;
-  const canCheck = !holiday.isHoliday && !!gps && loc.type !== 'err' && !busy;
+  // Chấm công cần ĐỦ CẢ: không phải ngày nghỉ + có Internet + có GPS hợp lệ + không bận.
+  const canCheck = !holiday.isHoliday && online && !!gps && loc.type !== 'err' && !busy;
   const ready = canCheck && !locating;
   const curLabel = curSession ? SESSIONS.find((s) => s.key === curSession)?.label ?? '' : '';
+
+  // Màu vòng theo lý do chặn ƯU TIÊN: ngày nghỉ > mất mạng > chưa định vị > trạng thái GPS.
+  const ringState = holiday.isHoliday ? 'idle' : !online ? 'err' : !gps ? 'idle' : loc.type;
+
+  // Trạng thái 2 điều kiện cho dải "điều kiện chấm công" (liếc là biết thiếu cái nào).
+  let gpsReq: { cls: string; text: string };
+  if (holiday.isHoliday) gpsReq = { cls: 'idle', text: 'Ngày nghỉ' };
+  else if (locating) gpsReq = { cls: 'idle', text: 'Đang định vị…' };
+  else if (!gps) gpsReq = { cls: 'err', text: 'Chưa có vị trí' };
+  else if (loc.type === 'ok') gpsReq = { cls: 'ok', text: 'Trong phạm vi' };
+  else if (loc.type === 'warn') gpsReq = { cls: 'warn', text: 'Ngoài phạm vi' };
+  else gpsReq = { cls: 'err', text: 'Ngoài giới hạn' };
 
   // Dải ngữ cảnh dưới đồng hồ.
   let ctx: { cls: string; text: string } | null = null;
@@ -426,6 +492,13 @@ export default function ChamCong(props: ChamCongProps) {
   if (busy) ringCenter = <span className="cc-ring-cta small">Đang gửi…</span>;
   else if (locating) ringCenter = <span className="cc-ring-cta small">Đang lấy vị trí…</span>;
   else if (holiday.isHoliday) ringCenter = <span className="cc-ring-cta">Ngày nghỉ</span>;
+  else if (!online)
+    ringCenter = (
+      <>
+        <span className="cc-ring-cta small">KHÔNG CÓ MẠNG</span>
+        <span className="cc-ring-sub">bật Wi-Fi/4G để chấm</span>
+      </>
+    );
   else if (!gps)
     ringCenter = (
       <>
@@ -449,7 +522,15 @@ export default function ChamCong(props: ChamCongProps) {
 
   return (
     <main className="cc-wrap">
-      {bannerOpen && (
+      {/* Mất mạng: cảnh báo cố định, ưu tiên hơn banner B/D (ẩn B/D khi offline). */}
+      {!online && (
+        <div className="cc-banner cc-banner-err" role="alert">
+          <Icon name="wifiOff" size={16} className="cc-banner-ic" />
+          <span>Mất kết nối Internet — chưa thể gửi chấm công. Bật Wi-Fi hoặc 4G.</span>
+        </div>
+      )}
+
+      {bannerOpen && online && (
         <div className="cc-banner" ref={bannerRef} role="status">
           <Icon name="alert" size={16} className="cc-banner-ic" />
           <span>Hôm nay có ca xếp loại B/D — bạn có thể giải trình.</span>
@@ -556,6 +637,22 @@ export default function ChamCong(props: ChamCongProps) {
         />
       )}
 
+      {/* 6a) Dải điều kiện chấm công: Internet + Vị trí (liếc là biết thiếu cái nào).
+          Layout CBNV cao cố định (overflow:hidden) -> chỉ hiện khi CHƯA đủ điều kiện
+          (mất mạng / chưa có GPS / ngoài phạm vi / đang định vị); đủ điều kiện thì ẩn. */}
+      {!holiday.isHoliday && !(online && !!gps && loc.type === 'ok') && (
+        <div className="cc-req">
+          <div className={`cc-req-item cc-req-${online ? 'ok' : 'err'}`}>
+            <Icon name={online ? 'wifi' : 'wifiOff'} size={14} />
+            {online ? 'Internet' : 'Mất mạng'}
+          </div>
+          <div className={`cc-req-item cc-req-${gpsReq.cls}`}>
+            <Icon name="pin" size={14} />
+            {gpsReq.text}
+          </div>
+        </div>
+      )}
+
       {/* 6) Vị trí */}
       <div className={`cc-loc cc-loc-${loc.type}`}>
         <div className="cc-loc-main">
@@ -581,7 +678,7 @@ export default function ChamCong(props: ChamCongProps) {
       <div className="cc-ring-area">
         <button
           type="button"
-          className={`cc-ring cc-ring-${canCheck ? loc.type : holiday.isHoliday ? 'idle' : loc.type}${processing ? ' processing' : ''}${justDone ? ' just-done' : ''}${ready ? ' ready' : ''}`}
+          className={`cc-ring cc-ring-${ringState}${processing ? ' processing' : ''}${justDone ? ' just-done' : ''}${ready ? ' ready' : ''}`}
           onClick={onTapRing}
           disabled={processing}
           aria-label="Chấm công"

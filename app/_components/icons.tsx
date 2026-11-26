@@ -202,6 +202,22 @@ const PATHS: Record<string, ReactNode> = {
       <path d="M10.5 18.5h3" />
     </>
   ),
+  wifi: (
+    <>
+      <path d="M4.5 12a11 11 0 0 1 15 0" />
+      <path d="M8 15.3a6 6 0 0 1 8 0" />
+      <path d="M12 18.5h.01" />
+    </>
+  ),
+  wifiOff: (
+    <>
+      <path d="M3 3l18 18" />
+      <path d="M4.5 12a11 11 0 0 1 4-2.6" />
+      <path d="M16 9.6a11 11 0 0 1 3.5 2.4" />
+      <path d="M8 15.3a6 6 0 0 1 6.3-1.2" />
+      <path d="M12 18.5h.01" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof PATHS;
