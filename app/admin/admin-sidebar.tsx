@@ -89,10 +89,8 @@ export default function AdminSidebar() {
               mở tab mới để admin giữ nguyên ngữ cảnh đang làm. */}
           <div className="admin-side-group admin-side-other">
             <div className="admin-side-grouplabel">Khu khác</div>
-            <a
+            <Link
               href="/tbp"
-              target="_blank"
-              rel="noopener"
               className="admin-side-item"
               onClick={() => setOpen(false)}
             >
@@ -100,8 +98,7 @@ export default function AdminSidebar() {
                 <Icon name="checks" size={17} />
               </span>
               Duyệt giải trình & NSCL
-              <Icon name="external" size={14} className="admin-side-ext" />
-            </a>
+            </Link>
           </div>
         </nav>
 

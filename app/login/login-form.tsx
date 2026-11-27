@@ -52,8 +52,8 @@ export default function LoginForm() {
       } else {
         localStorage.setItem('cc_remember', '0');
         localStorage.removeItem('cc_email');
-        // Đánh dấu phiên hiện tại còn sống để không bị guard đăng xuất ngay.
-        sessionStorage.setItem('cc_alive', '1');
+        // Đánh dấu còn sống (localStorage) để RememberGuard không đăng xuất ngay sau khi vừa đăng nhập.
+        localStorage.setItem('cc_seen', String(Date.now()));
       }
     } catch {
       /* storage bị chặn -> bỏ qua */
