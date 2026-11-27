@@ -1,6 +1,7 @@
 import { getStaffSession } from '@/lib/auth';
 import { buildNsclData } from '@/lib/nscl';
 import { vnNow } from '@/lib/attendance';
+import { resolveViewMonth } from '@/lib/view-month';
 import NsclGrid from './nscl-grid';
 
 export const dynamic = 'force-dynamic';
@@ -17,18 +18,12 @@ export default async function NsclPage({ searchParams }: { searchParams: Promise
 
   const { m, dept } = await searchParams;
   const now = vnNow();
-  const curY = Number(now.dateStr.slice(0, 4));
-  const curM = Number(now.dateStr.slice(5, 7));
-  let year = curY;
-  let month = curM;
-  if (m && /^\d{4}-\d{2}$/.test(m)) {
-    const y = Number(m.slice(0, 4));
-    const mo = Number(m.slice(5, 7));
-    if (mo >= 1 && mo <= 12 && y * 12 + mo <= curY * 12 + curM) {
-      year = y;
-      month = mo;
-    }
-  }
+  const { year, month } = resolveViewMonth(
+    m,
+    Number(now.dateStr.slice(0, 4)),
+    Number(now.dateStr.slice(5, 7)),
+    Number(now.dateStr.slice(8, 10)),
+  );
 
   const isAdmin = staff.role === 'admin';
   const seeAll = isAdmin || staff.viewAll;

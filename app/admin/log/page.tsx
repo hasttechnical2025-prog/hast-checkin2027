@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { vnNow } from '@/lib/attendance';
+import { resolveViewMonth } from '@/lib/view-month';
 import LogAdmin, { type LogRow } from './log-admin';
 
 export const dynamic = 'force-dynamic';
@@ -9,12 +10,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export default async function LogPage({ searchParams }: { searchParams: Promise<{ m?: string; emp?: string }> }) {
   const { m, emp } = await searchParams;
   const now = vnNow();
-  let year = Number(now.dateStr.slice(0, 4));
-  let month = Number(now.dateStr.slice(5, 7));
-  if (m && /^\d{4}-\d{2}$/.test(m)) {
-    year = Number(m.slice(0, 4));
-    month = Number(m.slice(5, 7));
-  }
+  const { year, month, idx, curIdx } = resolveViewMonth(
+    m,
+    Number(now.dateStr.slice(0, 4)),
+    Number(now.dateStr.slice(5, 7)),
+    Number(now.dateStr.slice(8, 10)),
+  );
   const start = `${year}-${pad(month)}-01T00:00:00+07:00`;
   const endMonthDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const end = `${year}-${pad(month)}-${pad(endMonthDay)}T23:59:59+07:00`;
@@ -50,9 +51,7 @@ export default async function LogPage({ searchParams }: { searchParams: Promise<
     .order('name');
   const names = (empList ?? []).map((e) => e.name as string);
 
-  const idx = year * 12 + month;
   const toM = (i: number) => `${Math.floor((i - 1) / 12)}-${pad(((i - 1) % 12) + 1)}`;
-  const curIdx = Number(now.dateStr.slice(0, 4)) * 12 + Number(now.dateStr.slice(5, 7));
 
   return (
     <LogAdmin

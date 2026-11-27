@@ -1384,7 +1384,7 @@ textarea.cc-note {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #efeefb; /* bằng canvas -> header hòa vào nền (đục để che hàng cuộn dưới) */
+  background: #d8eae6; /* bằng canvas -> header hòa vào nền (đục để che hàng cuộn dưới) */
   display: flow-root; /* chứa margin con -> đo chiều cao chính xác */
 }
 .tbp-tabs {
@@ -2525,7 +2525,7 @@ table.nscl-grid {
    KHÔNG đụng body chung -> màn CBNV /c giữ nguyên. */
 .tbp-page,
 .admin-shell {
-  background: #efeefb; /* tím/chàm nhạt — nền app (canvas): có màu, không lẫn trạng thái */
+  background: #d8eae6; /* teal nhạt (đậm hơn chút) — nền app (canvas): có màu, không lẫn trạng thái */
 }
 
 /* Đổ bóng + viền bề mặt (khớp Sổ Công tác) -> bảng/thẻ nổi trên nền, hết "trùng màu" */

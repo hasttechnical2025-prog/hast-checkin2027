@@ -3,6 +3,7 @@
 import Link, { useLinkStatus } from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { Icon, type IconName } from '@/app/_components/icons';
+import { resolveViewMonth } from '@/lib/view-month';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const toM = (i: number) => `${Math.floor((i - 1) / 12)}-${pad(((i - 1) % 12) + 1)}`;
@@ -44,18 +45,12 @@ export default function TbpHeader({
   const router = useRouter();
 
   const vn = new Date(Date.now() + 7 * 3600 * 1000);
-  const curIdx = vn.getUTCFullYear() * 12 + (vn.getUTCMonth() + 1);
-
-  const m = sp.get('m');
-  let idx = curIdx;
-  if (m && /^\d{4}-\d{2}$/.test(m)) {
-    const y = Number(m.slice(0, 4));
-    const mo = Number(m.slice(5, 7));
-    const cand = y * 12 + mo;
-    if (mo >= 1 && mo <= 12 && cand <= curIdx) idx = cand;
-  }
-  const year = Math.floor((idx - 1) / 12);
-  const month = ((idx - 1) % 12) + 1;
+  const { year, month, idx, curIdx } = resolveViewMonth(
+    sp.get('m'),
+    vn.getUTCFullYear(),
+    vn.getUTCMonth() + 1,
+    vn.getUTCDate(),
+  );
 
   // Param phòng trên URL: null = chưa chọn (dùng mặc định theo vai); 'all' = tất cả; còn lại = tên phòng.
   const deptParam = sp.get('dept');
