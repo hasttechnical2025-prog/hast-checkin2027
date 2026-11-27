@@ -10,8 +10,9 @@ Người mới xem [ONBOARDING.md](ONBOARDING.md); trạng thái + migration xem
 - **1 app, 3 vai theo route:** CBNV `/c/[token]`, TBP `/tbp`, Admin `/admin/*`.
 - **GHI** đi qua **Route Handlers** (`app/api/*`) dùng **service role** (`lib/supabase/admin.ts`, `server-only`). **ĐỌC** qua Server Components.
 - **Định danh:** CBNV = token-path + PIN (xử lý ở server, client không gõ tên). TBP/Admin = Supabase Auth, phân vai qua `chamcong_app_roles` (`middleware.ts`).
-- **Đăng nhập TBP/Admin** có checkbox **"Ghi nhớ đăng nhập"** (mặc định bật): `login-form.tsx` lưu `cc_remember`/`cc_email` (localStorage), `RememberGuard` (ở layout TBP + admin) đăng xuất khi mở lại trình duyệt nếu tắt ghi nhớ — vì `@supabase/ssr` ép cookie phiên 400 ngày.
+- **Đăng nhập TBP/Admin** có checkbox **"Ghi nhớ đăng nhập"** (mặc định bật): `login-form.tsx` lưu `cc_remember`/`cc_email` (localStorage); `RememberGuard` (ở layout TBP + admin) dùng **heartbeat `localStorage['cc_seen']`** (mở tab mới KHÔNG bị out oan), đăng xuất khi ĐÓNG trình duyệt nếu tắt ghi nhớ — vì `@supabase/ssr` ép cookie phiên 400 ngày.
 - **TBP = 2 tab theo ROUTE** (`/tbp` ↔ `/tbp/nscl`), không phải tab client → KHÔNG dùng Radix Tabs. Khung chung ở `app/tbp/layout.tsx` (identity + tab + tháng, bọc `StickyTop` sticky), tháng lưu ở `?m`, mỗi route có `loading.tsx`. Chi tiết: ONBOARDING.md §4b.
+- **Khu Admin**: sidebar 3 nhóm + `AdminTabs` (sub-tab theo route), khuôn dashboard (KPI/pill/nút 3 cấp), **Bảng công tháng** thay "Sửa công ngày", nền canvas teal `#d8eae6`. ⏳ **Chủ dự án chưa ưng UI admin, đang xem lại hướng — KHÔNG đại tu admin UI khi chưa hỏi.**
 - Cấu trúc thư mục chi tiết: xem ONBOARDING.md §4.
 
 ## Lệnh
@@ -42,6 +43,7 @@ npx tsc --noEmit   # kiểm kiểu (KHÔNG build khi đang dev)
 - **GPS bắt buộc**; trong `radius` = hợp lệ; ngoài `radius` nhưng ≤ `max_distance` = vẫn ghi (cảnh báo); vượt `max_distance` = chặn; GPS hết hạn sau `gpsExpireMs`.
 - **Chặn ngày nghỉ** (T7/CN + `chamcong_holidays`); **cảnh báo chấm trùng ca** (cần `confirm`).
 - **Record ảo** `grades='D,D,D,D'` cho ngày làm việc đã qua chưa chấm (để hiển thị + giải trình).
+- **Tháng hiển thị mặc định** (`resolveViewMonth`, `lib/view-month.ts`): TBP/Admin mở màn chưa chọn `?m` → ngày **≤10 lấy tháng trước**, **≥11 lấy tháng hiện tại** (10 ngày đầu còn đang chốt tháng trước). Áp: giải trình · NSCL · Bảng công · Log. Clamp tối đa = tháng hiện tại.
 - **Overlay nghỉ phép** (`chamcong_nghi_phep_dong_bo`): chỉ ĐỌC + overlay (cả ngày → P/Ô theo `leave_symbol_mode`, nửa buổi → 5). Webhook `/api/sync/nghi-phep` MỘT CHIỀU, khóa `ma_nv`.
 - **4 sự kiện Telegram:** xác nhận chấm công (CBNV) · báo TBP có giải trình · báo CBNV kết quả duyệt (TBP) · bot nhắc nhở (cron).
 - **Xuất Excel NSCL (#35):** giữ y cơ chế ghi đè **1 file đích cố định** qua File System Access (`lib/fs-export.ts`) — KHÔNG thay bằng "tải về" thường (sẽ ra `(1).xlsx` làm đứt link Power Query của file lương). App KHÔNG đụng file lương.

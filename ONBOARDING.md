@@ -90,11 +90,12 @@ app/
 │   ├── page.tsx + tbp-giaitrinh.tsx   Duyệt giải trình
 │   ├── loading.tsx          khung chờ khi đổi tab
 │   └── nscl/                page.tsx, nscl-grid.tsx, export-excel.tsx, loading.tsx
-├── admin/                   layout.tsx (admin-sidebar) + các mục: nhan-vien, bang-cong,
-│   │                        log, thiet-bi, ngay-le, ca, cau-hinh, tai-khoan, huong-dan
-│   │                        (+ link "Duyệt & Bảng điểm" sang /tbp cho admin)
-│   │                        bang-cong/ = Bảng công tháng (ma trận NV×ngày, sửa công inline)
-│   └── admin-nav.tsx        (CODE CHẾT — chưa import ở đâu; xoá khi dọn)
+├── admin/                   layout.tsx (admin-sidebar gom 3 nhóm + link /tbp) + các mục:
+│   │                        nhan-vien, bang-cong, log, thiet-bi, ngay-le, ca, cau-hinh,
+│   │                        tai-khoan, huong-dan; mỗi mục page.tsx(server) + *-admin.tsx(client)
+│   ├── _components/          AdminTabs (sub-tab theo route: DATA=[Bảng công|Log], CONFIG=[Chung|Ca|Lễ]) · pc-hint
+│   ├── bang-cong/            Bảng công tháng (ma trận NV×ngày, bấm ô sửa công inline) — thay "sua-cong" cũ
+│   └── loading.tsx
 ├── api/                     Route Handlers — ĐƯỜNG GHI (service role)
 │   ├── checkin/             chấm công (đường ghi CBNV duy nhất)
 │   ├── nv-login/            xác thực Mã NV + PIN
@@ -106,8 +107,9 @@ app/
 └── _components/             DateField, NvLogin, QrCode, SignOutButton, RememberGuard, icons.tsx
 
 lib/                         config, attendance, auth (getStaffSession bọc React cache()),
-                             device, telegram, nscl, giaitrinh, month, export-nscl, fs-export,
-                             version, confirm, supabase/{server,admin,client}
+                             device, telegram, nscl, giaitrinh, month, bangcong (ma trận Bảng công),
+                             view-month (resolveViewMonth: tháng mặc định theo ngày ≤10),
+                             export-nscl, fs-export, version, confirm, supabase/{server,admin,client}
 supabase/migrations/         0001..0011 (danh mục, vận hành, index, trigger chấm điểm, auth/RLS, seed, grants, …)
 middleware.ts                chặn /tbp + /admin theo vai
 vercel.json                  2 cron nhắc nhở (sáng/chiều, T2–T6)
@@ -117,10 +119,12 @@ vercel.json                  2 cron nhắc nhở (sáng/chiều, T2–T6)
 
 ### 4b. Đăng nhập & giao diện TBP (patterns cần biết)
 
-- **"Ghi nhớ đăng nhập" (login-form + RememberGuard):** checkbox mặc định **bật**. Bật → lưu `cc_remember='1'` + `cc_email` vào `localStorage` (tự điền email lần sau); tắt → xoá email và **đăng xuất khi mở lại trình duyệt**. Lý do dùng guard thay vì cookie-phiên: `@supabase/ssr` **ép cookie phiên 400 ngày** (không tạo được session-cookie). `RememberGuard` (mount ở layout TBP + admin) dò `sessionStorage['cc_alive']`: trình duyệt mở lại mà `cc_remember='0'` → `signOut()` + về `/login`.
+- **"Ghi nhớ đăng nhập" (login-form + RememberGuard):** checkbox mặc định **bật**. Bật → lưu `cc_remember='1'` + `cc_email` vào `localStorage` (tự điền email lần sau); tắt → xoá email và **đăng xuất khi ĐÓNG trình duyệt**. Lý do: `@supabase/ssr` **ép cookie phiên 400 ngày** (không tạo được session-cookie). `RememberGuard` (mount ở layout TBP + admin) dùng **heartbeat `localStorage['cc_seen']`**: mỗi tab ghi mốc thời gian định kỳ (5s); khi tải trang mà `cc_remember='0'` và `cc_seen` quá cũ (>20s → không tab nào còn sống → trình duyệt đã đóng) thì `signOut()` + về `/login`. Dùng localStorage (chia sẻ tab) thay sessionStorage → **mở tab mới KHÔNG bị đăng xuất oan**.
 - **Tab TBP là điều hướng route** (`/tbp` ↔ `/tbp/nscl`), **không** phải tab client. Nên KHÔNG dùng Radix Tabs. Tháng lưu ở `?m=YYYY-MM`: đổi tab giữ tháng, đổi tháng giữ tab (xem `tbp-header.tsx`). Mỗi route có `loading.tsx` → bấm tab là hiện khung chờ ngay (hết cảm giác treo).
 - **Khối đầu trang TBP sticky:** `StickyTop` bọc identity + tab + tháng, đo chiều cao đặt `--tbp-stick`; hàng tiêu đề bảng giải trình (`.gt-table thead th`) dùng `top: var(--tbp-stick)` để bám ngay dưới. Bảng giải trình bỏ `overflow` ở khung (layout cố định) để thead bám được viewport.
 - **getStaffSession bọc `cache()`** → layout + page gọi chung 1 lần/request.
+- **Khu Admin:** sidebar gom **3 nhóm**; các trang cùng nhóm dùng **sub-tab theo route** (`AdminTabs`, giữ `?m`). Khuôn "dashboard": KPI cards (`.ac-kpis`), **chip pill** (`.badge` chỉ bo tròn trong scope `.tbp-page`/`.admin-content`), nút 3 cấp, menu "⋯" cho thao tác phụ. **Bảng công tháng** (`lib/bangcong.ts` dựng ma trận NV×ngày) thay "Sửa công ngày" — bấm ô → dialog gọi `/api/admin/day`. ⏳ **Giao diện admin đang chờ chủ dự án chốt hướng — đừng đại tu mà chưa hỏi.**
+- **Tháng hiển thị mặc định (TBP/Admin):** `resolveViewMonth` (`lib/view-month.ts`) — mở màn chưa chọn `?m`: ngày **≤10 → tháng trước** (còn đang chốt tháng trước), **≥11 → tháng hiện tại**; ‹ › tới tối đa tháng hiện tại. Dùng **CHUNG** cho data (server page) + thanh tháng (`tbp-header` / prevHref-nextHref admin) để luôn khớp.
 
 ---
 

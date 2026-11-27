@@ -22,15 +22,20 @@ Chạy **song song, độc lập** với app 2026 cũ (`D:\Claude Code\_github\h
 | 3 | CBNV `/c/[token]` (Hướng C): chấm công GPS, dữ liệu tháng (`/lich-su`), giải trình | ✅ Đã làm |
 | 4 | Định danh: login Mã NV/PIN (`/api/nv-login` + bcrypt RPC) + bind thiết bị (TBP/Admin duyệt) | ✅ Đã làm |
 | 5 | TBP: duyệt giải trình + lưới NSCL + Ký&Khóa + Xuất Excel (`xlsx`) | ✅ Đã làm |
-| 6 | Admin: nhân viên/QR, log, lễ, ca, cấu hình, tài khoản, hướng dẫn, sửa công | ✅ Đã làm |
+| 6 | Admin: nhân viên/QR, log, lễ, ca, cấu hình, tài khoản, hướng dẫn, **Bảng công tháng** (thay "Sửa công ngày") | ✅ Đã làm |
 | 7 | Vercel Cron nhắc nhở (`vercel.json` + `/api/cron/reminder`) + 4 Telegram + sync nghỉ phép (`/api/sync/nghi-phep`) | ✅ Đã làm |
 
 > **Lưu ý khi dev:** đừng chạy `next build` khi đang `next dev` (chung thư mục `.next` → hỏng CSS / lỗi 500). Dừng dev trước khi build, hoặc chỉ dùng `tsc` để kiểm kiểu.
 
-### Tinh chỉnh sau code-complete (UI/UX, đang tiếp diễn)
-Ngoài 7 bước trên, giao diện đang được đánh bóng dần (xem git log để biết mới nhất). Đã làm:
-- **Đăng nhập TBP/Admin:** redesign màn login + checkbox **"Ghi nhớ đăng nhập"** (`RememberGuard`).
-- **Khu TBP:** gộp khung chung (`app/tbp/layout.tsx` + `tbp-header.tsx`), tab giữ tháng qua `?m`, `loading.tsx` khi đổi tab, **sticky** cả khối đầu trang (`StickyTop`), chuẩn hoá nghiệp vụ duyệt (chưa có lý do → khoá cả 2 nút; bắt nhập lý do từ chối; xác nhận Ký & Khóa), tách cột Ngày/Thứ, hover sáng hàng ở lưới NSCL.
+### Tinh chỉnh sau code-complete (UI/UX + nghiệp vụ nhỏ, đang tiếp diễn)
+Ngoài 7 bước trên (xem git log để biết mới nhất). Đã làm:
+- **Đăng nhập TBP/Admin:** redesign login + **"Ghi nhớ đăng nhập"** — `RememberGuard` dùng **heartbeat `localStorage['cc_seen']`** (mở tab mới KHÔNG bị đăng xuất oan).
+- **Khu TBP:** khung chung `app/tbp/layout.tsx` + `tbp-header.tsx` (tab + chọn Tháng/Phòng, giữ `?m`/`?dept`), `loading.tsx`, **sticky** cả khối đầu trang (`StickyTop`), chuẩn hoá nghiệp vụ duyệt (chưa lý do → khoá 2 nút; bắt lý do từ chối; xác nhận Ký&Khóa), tách cột Ngày/Thứ, nút "Đồng ý/Từ chối tất cả" hiện mờ nhất quán PC/mobile.
+- **Khu Admin:** sidebar gom **3 nhóm** + sub-tab theo route (`AdminTabs`); **Bảng công tháng** (`admin/bang-cong`, ma trận NV×ngày, bấm ô sửa công inline) **thay "Sửa công ngày"**; khuôn dashboard: KPI cards, chip pill, nút 3 cấp, menu "⋯" (PIN/Token), bỏ emoji/`alert()`.
+- **Nghiệp vụ tháng mặc định:** `lib/view-month.ts` (`resolveViewMonth`) — mở màn (chưa chọn `?m`) ngày **≤10 → tháng trước**, **≥11 → tháng hiện tại** (áp: TBP giải trình, NSCL, Admin Bảng công, Log).
+- **Nền canvas** `/tbp` + `/admin`: teal nhạt `#d8eae6`.
+
+> **⏳ Đang chờ quyết định:** chủ dự án **chưa ưng giao diện khu Admin**, đang cân nhắc hướng (vd theo "chất" trang cũ: header thương hiệu xanh + toolbar Tháng/Năm/Phòng). **Chưa chốt → đừng tự ý đại tu admin UI; hỏi lại trước khi đổi lớn.**
 
 Chi tiết pattern: ONBOARDING.md §4b; quy ước: CLAUDE.md.
 
