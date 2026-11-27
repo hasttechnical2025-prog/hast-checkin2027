@@ -1872,29 +1872,6 @@ textarea.cc-note {
 
 /* .tbp-tablink styling gộp chung với .tbp-tabs button ở trên. */
 
-/* ===== Admin nav ===== */
-.admin-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
-}
-.admin-tab {
-  font-size: 13px;
-  font-weight: 600;
-  padding: 6px 11px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--muted);
-  text-decoration: none;
-}
-.admin-tab.active {
-  border-color: var(--accent);
-  background: var(--accent-weak, #e8effd);
-  color: var(--accent);
-}
-
 /* ===== Admin sidebar (Option A) ===== */
 .admin-shell {
   display: flex;
@@ -2550,8 +2527,88 @@ table.nscl-grid {
 .ls-table-wrap,
 .bc-wrap,
 .card,
+.ac-kpi,
 .admin-sidebar {
   box-shadow: 0 1px 2px rgba(2, 6, 23, 0.06), 0 8px 18px -6px rgba(2, 6, 23, 0.12);
+}
+
+/* ===== Khuôn dashboard admin: hàng thẻ KPI + nút outline danger ===== */
+.ac-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0 0 14px;
+}
+.ac-kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 15px;
+}
+.ac-kpi-l {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+.ac-kpi-l svg {
+  flex: none;
+}
+.ac-kpi-v {
+  font-size: 23px;
+  font-weight: 600;
+  margin-top: 3px;
+  line-height: 1.1;
+}
+/* Nút phá (outline đỏ) cho thao tác bảng — nhẹ hơn nút tô đặc */
+.btn-reject-ol {
+  appearance: none;
+  border-radius: 8px;
+  height: 30px;
+  padding: 0 11px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  background: #fff;
+  color: var(--err);
+  border: 1px solid #f2c7c4;
+  transition: background 0.15s ease;
+}
+.btn-reject-ol:hover {
+  background: var(--err-weak);
+}
+.btn-reject-ol:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* Ô mật khẩu + nút hiện/ẩn (tài khoản admin) */
+.ac-pw {
+  position: relative;
+}
+.ac-pw .field {
+  width: 100%;
+  padding-right: 38px;
+}
+.ac-pw-eye {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  padding: 4px;
+}
+.ac-pw-eye:hover {
+  color: var(--fg-2);
 }
 
 /* Bảng /tbp + /admin thoáng hơn (đỡ "thô"): nhiều padding, kẻ hàng nhạt, hover,

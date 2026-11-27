@@ -80,16 +80,6 @@ export default function BangCongAdmin({
     <>
       <PcHint />
       <AdminTabs tabs={DATA_TABS} />
-      <div className="ls-top" style={{ marginBottom: 10 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Icon name="sheet" size={20} /> Bảng công tháng
-          </h1>
-          <div className="muted">
-            Toàn công ty · bấm 1 ô ngày để sửa công (tính lại A/B/D).
-          </div>
-        </div>
-      </div>
 
       <div className="tbp-bar">
         <div className="bc-monthnav">

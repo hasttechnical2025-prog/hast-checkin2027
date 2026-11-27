@@ -5,6 +5,7 @@ import AdminTabs, { CONFIG_TABS } from '@/app/admin/_components/AdminTabs';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Icon } from '@/app/_components/icons';
 
 export interface ShiftRow {
   shift_type: string;
@@ -46,7 +47,7 @@ export default function ShiftAdmin({ initial }: { initial: ShiftRow[] }) {
   const router = useRouter();
   const [rows, setRows] = useState<ShiftRow[]>(initial.map((r) => ({ ...r })));
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const shiftTypes = [...new Set(rows.map((r) => r.shift_type))];
 
@@ -65,10 +66,10 @@ export default function ShiftAdmin({ initial }: { initial: ShiftRow[] }) {
       });
       const j = await res.json();
       if (!res.ok || j.error) {
-        setMsg('❌ ' + (j.error || 'Lỗi'));
+        setMsg({ ok: false, text: j.error || 'Lỗi' });
         return;
       }
-      setMsg('✅ Đã lưu cấu hình ca.');
+      setMsg({ ok: true, text: 'Đã lưu cấu hình ca.' });
       router.refresh();
     } finally {
       setBusy(false);
@@ -135,9 +136,13 @@ export default function ShiftAdmin({ initial }: { initial: ShiftRow[] }) {
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <button className="btn" disabled={busy} onClick={save}>
-          {busy ? 'Đang lưu…' : '💾 Lưu cấu hình'}
+          {busy ? 'Đang lưu…' : 'Lưu cấu hình'}
         </button>
-        {msg && <span className="muted">{msg}</span>}
+        {msg && (
+          <span className={`badge ${msg.ok ? 'badge-ok' : 'badge-no'}`}>
+            <Icon name={msg.ok ? 'check' : 'x'} size={13} /> {msg.text}
+          </span>
+        )}
       </div>
     </>
   );

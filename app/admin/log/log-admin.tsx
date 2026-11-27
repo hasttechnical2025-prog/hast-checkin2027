@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useConfirm } from '@/lib/confirm';
+import { Icon } from '@/app/_components/icons';
 
 export interface LogRow {
   id: string;
@@ -96,16 +97,18 @@ export default function LogAdmin({
       <PcHint />
       <AdminTabs tabs={DATA_TABS} />
       <div className="ls-nav">
-        <Link href={prevHref} className="ls-navbtn">
-          ‹
+        <Link href={prevHref} className="ls-navbtn" aria-label="Tháng trước">
+          <Icon name="chevLeft" size={18} />
         </Link>
         <div className="ls-month">Tháng {month}/{year}</div>
         {nextHref ? (
-          <Link href={nextHref} className="ls-navbtn">
-            ›
+          <Link href={nextHref} className="ls-navbtn" aria-label="Tháng sau">
+            <Icon name="chevRight" size={18} />
           </Link>
         ) : (
-          <span className="ls-navbtn disabled">›</span>
+          <span className="ls-navbtn disabled">
+            <Icon name="chevRight" size={18} />
+          </span>
         )}
       </div>
 
@@ -149,8 +152,8 @@ export default function LogAdmin({
                   <td style={{ textAlign: 'left', maxWidth: 160, whiteSpace: 'normal' }}>{r.note}</td>
                   <td>
                     {r.lat != null && r.lng != null ? (
-                      <a href={`https://www.google.com/maps?q=${r.lat},${r.lng}`} target="_blank" rel="noreferrer">
-                        🗺 Map
+                      <a href={`https://www.google.com/maps?q=${r.lat},${r.lng}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        <Icon name="pin" size={13} /> Map
                       </a>
                     ) : (
                       '—'

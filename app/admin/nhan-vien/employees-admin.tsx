@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import QrCode from '@/app/_components/QrCode';
 import DateField from '@/app/_components/DateField';
 import { useConfirm } from '@/lib/confirm';
+import { Icon } from '@/app/_components/icons';
 
 export interface Emp {
   id: number;
@@ -59,6 +60,10 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
     (e) => !q || e.name.toLowerCase().includes(q.toLowerCase()) || e.maNv.toLowerCase().includes(q.toLowerCase()),
   );
 
+  const kTong = initial.length;
+  const kLam = initial.filter((e) => e.status === 'Đang làm việc').length;
+  const kNghi = kTong - kLam;
+
   function origin() {
     return typeof window !== 'undefined' ? window.location.origin : '';
   }
@@ -94,7 +99,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
         });
         setForm(null);
         setResult({
-          title: `✅ Đã tạo ${j.ma_nv}`,
+          title: `Đã tạo ${j.ma_nv}`,
           lines: [`PIN: ${j.pin}  (báo cho nhân viên, chỉ hiện 1 lần)`, `Link: ${origin()}/c/${j.token}`],
         });
       } else {
@@ -126,9 +131,9 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
     if (!(await confirm({ message: `Cấp lại PIN cho ${e.name}?`, okText: 'Cấp lại' }))) return;
     try {
       const j = await post({ op: 'reset_pin', id: e.id });
-      setResult({ title: `🔑 PIN mới của ${e.maNv}`, lines: [`PIN: ${j.pin}  (báo cho nhân viên)`] });
+      setResult({ title: `PIN mới của ${e.maNv}`, lines: [`PIN: ${j.pin}  (báo cho nhân viên)`] });
     } catch (err) {
-      alert((err as Error).message);
+      setResult({ title: 'Có lỗi', lines: [(err as Error).message] });
     }
   }
 
@@ -137,9 +142,9 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
     try {
       await post({ op: 'revoke_token', id: e.id });
       router.refresh();
-      setResult({ title: `🔄 Đã cấp QR mới cho ${e.maNv}`, lines: ['QR cũ đã vô hiệu. Mở lại QR để in bản mới.'] });
+      setResult({ title: `Đã cấp QR mới cho ${e.maNv}`, lines: ['QR cũ đã vô hiệu. Mở lại QR để in bản mới.'] });
     } catch (err) {
-      alert((err as Error).message);
+      setResult({ title: 'Có lỗi', lines: [(err as Error).message] });
     }
   }
 
@@ -150,7 +155,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
       await post({ op: 'set_status', id: e.id, status: next });
       router.refresh();
     } catch (err) {
-      alert((err as Error).message);
+      setResult({ title: 'Có lỗi', lines: [(err as Error).message] });
     }
   }
 
@@ -218,11 +223,25 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
   return (
     <>
       <PcHint />
+      <div className="ac-kpis">
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="user" size={15} /> Tổng nhân viên</div>
+          <div className="ac-kpi-v">{kTong}</div>
+        </div>
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="check" size={15} /> Đang làm việc</div>
+          <div className="ac-kpi-v">{kLam}</div>
+        </div>
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="x" size={15} /> Đã nghỉ việc</div>
+          <div className="ac-kpi-v">{kNghi}</div>
+        </div>
+      </div>
       <div className="tbp-bar">
-        <input className="tbp-select" placeholder="🔎 Tìm tên / mã…" value={q} onChange={(e) => setQ(e.target.value)} style={{ minWidth: 180 }} />
+        <input className="tbp-select" placeholder="Tìm tên / mã…" value={q} onChange={(e) => setQ(e.target.value)} style={{ minWidth: 180 }} />
         <span className="muted">{shown.length} nhân viên</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-          <button className="btn-undo hide-mobile" onClick={printAll}>🖨 In tất cả QR</button>
+          <button className="btn-undo hide-mobile" onClick={printAll}><Icon name="printer" size={15} /> In tất cả QR</button>
           <button className="btn-approve" onClick={() => { setErr(null); setForm({ ...EMPTY }); }}>+ Thêm nhân viên</button>
         </div>
       </div>
@@ -346,7 +365,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
               <QrCode text={`${origin()}/c/${qrEmp.token}`} size={200} />
             </div>
             <div className="cc-dlg-btns">
-              <button className="btn" onClick={() => printOne(qrEmp)}>🖨 In QR</button>
+              <button className="btn" onClick={() => printOne(qrEmp)}><Icon name="printer" size={15} /> In QR</button>
               <button className="btn cc-btn-ghost" onClick={() => setQrEmp(null)}>Đóng</button>
             </div>
           </div>

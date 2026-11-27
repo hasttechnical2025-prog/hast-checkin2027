@@ -36,18 +36,5 @@ export default async function ThietBiPage() {
     // Chờ lên đầu
     .sort((a, b) => (a.status === 'Chờ' ? 0 : 1) - (b.status === 'Chờ' ? 0 : 1));
 
-  const pending = items.filter((i) => i.status === 'Chờ').length;
-
-  return (
-    <>
-      <h2 style={{ marginTop: 0 }}>
-        Thiết bị{pending > 0 ? <span className="badge badge-wait" style={{ marginLeft: 8 }}>{pending} chờ duyệt</span> : ''}
-      </h2>
-      <p className="muted" style={{ marginTop: -6 }}>
-        Duyệt thiết bị mới giúp chống chấm hộ: mỗi nhân viên chỉ 1 thiết bị hoạt động. Duyệt máy mới sẽ tự
-        vô hiệu máy cũ.
-      </p>
-      <DevicePanel items={items} />
-    </>
-  );
+  return <DevicePanel items={items} />;
 }

@@ -5,6 +5,7 @@ import AdminTabs, { CONFIG_TABS } from '@/app/admin/_components/AdminTabs';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Icon } from '@/app/_components/icons';
 
 const DEFAULT_PRINT = {
   fontName: 11,
@@ -26,7 +27,7 @@ export default function ConfigAdmin({
   const [c, setC] = useState<Record<string, string>>({ ...config });
   const [p, setP] = useState<Record<string, string | number>>({ ...DEFAULT_PRINT, ...printConfig });
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const set = (k: string, v: string) => setC((prev) => ({ ...prev, [k]: v }));
   const setP2 = (k: string, v: string | number) => setP((prev) => ({ ...prev, [k]: v }));
@@ -42,7 +43,7 @@ export default function ConfigAdmin({
         body: JSON.stringify({ config: c, printConfig: p }),
       });
       const j = await res.json();
-      setMsg(!res.ok || j.error ? '❌ ' + (j.error || 'Lỗi') : '✅ Đã lưu cấu hình.');
+      setMsg(!res.ok || j.error ? { ok: false, text: j.error || 'Lỗi' } : { ok: true, text: 'Đã lưu cấu hình.' });
       if (res.ok && !j.error) router.refresh();
     } finally {
       setBusy(false);
@@ -132,8 +133,12 @@ export default function ConfigAdmin({
       </div>
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <button className="btn" disabled={busy} onClick={save}>{busy ? 'Đang lưu…' : '💾 Lưu cấu hình'}</button>
-        {msg && <span className="muted">{msg}</span>}
+        <button className="btn" disabled={busy} onClick={save}>{busy ? 'Đang lưu…' : 'Lưu cấu hình'}</button>
+        {msg && (
+          <span className={`badge ${msg.ok ? 'badge-ok' : 'badge-no'}`}>
+            <Icon name={msg.ok ? 'check' : 'x'} size={13} /> {msg.text}
+          </span>
+        )}
       </div>
     </>
   );

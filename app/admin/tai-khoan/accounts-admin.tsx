@@ -5,6 +5,7 @@ import PcHint from '@/app/admin/_components/pc-hint';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useConfirm } from '@/lib/confirm';
+import { Icon } from '@/app/_components/icons';
 
 export interface Account {
   userId: string;
@@ -30,6 +31,18 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
   const [roleEdit, setRoleEdit] = useState<Account | null>(null);
   const [pwdEdit, setPwdEdit] = useState<Account | null>(null);
   const [pwd, setPwd] = useState('');
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showResetPw, setShowResetPw] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  function flash(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2600);
+  }
+
+  const kTong = accounts.length;
+  const kAdmin = accounts.filter((a) => a.role === 'admin').length;
+  const kTbp = accounts.filter((a) => a.role === 'TBP').length;
 
   async function post(body: Record<string, unknown>) {
     const res = await fetch('/api/admin/account', {
@@ -80,7 +93,7 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
       await post({ op: 'reset_password', userId: pwdEdit.userId, password: pwd });
       setPwdEdit(null);
       setPwd('');
-      alert('Đã đổi mật khẩu.');
+      flash('Đã đổi mật khẩu.');
     } catch (e) {
       setErr((e as Error).message);
     } finally {
@@ -94,15 +107,30 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
       await post({ op: 'delete', userId: a.userId });
       router.refresh();
     } catch (e) {
-      alert((e as Error).message);
+      flash((e as Error).message);
     }
   }
 
   return (
     <>
       <PcHint />
+      <div className="ac-kpis">
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="user" size={15} /> Tổng tài khoản</div>
+          <div className="ac-kpi-v">{kTong}</div>
+        </div>
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="lock" size={15} /> Admin</div>
+          <div className="ac-kpi-v">{kAdmin}</div>
+        </div>
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="checks" size={15} /> TBP</div>
+          <div className="ac-kpi-v">{kTbp}</div>
+        </div>
+      </div>
       <div className="tbp-bar">
         <span className="muted">{accounts.length} tài khoản</span>
+        {toast && <span className="badge badge-ok">{toast}</span>}
         <button className="btn-approve" style={{ marginLeft: 'auto' }} onClick={() => { setErr(null); setCreateOpen(true); }}>
           + Thêm tài khoản
         </button>
@@ -125,7 +153,7 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
                 <td style={{ textAlign: 'left' }}>{a.email}</td>
                 <td>{a.role || <span className="muted">(chưa gán)</span>}</td>
                 <td>{a.department || '—'}</td>
-                <td>{a.viewAll ? '✅' : '—'}</td>
+                <td>{a.viewAll ? <span className="badge badge-ok"><Icon name="check" size={13} /> Có</span> : <span className="muted">—</span>}</td>
                 <td className="tbp-act" style={{ flexWrap: 'wrap' }}>
                   <button className="btn-undo" onClick={() => setRoleEdit({ ...a, role: a.role || 'TBP' })}>Vai</button>
                   <button className="btn-undo" onClick={() => { setPwd(''); setPwdEdit(a); }}>Mật khẩu</button>
@@ -143,7 +171,12 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
             <h3 style={{ marginTop: 0 }}>Thêm tài khoản TBP/Admin</h3>
             <label>Email<input className="field" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
             <label style={{ display: 'block', marginTop: 8 }}>Mật khẩu (≥6 ký tự)
-              <input className="field" type="text" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <div className="ac-pw">
+                <input className="field" type={showNewPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} />
+                <button type="button" className="ac-pw-eye" onClick={() => setShowNewPw((v) => !v)} aria-label={showNewPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}>
+                  <Icon name={showNewPw ? 'eyeOff' : 'eye'} size={16} />
+                </button>
+              </div>
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 8 }}>
               <label>Vai
@@ -211,7 +244,12 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
           <div className="cc-dlg" style={{ textAlign: 'left', maxWidth: 360 }} onClick={(e) => e.stopPropagation()}>
             <h3 style={{ marginTop: 0 }}>Đổi mật khẩu</h3>
             <p className="muted" style={{ marginTop: -4 }}>{pwdEdit.email}</p>
-            <input className="field" type="text" placeholder="Mật khẩu mới (≥6)" value={pwd} onChange={(e) => setPwd(e.target.value)} />
+            <div className="ac-pw">
+              <input className="field" type={showResetPw ? 'text' : 'password'} placeholder="Mật khẩu mới (≥6)" value={pwd} onChange={(e) => setPwd(e.target.value)} />
+              <button type="button" className="ac-pw-eye" onClick={() => setShowResetPw((v) => !v)} aria-label={showResetPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}>
+                <Icon name={showResetPw ? 'eyeOff' : 'eye'} size={16} />
+              </button>
+            </div>
             {err && <p className="err">{err}</p>}
             <div className="cc-dlg-btns">
               <button className="btn" disabled={busy} onClick={savePwd}>Đổi</button>

@@ -4,6 +4,7 @@ import PcHint from '@/app/admin/_components/pc-hint';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Icon } from '@/app/_components/icons';
 
 export interface GuideItem {
   id: string;
@@ -15,7 +16,7 @@ export default function GuideAdmin({ initial }: { initial: GuideItem[] }) {
   const router = useRouter();
   const [items, setItems] = useState<GuideItem[]>(initial.map((i) => ({ ...i })));
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   function set(id: string, field: 'title' | 'content', val: string) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, [field]: val } : i)));
@@ -31,7 +32,7 @@ export default function GuideAdmin({ initial }: { initial: GuideItem[] }) {
         body: JSON.stringify({ items }),
       });
       const j = await res.json();
-      setMsg(!res.ok || j.error ? '❌ ' + (j.error || 'Lỗi') : '✅ Đã lưu hướng dẫn.');
+      setMsg(!res.ok || j.error ? { ok: false, text: j.error || 'Lỗi' } : { ok: true, text: 'Đã lưu hướng dẫn.' });
       if (res.ok && !j.error) router.refresh();
     } finally {
       setBusy(false);
@@ -41,7 +42,6 @@ export default function GuideAdmin({ initial }: { initial: GuideItem[] }) {
   return (
     <>
       <PcHint />
-      <p className="muted">Nội dung 4 trang hướng dẫn hiển thị trong sheet Cài đặt của CBNV.</p>
       {items.map((it, idx) => (
         <div className="card" key={it.id} style={{ marginBottom: 12 }}>
           <label style={{ color: 'var(--muted)', fontWeight: 600 }}>Trang {idx + 1} ({it.id}) — Tiêu đề</label>
@@ -51,8 +51,12 @@ export default function GuideAdmin({ initial }: { initial: GuideItem[] }) {
         </div>
       ))}
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <button className="btn" disabled={busy} onClick={save}>{busy ? 'Đang lưu…' : '💾 Lưu hướng dẫn'}</button>
-        {msg && <span className="muted">{msg}</span>}
+        <button className="btn" disabled={busy} onClick={save}>{busy ? 'Đang lưu…' : 'Lưu hướng dẫn'}</button>
+        {msg && (
+          <span className={`badge ${msg.ok ? 'badge-ok' : 'badge-no'}`}>
+            <Icon name={msg.ok ? 'check' : 'x'} size={13} /> {msg.text}
+          </span>
+        )}
       </div>
     </>
   );

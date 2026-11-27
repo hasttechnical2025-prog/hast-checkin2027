@@ -59,8 +59,28 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
     if (ok) await act(it.id, 'reject');
   }
 
+  const kCho = items.filter((i) => i.status === 'Chờ').length;
+  const kDung = items.filter((i) => i.active).length;
+  const kTuChoi = items.filter((i) => i.status === 'Từ chối').length;
+
   return (
-    <div className="ls-table-wrap">
+    <>
+      <div className="ac-kpis">
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="clock" size={15} /> Chờ duyệt</div>
+          <div className="ac-kpi-v">{kCho}</div>
+        </div>
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="check" size={15} /> Đang dùng</div>
+          <div className="ac-kpi-v">{kDung}</div>
+        </div>
+        <div className="ac-kpi">
+          <div className="ac-kpi-l"><Icon name="x" size={15} /> Đã từ chối</div>
+          <div className="ac-kpi-v">{kTuChoi}</div>
+        </div>
+      </div>
+
+      <div className="ls-table-wrap">
       {items.length === 0 ? (
         <p className="muted" style={{ textAlign: 'center', padding: 20 }}>
           Chưa có thiết bị nào.
@@ -115,17 +135,17 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
                       <button className="btn-approve" disabled={busy === i.id} onClick={() => act(i.id, 'approve')}>
                         <Icon name="check" size={15} /> Duyệt
                       </button>
-                      <button className="btn-reject" disabled={busy === i.id} onClick={() => reject(i)}>
+                      <button className="btn-reject-ol" disabled={busy === i.id} onClick={() => reject(i)}>
                         <Icon name="x" size={15} /> Từ chối
                       </button>
                     </>
                   ) : i.status === 'Từ chối' ? (
-                    <button className="btn-approve" disabled={busy === i.id} onClick={() => act(i.id, 'approve')}>
+                    <button className="btn-undo" disabled={busy === i.id} onClick={() => act(i.id, 'approve')}>
                       <Icon name="undoBack" size={14} /> Duyệt lại
                     </button>
                   ) : (
-                    <button className="btn-undo" disabled={busy === i.id} onClick={() => reject(i)}>
-                      Thu hồi
+                    <button className="btn-reject-ol" disabled={busy === i.id} onClick={() => reject(i)}>
+                      <Icon name="undoBack" size={14} /> Thu hồi
                     </button>
                   )}
                 </td>
@@ -134,6 +154,7 @@ export default function DevicePanel({ items }: { items: DeviceItem[] }) {
           </tbody>
         </table>
       )}
-    </div>
+      </div>
+    </>
   );
 }
