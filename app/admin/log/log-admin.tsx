@@ -163,7 +163,7 @@ export default function LogAdmin({
                     <button className="btn-undo" disabled={busy === r.id} onClick={() => { setEdit(r); setNote(r.note); }}>
                       Sửa
                     </button>
-                    <button className="btn-reject" disabled={busy === r.id} onClick={() => del(r.id)}>
+                    <button className="btn-reject-ol" disabled={busy === r.id} onClick={() => del(r.id)}>
                       Xóa
                     </button>
                   </td>

@@ -28,11 +28,8 @@ const GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { href: '/admin/cau-hinh', label: 'Cấu hình', icon: 'settings', match: ['/admin/cau-hinh', '/admin/ca', '/admin/ngay-le'] },
       { href: '/admin/huong-dan', label: 'Hướng dẫn CBNV', icon: 'info' },
+      { href: '/admin/tai-khoan', label: 'Tài khoản & quyền', icon: 'lock' },
     ],
-  },
-  {
-    label: 'Hệ thống',
-    items: [{ href: '/admin/tai-khoan', label: 'Tài khoản & quyền', icon: 'lock' }],
   },
 ];
 

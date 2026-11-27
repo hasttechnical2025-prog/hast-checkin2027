@@ -1687,6 +1687,13 @@ textarea.cc-note {
   gap: 4px;
   vertical-align: middle;
 }
+/* Pill bo tròn CHỈ cho /tbp + /admin (không đụng màn CBNV /c) */
+.tbp-page .badge,
+.admin-content .badge {
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-weight: 600;
+}
 
 /* Bảng Giải trình full-width: cột Lý do rộng, XUỐNG DÒNG, không cắt */
 .gt-table { table-layout: fixed; }
@@ -1944,15 +1951,16 @@ textarea.cc-note {
   gap: 2px;
 }
 .admin-side-group + .admin-side-group {
-  margin-top: 10px;
+  margin-top: 18px;
 }
+/* Nhãn nhóm = tiêu đề mảnh, nhạt, giãn chữ -> KHÁC hẳn mục (có icon, chữ to) */
 .admin-side-grouplabel {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted);
-  padding: 4px 10px 2px;
+  color: var(--border-strong);
+  padding: 2px 10px 5px;
 }
 /* Khu khác (Duyệt/NSCL — giao diện riêng, mở tab mới): tách bằng đường kẻ */
 .admin-side-other {
@@ -2548,11 +2556,16 @@ table.nscl-grid {
 .ac-kpi-l {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--muted);
 }
 .ac-kpi-l svg {
   flex: none;
+  box-sizing: content-box;
+  padding: 5px;
+  background: var(--accent-weak);
+  color: var(--accent);
+  border-radius: 50%;
 }
 .ac-kpi-v {
   font-size: 23px;
@@ -2583,6 +2596,32 @@ table.nscl-grid {
   background: var(--err-weak);
 }
 .btn-reject-ol:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* Nút chính (accent xanh) cỡ gọn cho toolbar — thay nút "+ Thêm" màu xanh lá */
+.btn-pri {
+  appearance: none;
+  border: none;
+  border-radius: 8px;
+  height: 30px;
+  padding: 0 13px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  background: var(--accent);
+  color: #fff;
+  transition: background 0.15s ease;
+}
+.btn-pri:hover {
+  background: var(--accent-hover);
+}
+.btn-pri:disabled {
   opacity: 0.5;
   pointer-events: none;
 }

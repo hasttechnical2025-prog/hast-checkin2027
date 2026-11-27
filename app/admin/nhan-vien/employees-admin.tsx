@@ -54,6 +54,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [qrEmp, setQrEmp] = useState<Emp | null>(null);
+  const [actionEmp, setActionEmp] = useState<Emp | null>(null);
   const [result, setResult] = useState<{ title: string; lines: string[] } | null>(null);
 
   const shown = initial.filter(
@@ -242,7 +243,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
         <span className="muted">{shown.length} nhân viên</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
           <button className="btn-undo hide-mobile" onClick={printAll}><Icon name="printer" size={15} /> In tất cả QR</button>
-          <button className="btn-approve" onClick={() => { setErr(null); setForm({ ...EMPTY }); }}>+ Thêm nhân viên</button>
+          <button className="btn-pri" onClick={() => { setErr(null); setForm({ ...EMPTY }); }}>+ Thêm nhân viên</button>
         </div>
       </div>
 
@@ -265,7 +266,7 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
                 <td data-label="Mã">{e.maNv}</td>
                 <td className="m-cards-name" data-label="Họ tên" style={{ textAlign: 'left' }}>
                   {e.name}
-                  {e.mienChamCong && <span className="muted"> · miễn chấm</span>}
+                  {e.mienChamCong && <span className="badge badge-wait" style={{ marginLeft: 6 }}>miễn chấm</span>}
                 </td>
                 <td data-label="Phòng" style={{ textAlign: 'left' }}>{e.department}</td>
                 <td data-label="Vai">{e.role}</td>
@@ -279,11 +280,10 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
                 </td>
                 <td className="tbp-act" style={{ flexWrap: 'wrap' }}>
                   <button className="btn-undo" onClick={() => openEdit(e)}>Sửa</button>
-                  <button className="btn-ghost" onClick={() => setQrEmp(e)}>QR</button>
-                  <button className="btn-ghost" onClick={() => resetPin(e)}>PIN</button>
-                  <button className="btn-ghost" onClick={() => revokeToken(e)}>Token</button>
+                  <button className="btn-undo" onClick={() => setQrEmp(e)}>QR</button>
+                  <button className="btn-undo" onClick={() => setActionEmp(e)} aria-label="Thêm thao tác" title="PIN / Token">⋯</button>
                   <button
-                    className={e.status === 'Đang làm việc' ? 'btn-danger' : 'btn-ghost'}
+                    className={e.status === 'Đang làm việc' ? 'btn-reject-ol' : 'btn-undo'}
                     onClick={() => toggleStatus(e)}
                   >
                     {e.status === 'Đang làm việc' ? 'Nghỉ việc' : 'Kích hoạt'}
@@ -350,6 +350,27 @@ export default function EmployeesAdmin({ initial, departments }: { initial: Emp[
             <div className="cc-dlg-btns">
               <button className="btn" disabled={busy} onClick={submit}>{busy ? 'Đang lưu…' : 'Lưu'}</button>
               <button className="btn cc-btn-ghost" disabled={busy} onClick={() => setForm(null)}>Hủy</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Menu thao tác phụ (PIN/Token) */}
+      {actionEmp && (
+        <div className="cc-dlg-overlay" onClick={() => setActionEmp(null)}>
+          <div className="cc-dlg" style={{ textAlign: 'left', maxWidth: 320 }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0 }}>{actionEmp.name}</h3>
+            <p className="muted" style={{ marginTop: -4 }}>{actionEmp.maNv} · {actionEmp.department}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
+              <button className="btn-undo" onClick={() => { const t = actionEmp; setActionEmp(null); resetPin(t); }}>
+                <Icon name="refresh" size={15} /> Cấp lại PIN
+              </button>
+              <button className="btn-undo" onClick={() => { const t = actionEmp; setActionEmp(null); revokeToken(t); }}>
+                <Icon name="refresh" size={15} /> Cấp QR mới (thu hồi token)
+              </button>
+            </div>
+            <div className="cc-dlg-btns">
+              <button className="btn cc-btn-ghost" onClick={() => setActionEmp(null)}>Đóng</button>
             </div>
           </div>
         </div>

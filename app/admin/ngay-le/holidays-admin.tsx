@@ -99,7 +99,7 @@ export default function HolidaysAdmin({ initial }: { initial: Holiday[] }) {
                   <td>{dmy(h.date)}</td>
                   <td style={{ textAlign: 'left' }}>{h.description}</td>
                   <td>
-                    <button className="btn-reject" onClick={() => del(h.date)}>Xóa</button>
+                    <button className="btn-reject-ol" onClick={() => del(h.date)}>Xóa</button>
                   </td>
                 </tr>
               ))}

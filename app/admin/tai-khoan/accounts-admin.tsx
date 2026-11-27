@@ -131,7 +131,7 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
       <div className="tbp-bar">
         <span className="muted">{accounts.length} tài khoản</span>
         {toast && <span className="badge badge-ok">{toast}</span>}
-        <button className="btn-approve" style={{ marginLeft: 'auto' }} onClick={() => { setErr(null); setCreateOpen(true); }}>
+        <button className="btn-pri" style={{ marginLeft: 'auto' }} onClick={() => { setErr(null); setCreateOpen(true); }}>
           + Thêm tài khoản
         </button>
       </div>
@@ -157,7 +157,7 @@ export default function AccountsAdmin({ accounts, departments }: { accounts: Acc
                 <td className="tbp-act" style={{ flexWrap: 'wrap' }}>
                   <button className="btn-undo" onClick={() => setRoleEdit({ ...a, role: a.role || 'TBP' })}>Vai</button>
                   <button className="btn-undo" onClick={() => { setPwd(''); setPwdEdit(a); }}>Mật khẩu</button>
-                  <button className="btn-reject" onClick={() => del(a)}>Xóa</button>
+                  <button className="btn-reject-ol" onClick={() => del(a)}>Xóa</button>
                 </td>
               </tr>
             ))}
