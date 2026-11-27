@@ -67,11 +67,21 @@ export default function TbpGiaiTrinh({
           <span className="badge badge-ok"><Icon name="check" size={13} /> Đồng ý {approved}</span>
           <span className="badge badge-no"><Icon name="x" size={13} /> Từ chối {rejected}</span>
         </div>
-        <div className={`tbp-batch${canBatch ? '' : ' tbp-batch-off'}`}>
-          <button className="btn-approve" disabled={busy} onClick={() => openBatch('Đồng ý')}>
+        <div className="tbp-batch">
+          <button
+            className="btn-approve"
+            disabled={busy || !canBatch}
+            title={canBatch ? undefined : 'Chưa có giải trình (đã gửi lý do) để duyệt'}
+            onClick={() => openBatch('Đồng ý')}
+          >
             <Icon name="checks" size={15} /> Đồng ý tất cả
           </button>
-          <button className="btn-reject" disabled={busy} onClick={() => openBatch('Từ chối')}>
+          <button
+            className="btn-reject"
+            disabled={busy || !canBatch}
+            title={canBatch ? undefined : 'Chưa có giải trình (đã gửi lý do) để từ chối'}
+            onClick={() => openBatch('Từ chối')}
+          >
             <Icon name="x" size={15} /> Từ chối tất cả
           </button>
         </div>

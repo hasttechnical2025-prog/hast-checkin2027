@@ -1384,7 +1384,7 @@ textarea.cc-note {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #e2e8f0; /* bằng canvas -> header hòa vào nền (đục để che hàng cuộn dưới) */
+  background: #e9f3f2; /* bằng canvas -> header hòa vào nền (đục để che hàng cuộn dưới) */
   display: flow-root; /* chứa margin con -> đo chiều cao chính xác */
 }
 .tbp-tabs {
@@ -1841,9 +1841,6 @@ textarea.cc-note {
     background: var(--surface);
     border-top: 1px solid var(--border);
     box-shadow: 0 -4px 16px rgba(14, 23, 38, 0.08);
-  }
-  .tbp-batch.tbp-batch-off {
-    display: none;
   }
   .tbp-batch .btn-approve,
   .tbp-batch .btn-reject {
@@ -2528,7 +2525,7 @@ table.nscl-grid {
    KHÔNG đụng body chung -> màn CBNV /c giữ nguyên. */
 .tbp-page,
 .admin-shell {
-  background: #e2e8f0; /* slate-200 — nền app (canvas) */
+  background: #e9f3f2; /* teal nhạt — nền app (canvas): có màu, ấm mắt, không lẫn trạng thái */
 }
 
 /* Đổ bóng + viền bề mặt (khớp Sổ Công tác) -> bảng/thẻ nổi trên nền, hết "trùng màu" */
