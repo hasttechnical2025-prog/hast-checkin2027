@@ -95,24 +95,24 @@ export default function LogAdmin({
   return (
     <>
       <PcHint />
-      <AdminTabs tabs={DATA_TABS} />
-      <div className="ls-nav">
-        <Link href={prevHref} className="ls-navbtn" aria-label="Tháng trước">
-          <Icon name="chevLeft" size={18} />
-        </Link>
-        <div className="ls-month">Tháng {month}/{year}</div>
-        {nextHref ? (
-          <Link href={nextHref} className="ls-navbtn" aria-label="Tháng sau">
-            <Icon name="chevRight" size={18} />
-          </Link>
-        ) : (
-          <span className="ls-navbtn disabled">
-            <Icon name="chevRight" size={18} />
-          </span>
-        )}
-      </div>
+      <AdminTabs tabs={DATA_TABS} suffix={`?m=${year}-${pad(month)}`} />
 
       <div className="tbp-bar">
+        <div className="bc-monthnav">
+          <Link href={prevHref} className="ls-navbtn" aria-label="Tháng trước">
+            <Icon name="chevLeft" size={16} />
+          </Link>
+          <span className="bc-month">Tháng {month}/{year}</span>
+          {nextHref ? (
+            <Link href={nextHref} className="ls-navbtn" aria-label="Tháng sau">
+              <Icon name="chevRight" size={16} />
+            </Link>
+          ) : (
+            <span className="ls-navbtn disabled">
+              <Icon name="chevRight" size={16} />
+            </span>
+          )}
+        </div>
         <select className="tbp-select" value={selEmp} onChange={(e) => onEmp(e.target.value)}>
           <option value="">Tất cả nhân viên</option>
           {names.map((n) => (

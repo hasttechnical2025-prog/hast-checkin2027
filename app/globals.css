@@ -2357,8 +2357,8 @@ table.nscl-grid {
   color: var(--err-hover);
 }
 .bc-absent {
-  background: var(--err);
-  color: #fff;
+  background: #f7e8e9; /* hồng rất nhạt thay cho đỏ đặc -> hết "tường đỏ" */
+  color: var(--err);
 }
 .bc-leave {
   background: var(--accent-weak);

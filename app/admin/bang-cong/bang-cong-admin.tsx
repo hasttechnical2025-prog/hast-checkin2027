@@ -79,7 +79,7 @@ export default function BangCongAdmin({
   return (
     <>
       <PcHint />
-      <AdminTabs tabs={DATA_TABS} />
+      <AdminTabs tabs={DATA_TABS} suffix={`?m=${matrix.year}-${String(matrix.month).padStart(2, '0')}`} />
 
       <div className="tbp-bar">
         <div className="bc-monthnav">

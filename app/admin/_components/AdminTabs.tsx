@@ -20,14 +20,14 @@ export const CONFIG_TABS: AdminTab[] = [
   { href: '/admin/ngay-le', label: 'Ngày lễ' },
 ];
 
-export default function AdminTabs({ tabs }: { tabs: AdminTab[] }) {
+export default function AdminTabs({ tabs, suffix = '' }: { tabs: AdminTab[]; suffix?: string }) {
   const path = usePathname();
   return (
     <div className="admin-subtabs" role="tablist">
       {tabs.map((t) => (
         <Link
           key={t.href}
-          href={t.href}
+          href={`${t.href}${suffix}`}
           className={`admin-subtab${path === t.href ? ' active' : ''}`}
           aria-current={path === t.href ? 'page' : undefined}
         >
